@@ -9,3 +9,6 @@
 - Dokumentasi perakitan, instalasi, flash, penggunaan pertama, keamanan, dan troubleshooting.
 
 **Status:** integrasi source; belum ada klaim firmware berhasil build/flash pada hardware pengguna.
+
+- Added a Windows WSL2 local-build fallback for environments with GitHub Actions runner allocation failures.
+- Added pre-runner CI failure evidence and a diagnostic workflow for support escalation.

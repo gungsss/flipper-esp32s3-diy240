@@ -56,6 +56,13 @@ Repositori integrasi: [gungsss/flipper-esp32s3-diy240](https://github.com/gungss
 
 Setelah file proyek diterbitkan dalam GitHub repo, buka **Actions → Build DIY ESP32-S3 N16R8 → Run workflow**. Jika build **sukses**, unduh artifact `flipper-diy-s3-n16r8-st7789-240`, lalu gunakan `flash_windows.ps1` di Windows atau `flash_macos_linux.sh` di Linux/macOS. Prosedur lengkap: [FLASH.md](docs/FLASH.md). Artifact dari workflow yang *gagal* tidak boleh dianggap siap flash.
 
+
+### Status build otomatis dan jalur alternatif Windows
+
+GitHub Actions masih terhenti **sebelum runner dialokasikan**, termasuk pada [tes minimal](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43883153060). Artinya firmware belum pernah dikompilasi oleh Actions. Lihat [diagnostik CI](docs/CI_RUNNER_DIAGNOSTICS.md) dan [issue pelacakan #1](https://github.com/gungsss/flipper-esp32s3-diy240/issues/1).
+
+Jika tidak ingin bergantung pada runner GitHub, pengguna Windows dapat mencoba [build melalui WSL2 Ubuntu](docs/BUILD_WINDOWS_WSL.md), lalu flash hasilnya menggunakan PowerShell Windows. **Alur ini belum tervalidasi pada hardware**.
+
 ## Wiring singkat
 
 ```mermaid

@@ -30,3 +30,10 @@ Proyek ini secara sengaja tidak menyertakan firmware `.bin` yang tidak pernah di
 - Hasil run pertama: **failure**. GitHub API menunjukkan durasi total sekitar 3 detik, waktu komputasi ditagih 0 ms, serta **0 langkah job tercatat** dan tidak ada log job yang dapat diunduh. Karena itu, **penyebabnya belum dapat dipastikan**, dan hasil ini **bukan bukti bahwa kompilasi source gagal**. Periksa tampilan workflow di browser (pesan runner, kebijakan Actions, billing, atau izin) sebelum mengubah source.
 - **Percobaan ulang (attempt 2) juga failure.** Pada attempt 2, GitHub kembali mencatat **0 langkah job**, tanpa runner terpasang. Periksa pesan pada halaman Actions untuk mengetahui apakah ada kendala konfigurasi runner, kebijakan repo, atau status layanan; bukti yang tersedia belum cukup menetapkan penyebab.
 - **Belum ada file firmware .bin yang diverifikasi dari Actions. Jangan melakukan flashing dari paket yang belum dihasilkan.**
+
+## Diagnostik tambahan
+
+- Pada 16 November 2026, workflow minimal `Diagnostic - Runner availability` ([run](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43883153060)) juga **failure sebelum runner dan sebelum langkah pertama**. Job ID 133354094130; `runner_name` kosong; `steps=[]`.
+- Kesimpulan yang didukung: kegagalan GitHub Actions saat ini **pre-runner**, bukan error compiler. Penyebab spesifik (billing, kebijakan atau provisioning) menunggu teks GitHub Annotations.
+- Script build alternatif [Windows WSL2](BUILD_WINDOWS_WSL.md) disiapkan; tidak bisa dinyatakan lulus build atau flash tanpa menjalankannya pada mesin yang memiliki ESP-IDF dan hardware.
+- Pemilik akun dapat mengikuti [diagnostik CI](CI_RUNNER_DIAGNOSTICS.md) dan [issue #1](https://github.com/gungsss/flipper-esp32s3-diy240/issues/1).

@@ -68,4 +68,6 @@ Perintah manual **tidak otomatis memeriksa checksum**. Offset di atas berlaku kh
 
 Untuk **build** (bukan sekadar flash), kode integrasi saat ini masih menggunakan script **Bash**, sehingga metode praktis Windows adalah WSL2 Ubuntu untuk build, **lalu flash dari PowerShell Windows**. Instal ESP-IDF **v5.4.1** di WSL sesuai [panduan resmi Espressif](https://docs.espressif.com/projects/esp-idf/en/v5.4.1/esp32s3/get-started/linux-macos-setup.html), gunakan instalasi terpisah karena upstream memodifikasi library Wi-Fi IDF, jalankan `./scripts/build_local.sh`, kemudian kemas output dengan `scripts/package_artifacts.py` dan gunakan script flashing Windows. **Alur build via WSL ini belum divalidasi end-to-end**.
 
-Untuk jalur flash dan pemulihan pada Linux/macOS juga, baca [FLASH.md](FLASH.md).
+Untuk mencoba build di Windows ketika GitHub Actions belum dapat menjalankan runner, ikuti **[panduan langkah demi langkah WSL2](BUILD_WINDOWS_WSL.md)**. Alur build ini belum diuji end-to-end.
+
+Analisis kegagalan CI: [CI_RUNNER_DIAGNOSTICS.md](CI_RUNNER_DIAGNOSTICS.md). Untuk jalur flash dan pemulihan pada Linux/macOS juga, baca [FLASH.md](FLASH.md).
