@@ -1,0 +1,37 @@
+# ESP32-S3 N16R8 + ST7789 240x240 / 7-pin no CS + microSD on SPI3 + 6 buttons
+# Pinned upstream source: Sor3nt/Flipper-Zero-ESP32-Port e6ec11972a8e025d7ab686a6ef3016cf52360834
+# -1 indicates absent peripheral; LCD backlight GPIO7 provisioned, see README
+# SPI2: LCD only (no CS)
+SPI_SCK=12
+SPI_MOSI=11
+SPI_MISO=13
+# SPI3: SD only (isolated from LCD)
+SD_SCK=40
+SD_MOSI=39
+SD_MISO=38
+# Display
+LCD_CS=-1
+LCD_DC=15
+LCD_RST=16
+LCD_BL=7
+# microSD card module
+SD_CS=14
+# Not installed yet
+CC1101_CS=-1
+CC1101_GDO0=-1
+CC1101_GDO2=-1
+NRF24_CS=-1
+NRF24_CE=-1
+NFC_SDA=-1
+NFC_SCL=-1
+NFC_IRQ=-1
+NFC_RST=-1
+IR_TX=-1
+IR_RX=-1
+# Buttons: active-low, COM to GND. Avoid GPIO0 boot strapping.
+BTN_UP=4
+BTN_DOWN=5
+BTN_LEFT=6
+BTN_RIGHT=17
+BTN_OK=8
+BTN_BACK=18

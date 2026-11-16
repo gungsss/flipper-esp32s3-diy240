@@ -1,0 +1,50 @@
+name: Build DIY ESP32-S3 N16R8
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'patch/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - '.github/workflows/build.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    name: ESP-IDF v5.4.1 / ST7789 240 / SD SPI3
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout DIY integration repository
+        uses: actions/checkout@v4
+      - name: Validate source patch locally
+        run: python3 -m unittest discover -s tests -v
+      - name: Install toolchain host dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0 libglib2.0-dev
+      - name: Fetch pinned ESP-IDF 5.4.1
+        run: |
+          mkdir -p "$HOME/esp"
+          git clone --recursive --depth 1 --branch v5.4.1 https://github.com/espressif/esp-idf.git "$HOME/esp/esp-idf"
+          "$HOME/esp/esp-idf/install.sh" esp32s3
+      - name: Fetch pinned Sor3nt source
+        run: bash scripts/fetch_upstream.sh
+      - name: Apply DIY hardware changes
+        run: python3 patch/patch_flipper.py .work/upstream
+      - name: Build firmware (not flash)
+        run: |
+          source "$HOME/esp/esp-idf/export.sh"
+          cd .work/upstream
+          ./build_diy.sh --build-only
+      - name: Package firmware with verified flash offsets
+        run: |
+          python3 scripts/package_artifacts.py --source .work/upstream --output dist/firmware
+      - name: Upload flash bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: flipper-diy-s3-n16r8-st7789-240
+          path: dist/firmware/
+          if-no-files-found: error
+          retention-days: 30
