@@ -10,7 +10,7 @@ permissions:
 jobs:
   runner_test:
     name: GitHub-hosted runner smoke test (no checkout)
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
       - name: Print runner identity
