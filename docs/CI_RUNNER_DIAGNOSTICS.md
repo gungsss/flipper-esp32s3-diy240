@@ -1,4 +1,6 @@
-# Diagnostik GitHub Actions — job gagal sebelum mendapatkan runner
+# Diagnostik GitHub Actions — gangguan runner (SUDAH SELESAI)
+
+> **Resolved pada 16 November 2026.** GitHub Actions sebelumnya diblokir karena verifikasi billing akun. Setelah masalah tersebut selesai, workflow diagnostik rerun berhasil dan [build firmware run #43889135916](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43889135916) sukses. Rincian di bawah adalah **riwayat gangguan**, bukan status terkini.
 
 ## Yang benar-benar diketahui (16 November 2026)
 

@@ -3,8 +3,8 @@
 **Adaptasi hardware untuk ESP32-S3 N16R8, ST7789 240×240 7-pin, microSD SPI3, dan keypad 6 tombol.**
 
 > [!IMPORTANT]
-> **Status: source integration / build candidate, belum tervalidasi di perangkat fisik.**
-> Tidak ada firmware `.bin` yang dianggap lulus pengujian sebelum workflow build berhasil dan hardware diuji. Firmware ini berbasis kode [Sor3nt/Flipper-Zero-ESP32-Port](https://github.com/Sor3nt/Flipper-Zero-ESP32-Port) pada commit tetap `e6ec11972a8e025d7ab686a6ef3016cf52360834` (14 November 2026). Versi firmware upstream dalam source: `2.0.0`.
+> **Status: firmware berhasil dibangun dan diverifikasi melalui GitHub Actions; belum diuji pada ESP32-S3 fisik.**
+> Paket firmware untuk flashing pertama telah dihasilkan dengan empat image, checksum SHA256 dan offset yang telah diverifikasi. Keberhasilan flashing dan fungsi modul tetap harus diuji di board fisik. Firmware ini berbasis kode [Sor3nt/Flipper-Zero-ESP32-Port](https://github.com/Sor3nt/Flipper-Zero-ESP32-Port) pada commit tetap `e6ec11972a8e025d7ab686a6ef3016cf52360834` (14 November 2026). Versi firmware upstream dalam source: `2.0.0`.
 
 Proyek ini adalah **repositori integrasi/patch**, bukan salinan penuh source upstream. Saat build, script mengambil source tepat pada commit di atas, menerapkan perubahan yang dapat direproduksi, lalu menghasilkan image untuk di-flash menggunakan ESP-IDF. Dengan cara ini, asal source tetap jelas dan repo ini tidak menyimpan ulang ribuan file/binary aplikasi pihak ketiga.
 
@@ -35,7 +35,7 @@ Proyek ini adalah **repositori integrasi/patch**, bukan salinan penuh source ups
 
 Jika GitHub Actions sudah berhasil menghasilkan firmware untuk DIY240, pengguna Windows cukup memasang Python dan `esptool`, lalu flash memakai `flash_windows.ps1` dari artifact. **Tidak perlu Mac atau instalasi ESP-IDF.** [Ikuti panduan Windows lengkap](docs/INSTALL_WINDOWS.md).
 
-> **Saat ini build CI belum berhasil** (job gagal sebelum runner mulai). Jangan mengunduh atau flash `.bin` yang tidak terverifikasi. Lihat [catatan pengujian](docs/TEST_REPORT.md).
+> **Build firmware sudah berhasil:** [GitHub Actions — verified DIY240 firmware](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43889135916). Gunakan artifact dari run ini atau build lebih baru yang sukses, bukan ZIP awal yang belum menyertakan OTA initializer. [Catatan pengujian](docs/TEST_REPORT.md).
 
 ## Build lokal untuk developer (macOS)
 
@@ -54,12 +54,12 @@ Repositori integrasi: [gungsss/flipper-esp32s3-diy240](https://github.com/gungss
 
 ### Build otomatis dari GitHub Actions
 
-Setelah file proyek diterbitkan dalam GitHub repo, buka **Actions → Build DIY ESP32-S3 N16R8 → Run workflow**. Jika build **sukses**, unduh artifact `flipper-diy-s3-n16r8-st7789-240`, lalu gunakan `flash_windows.ps1` di Windows atau `flash_macos_linux.sh` di Linux/macOS. Prosedur lengkap: [FLASH.md](docs/FLASH.md). Artifact dari workflow yang *gagal* tidak boleh dianggap siap flash.
+Unduh artifact `flipper-diy-s3-n16r8-st7789-240` dari [build sukses](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43889135916). ZIP berisi `furi_esp32.bin`, bootloader, tabel partisi, `ota_data_initial.bin`, `BUILD_INFO.json`, `flash_windows.ps1` dan `flash_macos_linux.sh`. Di Windows gunakan `flash_windows.ps1` dari PowerShell; Linux/macOS gunakan `flash_macos_linux.sh`. Prosedur lengkap: [FLASH.md](docs/FLASH.md). Artifact dari workflow yang *gagal* tidak boleh dianggap siap flash.
 
 
 ### Status build otomatis dan jalur alternatif Windows
 
-GitHub Actions masih terhenti **sebelum runner dialokasikan**, termasuk pada [tes minimal](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43883153060). Artinya firmware belum pernah dikompilasi oleh Actions. Lihat [diagnostik CI](docs/CI_RUNNER_DIAGNOSTICS.md) dan [issue pelacakan #1](https://github.com/gungsss/flipper-esp32s3-diy240/issues/1).
+**GitHub Actions kembali berjalan normal setelah pembatasan akun diselesaikan.** Build firmware berhasil pada [run #43889135916](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43889135916) dan menghasilkan artifact ZIP dengan empat image terverifikasi. Catatan gangguan sebelumnya tersimpan di [diagnostik CI](docs/CI_RUNNER_DIAGNOSTICS.md) dan [issue yang sudah ditutup](https://github.com/gungsss/flipper-esp32s3-diy240/issues/1).
 
 Jika tidak ingin bergantung pada runner GitHub, pengguna Windows dapat mencoba [build melalui WSL2 Ubuntu](docs/BUILD_WINDOWS_WSL.md), lalu flash hasilnya menggunakan PowerShell Windows. **Alur ini belum tervalidasi pada hardware**.
 

@@ -12,3 +12,11 @@
 
 - Added a Windows WSL2 local-build fallback for environments with GitHub Actions runner allocation failures.
 - Added pre-runner CI failure evidence and a diagnostic workflow for support escalation.
+
+## 16 November 2026 — firmware build verified
+
+- Reopened GitHub Actions after account billing verification; CI runner diagnosis resolved.
+- Successfully compiled the ESP32-S3 DIY240 firmware with ESP-IDF 5.4.1.
+- Fixed incomplete OTA initialization image packaging, added `ota_data_initial.bin` at `0xBF0000`.
+- Added regression tests and complete four-image offset/SHA256 checks on Windows and Linux/macOS.
+- Verified released artifact contents and ESP32-S3 image headers; physical hardware testing pending.

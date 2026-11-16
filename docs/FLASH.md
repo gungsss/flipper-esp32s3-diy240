@@ -3,7 +3,7 @@
 **Windows adalah panduan utama proyek ini.** Ketiga OS dapat melakukan flashing ke ESP32-S3 melalui USB; `.bin` tidak tergantung pada komputer pembuat firmware.
 
 > [!IMPORTANT]
-> Firmware untuk hardware ini **belum berhasil dibangun dan diuji**. Hanya flash dari artifact GitHub Actions **success** yang menggunakan profil DIY240, bukan image milik board lain. Lihat [TEST_REPORT.md](TEST_REPORT.md).
+> **Firmware sudah berhasil dikompilasi dan artifact ZIP telah diverifikasi** pada [GitHub Actions run #43889135916](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43889135916). **Perangkat fisik belum diuji.** Pakai hanya ZIP build sukses yang kompatibel dengan ESP32-S3 N16R8 dan wiring DIY240; jangan menggunakan image board lain. Lihat [TEST_REPORT.md](TEST_REPORT.md).
 
 ## Windows (disarankan untuk kebanyakan pengguna)
 
@@ -46,7 +46,7 @@ Untuk build lokal Mac dan flash langsung setelah kompilasi, baca [INSTALL_MAC.md
 
 ## Catatan file image dan data
 
-Artifact yang sukses harus memiliki `furi_esp32.bin`, `bootloader/bootloader.bin`, `partition_table/partition-table.bin`, `BUILD_INFO.json` dan script flash. Packaging memverifikasi offset `0x0`, `0x8000`, `0x10000` **khusus profil ini**. Jangan campur image dari run berbeda.
+Artifact yang sukses harus memiliki **empat** image: `bootloader/bootloader.bin` pada `0x0`, `partition_table/partition-table.bin` pada `0x8000`, `furi_esp32.bin` pada `0x10000`, dan `ota_data_initial.bin` pada `0xBF0000`. Sertakan `BUILD_INFO.json`, `flash_project_args` dan script flash dari ZIP **yang sama**. Packaging menguji semua offset dan SHA256; jangan menggabungkan file dari beberapa run. ZIP awal sebelum [perbaikan OTA](https://github.com/gungsss/flipper-esp32s3-diy240/commit/3f6d8bccad4b8731f1ece7118dd2d75ce0a7d976) **tidak boleh digunakan** untuk flash.
 
 Isi microSD **bukan** bagian dari flash chip: format ke FAT32 dan salin isi paket `sdcard.zip` dari [rilis resmi Sor3nt](https://github.com/Sor3nt/Flipper-Zero-ESP32-Port/releases/latest) ke root kartu.
 

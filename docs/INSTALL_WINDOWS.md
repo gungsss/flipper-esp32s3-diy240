@@ -3,7 +3,7 @@
 Proyek ini **Windows-first** untuk pengguna. **Kamu tidak memerlukan Mac, Linux, atau ESP-IDF untuk flash** bila file firmware sudah tersedia dari build GitHub Actions yang **sukses**. Perangkat target adalah **ESP32-S3 N16R8**, TFT ST7789 240×240 7 pin tanpa CS, microSD SPI3, dan enam tombol.
 
 > [!WARNING]
-> Saat panduan ini dibuat, workflow build firmware belum berhasil dan belum ada `.bin` yang terverifikasi. Langkah flash di bawah **hanya untuk artifact hasil build sukses** dari repositori ini. Jangan menggunakan firmware acak atau milik LilyGo/board lain.
+> **Build firmware sudah berhasil** pada [GitHub Actions #43889135916](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43889135916). ZIP-nya sudah diverifikasi untuk empat image dan SHA256. **Flashing, boot, dan hardware belum diuji fisik**; jangan menggunakan image dari LilyGo atau board lain.
 
 ## 1. Persiapan
 
@@ -24,8 +24,8 @@ py -3 -m esptool version
 1. Buka [Actions repo ini](https://github.com/gungsss/flipper-esp32s3-diy240/actions).
 2. Pilih workflow **Build DIY ESP32-S3 N16R8** dan pastikan run berwarna **hijau / success**.
 3. Pada bagian **Artifacts**, unduh `flipper-diy-s3-n16r8-st7789-240`.
-4. Ekstrak ZIP ke folder biasa, misalnya `C:\ESP32\firmware`. Jangan menggabungkan file dari run berbeda.
-5. Pastikan di folder itu ada `BUILD_INFO.json`, `flash_windows.ps1`, `furi_esp32.bin`, `bootloader/bootloader.bin`, dan `partition_table/partition-table.bin`.
+4. Ekstrak ZIP dari [run sukses terverifikasi](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43889135916) ke folder biasa, misalnya `C:\ESP32\firmware`. Jangan menggabungkan file dari run berbeda.
+5. Pastikan di folder itu ada `BUILD_INFO.json`, `flash_windows.ps1`, `furi_esp32.bin`, `bootloader/bootloader.bin`, `partition_table/partition-table.bin`, dan **`ota_data_initial.bin`**. Keempat file wajib berasal dari satu ZIP yang sama.
 
 **Penting:** jika run GitHub Actions masih gagal, **tidak ada firmware siap flash**. Jangan melanjutkan ke langkah berikutnya.
 
@@ -38,15 +38,15 @@ cd C:\ESP32\firmware
 .\flash_windows.ps1 -Port COM5
 ```
 
-Ubah `COM5` dengan port di Device Manager. Script melakukan **validasi target board, mapping offset, dan SHA256** ketiga image sebelum meminta konfirmasi `FLASH`. Hanya ketik konfirmasi jika hardware dan data penting sudah dicek.
+Ubah `COM5` dengan port di Device Manager. Script melakukan **validasi target board, mapping offset, dan SHA256 keempat image** sebelum meminta konfirmasi `FLASH`. Hanya ketik konfirmasi jika hardware dan data penting sudah dicek.
 
 Jika kebijakan PowerShell mencegah script berjalan, **jangan ubah kebijakan secara permanen**. Kamu dapat menggunakan perintah manual berikut **setelah memverifikasi ZIP berasal dari run sukses**:
 
 ```powershell
-py -3 -m esptool --chip esp32s3 --port COM5 --baud 460800 write_flash 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 furi_esp32.bin
+py -3 -m esptool --chip esp32s3 --port COM5 --baud 460800 write_flash 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 furi_esp32.bin 0xbf0000 ota_data_initial.bin
 ```
 
-Perintah manual **tidak otomatis memeriksa checksum**. Offset di atas berlaku khusus layout artifact proyek ini, tidak berlaku universal untuk semua ESP32.
+Perintah manual **tidak otomatis memeriksa checksum**. Offset di atas berlaku khusus layout artifact proyek ini, tidak berlaku universal untuk semua ESP32. Image OTA initialization pada `0xBF0000` diperlukan agar data pemilihan partisi OTA berada pada keadaan awal yang sesuai.
 
 ## 4. Sesudah flash
 
