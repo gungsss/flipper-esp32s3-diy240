@@ -61,7 +61,7 @@ def main():
         raise SystemExit(f'Missing Windows flasher: {windows_flash_tool}')
     shutil.copy2(windows_flash_tool, out / 'flash_windows.ps1')
     docs_root = Path(__file__).resolve().parents[1] / 'docs'
-    for document in ('FLASH.md', 'HARDWARE.md'):
+    for document in ('FLASH.md', 'HARDWARE.md', 'INSTALL_WINDOWS.md'):
         shutil.copy2(docs_root / document, out / document)
     (out / 'BUILD_INFO.json').write_text(json.dumps({
         'upstream_repository':'Sor3nt/Flipper-Zero-ESP32-Port',
