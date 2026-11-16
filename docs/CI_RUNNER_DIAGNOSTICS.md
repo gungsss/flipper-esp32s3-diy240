@@ -38,3 +38,7 @@ Pelacakan: [GitHub Issue #1](https://github.com/gungsss/flipper-esp32s3-diy240/i
 ## Pembanding runner Ubuntu 22.04
 
 Pada 16 November 2026, workflow diagnostik diuji kembali dengan `runs-on: ubuntu-22.04`: [run #2](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43884318769). Hasilnya kembali **failure dalam ~2 detik**, `runner_name` kosong, `steps: []`. Dengan demikian tiga label standar (`ubuntu-24.04`, `ubuntu-latest`, `ubuntu-22.04`) telah menunjukkan gejala gagal **sebelum** kode aplikasi berjalan.
+
+## Tes runner keempat (ubuntu-slim)
+
+[Diagnostic ubuntu-slim](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43884809095) pada 16 November 2026 juga **failure sebelum runner**: job ID `133359941563`, `runner_name` kosong, `steps=[]`, durasi ~2 detik. Empat label diuji (ubuntu-24.04, ubuntu-latest, ubuntu-22.04, ubuntu-slim), seluruhnya gagal pra-eksekusi. Dengan bukti ini, pindah image Ubuntu tidak menyelesaikan blocker saat ini.

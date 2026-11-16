@@ -37,3 +37,7 @@ Proyek ini secara sengaja tidak menyertakan firmware `.bin` yang tidak pernah di
 - Kesimpulan yang didukung: kegagalan GitHub Actions saat ini **pre-runner**, bukan error compiler. Penyebab spesifik (billing, kebijakan atau provisioning) menunggu teks GitHub Annotations.
 - Script build alternatif [Windows WSL2](BUILD_WINDOWS_WSL.md) disiapkan; tidak bisa dinyatakan lulus build atau flash tanpa menjalankannya pada mesin yang memiliki ESP-IDF dan hardware.
 - Pemilik akun dapat mengikuti [diagnostik CI](CI_RUNNER_DIAGNOSTICS.md) dan [issue #1](https://github.com/gungsss/flipper-esp32s3-diy240/issues/1).
+
+## Tes runner keempat (ubuntu-slim)
+
+[Diagnostic ubuntu-slim](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43884809095) pada 16 November 2026 juga **failure sebelum runner**: job ID `133359941563`, `runner_name` kosong, `steps=[]`, durasi ~2 detik. Empat label diuji (ubuntu-24.04, ubuntu-latest, ubuntu-22.04, ubuntu-slim), seluruhnya gagal pra-eksekusi. Dengan bukti ini, pindah image Ubuntu tidak menyelesaikan blocker saat ini.
