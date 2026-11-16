@@ -34,3 +34,7 @@ Menurut [dokumentasi resmi GitHub](https://docs.github.com/en/actions/concepts/b
 Pengguna Windows: [build menggunakan WSL2 Ubuntu](BUILD_WINDOWS_WSL.md) dan flash dengan PowerShell. Ini bukan pengganti uji hardware, tetapi tidak bergantung pada runner GitHub.
 
 Pelacakan: [GitHub Issue #1](https://github.com/gungsss/flipper-esp32s3-diy240/issues/1).
+
+## Pembanding runner Ubuntu 22.04
+
+Pada 16 November 2026, workflow diagnostik diuji kembali dengan `runs-on: ubuntu-22.04`: [run #2](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43884318769). Hasilnya kembali **failure dalam ~2 detik**, `runner_name` kosong, `steps: []`. Dengan demikian tiga label standar (`ubuntu-24.04`, `ubuntu-latest`, `ubuntu-22.04`) telah menunjukkan gejala gagal **sebelum** kode aplikasi berjalan.

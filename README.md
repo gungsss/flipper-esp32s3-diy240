@@ -63,6 +63,10 @@ GitHub Actions masih terhenti **sebelum runner dialokasikan**, termasuk pada [te
 
 Jika tidak ingin bergantung pada runner GitHub, pengguna Windows dapat mencoba [build melalui WSL2 Ubuntu](docs/BUILD_WINDOWS_WSL.md), lalu flash hasilnya menggunakan PowerShell Windows. **Alur ini belum tervalidasi pada hardware**.
 
+## Uji rangkaian langsung dari Windows (tanpa GitHub Actions)
+
+Untuk menguji TFT, microSD dan enam tombol sebelum full firmware tersedia, tersedia [sketch uji hardware Arduino IDE](docs/HARDWARE_SMOKE_TEST_WINDOWS.md) pada `examples/hardware-smoke-test/`. **Ini firmware diagnostik, bukan Flipper**. Hardware dan build penuh masih perlu diverifikasi.
+
 ## Wiring singkat
 
 ```mermaid
