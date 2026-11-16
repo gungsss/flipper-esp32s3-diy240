@@ -47,6 +47,8 @@ class PackageContractTest(unittest.TestCase):
                 self.assertTrue(path.is_file())
                 self.assertEqual(entry['sha256'], hashlib.sha256(path.read_bytes()).hexdigest())
             self.assertTrue((dst / 'flash_macos_linux.sh').is_file())
+            self.assertTrue((dst / 'flash_windows.ps1').is_file())
+            self.assertIn('Get-FileHash', (dst / 'flash_windows.ps1').read_text())
 
     def test_rejects_wrong_flash_offset(self):
         with tempfile.TemporaryDirectory() as td:

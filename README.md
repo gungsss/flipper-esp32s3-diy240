@@ -22,15 +22,22 @@ Proyek ini adalah **repositori integrasi/patch**, bukan salinan penuh source ups
 ## Mulai dari sini
 
 1. **[Wiring lengkap](docs/HARDWARE.md)** — susunan GPIO, tegangan, keypad, backlight, checklist sebelum power-on.
-2. **[Build firmware di macOS](docs/INSTALL_MAC.md)** — ESP-IDF 5.4.1, checkout upstream, penerapan patch, kompilasi.
-3. **[Flash via USB](docs/FLASH.md)** — flash pertama dengan ESP-IDF atau firmware yang dihasilkan GitHub Actions.
-4. **[Penggunaan pertama](docs/FIRST_BOOT.md)** — konfigurasi SD, tombol, Wi-Fi, BLE, validasi fitur.
-5. **[Troubleshooting](docs/TROUBLESHOOTING.md)** — layar putih/hitam, panel offset, SD gagal mount, serial/boot loop.
+2. **[Flash di Windows (utama)](docs/INSTALL_WINDOWS.md)** — cara mengunduh firmware hasil build, memasang `esptool`, menemukan COM port, dan flashing.
+3. **[Flash Windows, Linux, atau macOS](docs/FLASH.md)** — cara flash lintas platform dan pemulihan.
+4. **[Build di macOS](docs/INSTALL_MAC.md)** — untuk developer yang ingin kompilasi sendiri.
+5. **[Penggunaan pertama](docs/FIRST_BOOT.md)** — konfigurasi SD, tombol, Wi-Fi, BLE, validasi fitur.
+6. **[Troubleshooting](docs/TROUBLESHOOTING.md)** — driver Windows, COM port, layar putih/hitam, panel offset, SD, boot loop.
 
 > [!CAUTION]
 > Modul LCD **tanpa CS** tidak boleh berbagi jalur SPI2 dengan perangkat lain tanpa perancangan khusus. microSD menggunakan **SPI3 terpisah**. Sambungan BLK/backlight berbeda antar modul; jangan mengalirkan arus LED secara langsung dari GPIO ESP32.
 
-## Jalur cepat untuk developer (macOS)
+## Windows — jalur utama untuk pengguna
+
+Jika GitHub Actions sudah berhasil menghasilkan firmware untuk DIY240, pengguna Windows cukup memasang Python dan `esptool`, lalu flash memakai `flash_windows.ps1` dari artifact. **Tidak perlu Mac atau instalasi ESP-IDF.** [Ikuti panduan Windows lengkap](docs/INSTALL_WINDOWS.md).
+
+> **Saat ini build CI belum berhasil** (job gagal sebelum runner mulai). Jangan mengunduh atau flash `.bin` yang tidak terverifikasi. Lihat [catatan pengujian](docs/TEST_REPORT.md).
+
+## Build lokal untuk developer (macOS)
 
 Memerlukan Git, Python 3, serta **ESP-IDF v5.4.1** yang sudah terpasang di `~/esp/esp-idf` (lihat [panduan instalasi](docs/INSTALL_MAC.md)).
 
@@ -47,7 +54,7 @@ Repositori integrasi: [gungsss/flipper-esp32s3-diy240](https://github.com/gungss
 
 ### Build otomatis dari GitHub Actions
 
-Setelah file proyek diterbitkan dalam GitHub repo, buka **Actions → Build DIY ESP32-S3 N16R8 → Run workflow**. Jika build **sukses**, unduh artifact `flipper-diy-s3-n16r8-st7789-240`, lalu gunakan `flash_macos_linux.sh` dalam ZIP untuk flashing dari Mac. Prosedur lengkap: [FLASH.md](docs/FLASH.md). Artifact dari workflow yang *gagal* tidak boleh dianggap siap flash.
+Setelah file proyek diterbitkan dalam GitHub repo, buka **Actions → Build DIY ESP32-S3 N16R8 → Run workflow**. Jika build **sukses**, unduh artifact `flipper-diy-s3-n16r8-st7789-240`, lalu gunakan `flash_windows.ps1` di Windows atau `flash_macos_linux.sh` di Linux/macOS. Prosedur lengkap: [FLASH.md](docs/FLASH.md). Artifact dari workflow yang *gagal* tidak boleh dianggap siap flash.
 
 ## Wiring singkat
 

@@ -56,6 +56,10 @@ def main():
     shutil.copy2(argfile, out / 'flash_project_args')
     flash_tool = Path(__file__).with_name('flash_package.sh')
     shutil.copy2(flash_tool, out / 'flash_macos_linux.sh')
+    windows_flash_tool = Path(__file__).with_name('flash_windows.ps1')
+    if not windows_flash_tool.is_file():
+        raise SystemExit(f'Missing Windows flasher: {windows_flash_tool}')
+    shutil.copy2(windows_flash_tool, out / 'flash_windows.ps1')
     docs_root = Path(__file__).resolve().parents[1] / 'docs'
     for document in ('FLASH.md', 'HARDWARE.md'):
         shutil.copy2(docs_root / document, out / document)

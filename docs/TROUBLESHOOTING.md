@@ -45,6 +45,15 @@ Panel ST7789 berbeda varian RGB/BGR dan inversion. Pada `patch/patch_flipper.py`
 - Tombol aktif-rendah: *ditekan = GND*; tidak ada 3V3 ke kabel keypad.
 - Jika perangkat selalu memasuki download mode, pastikan tidak ada keypad yang menghubungkan **GPIO0** ke GND pada saat reset.
 
+## Windows tidak mendeteksi port COM
+
+1. Buka **Device Manager → Ports (COM & LPT)** sebelum dan sesudah mencolok ESP32-S3; cari COM port baru.
+2. Gunakan kabel USB-C **data** dan coba kedua port USB-C di board, satu per satu.
+3. Jika USB-UART bridge pada board membutuhkan driver, identifikasi chip-nya dahulu. Driver CP210x dan CH34x berbeda; jangan memasang driver acak.
+4. Jika COM port terlihat tetapi terkunci, tutup Serial Monitor, Arduino IDE, atau aplikasi serial lain.
+5. Untuk download mode, tahan BOOT bawaan board, tekan-lepas RST, lalu lepaskan BOOT. Jalankan ulang script flash.
+6. Untuk masalah Python, uji `py -3 --version` dan `py -3 -m esptool version` di PowerShell.
+
 ## Mac tidak mendeteksi port serial
 
 ```bash
