@@ -16,7 +16,8 @@ if ($manifest.board -ne 'DIY ESP32-S3 N16R8') {
 $images = @(
   @{file='bootloader/bootloader.bin'; offset='0x0'},
   @{file='partition_table/partition-table.bin'; offset='0x8000'},
-  @{file='furi_esp32.bin'; offset='0x10000'}
+  @{file='furi_esp32.bin'; offset='0x10000'},
+  @{file='ota_data_initial.bin'; offset='0xbf0000'}
 )
 foreach($image in $images){
   $filename = Join-Path $root $image.file
@@ -41,7 +42,7 @@ $confirm=Read-Host 'Type FLASH to continue'
 if ($confirm -cne 'FLASH') { Write-Host 'Cancelled.'; exit 1 }
 Push-Location $root
 try {
-  & py -3 -m esptool --chip esp32s3 --port $Port --baud 460800 --before default_reset --after hard_reset write_flash 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 furi_esp32.bin
+  & py -3 -m esptool --chip esp32s3 --port $Port --baud 460800 --before default_reset --after hard_reset write_flash 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 furi_esp32.bin 0xbf0000 ota_data_initial.bin
   if ($LASTEXITCODE -ne 0) { throw "esptool failed with status $LASTEXITCODE" }
   Write-Host 'Flash complete. Confirm screen, buttons, SD, and boot logs before declaring hardware verified.'
 } finally { Pop-Location }

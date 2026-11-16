@@ -22,6 +22,7 @@ def main():
         'bootloader/bootloader.bin': '0x0',
         'partition_table/partition-table.bin': '0x8000',
         'furi_esp32.bin': '0x10000',
+        'ota_data_initial.bin': '0xbf0000',
     }
     argfile = build / 'flash_project_args'
     if not argfile.is_file():
@@ -38,6 +39,8 @@ def main():
             relative = tokens[idx + 1]
             if relative in images:
                 found[relative] = value
+            elif relative.lower().endswith('.bin'):
+                raise SystemExit(f'Unknown binary in ESP-IDF flash_project_args: {relative} ({token}). Package all referenced images before distribution.')
     for relative, offset in images.items():
         if not (build / relative).is_file():
             raise SystemExit(f'Missing expected image: {build / relative}')

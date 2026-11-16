@@ -15,7 +15,7 @@ class PackageContractTest(unittest.TestCase):
     def _fixture(self, td):
         source = Path(td) / 'upstream'
         build = source / 'build_diy'
-        for rel in ('bootloader/bootloader.bin', 'partition_table/partition-table.bin', 'furi_esp32.bin'):
+        for rel in ('bootloader/bootloader.bin', 'partition_table/partition-table.bin', 'furi_esp32.bin', 'ota_data_initial.bin'):
             path = build / rel
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(('firmware:' + rel).encode())
@@ -23,7 +23,8 @@ class PackageContractTest(unittest.TestCase):
             '--flash_mode dio --flash_freq 80m --flash_size 16MB '
             '0x0 bootloader/bootloader.bin '
             '0x8000 partition_table/partition-table.bin '
-            '0x10000 furi_esp32.bin\n'
+            '0x10000 furi_esp32.bin '
+            '0xbf0000 ota_data_initial.bin\n'
         )
         return source, build
 
@@ -41,7 +42,7 @@ class PackageContractTest(unittest.TestCase):
             self.assertEqual(result.returncode, 0, msg=result.stderr)
             manifest = json.loads((dst / 'BUILD_INFO.json').read_text())
             self.assertEqual(manifest['board'], 'DIY ESP32-S3 N16R8')
-            self.assertEqual(len(manifest['images']), 3)
+            self.assertEqual(len(manifest['images']), 4)
             for entry in manifest['images']:
                 path = dst / entry['file']
                 self.assertTrue(path.is_file())
@@ -58,6 +59,32 @@ class PackageContractTest(unittest.TestCase):
             result = self._run(src, Path(td) / 'out')
             self.assertNotEqual(result.returncode, 0)
             self.assertIn('expected mapping', result.stderr + result.stdout)
+
+    def test_rejects_missing_ota_initial(self):
+        with tempfile.TemporaryDirectory() as td:
+            src, build = self._fixture(td)
+            (build / 'ota_data_initial.bin').unlink()
+            result = self._run(src, Path(td) / 'out')
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('ota_data_initial.bin', result.stderr + result.stdout)
+
+    def test_rejects_wrong_ota_offset(self):
+        with tempfile.TemporaryDirectory() as td:
+            src, build = self._fixture(td)
+            args = build / 'flash_project_args'
+            args.write_text(args.read_text().replace('0xbf0000 ota_data_initial.bin', '0xc00000 ota_data_initial.bin'))
+            result = self._run(src, Path(td) / 'out')
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('expected mapping', result.stderr + result.stdout)
+
+    def test_rejects_unrecognized_image(self):
+        with tempfile.TemporaryDirectory() as td:
+            src, build = self._fixture(td)
+            args = build / 'flash_project_args'
+            args.write_text(args.read_text() + '0xD00000 unexpected.bin\n')
+            result = self._run(src, Path(td) / 'out')
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('Unknown binary', result.stderr + result.stdout)
 
     def test_rejects_missing_binary(self):
         with tempfile.TemporaryDirectory() as td:
