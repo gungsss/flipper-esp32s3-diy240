@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tes Layar ESP32-S3 | DIY240</title>
+  <meta name="theme-color" content="#172554">
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f2f5fa; color: #17233b; font: 16px/1.55 system-ui, sans-serif; }
+    main { width: min(100% - 32px, 640px); margin: 40px auto; }
+    a { color: #1d4ed8; }
+    .card { margin: 20px 0; padding: 24px; background: #fff; border: 1px solid #dce4ef; border-radius: 18px; box-shadow: 0 8px 30px #1d365a0c; }
+    .label { color: #2563eb; font-size: 13px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 6px 0 10px; font-size: clamp(28px, 6vw, 38px); line-height: 1.15; }
+    h2 { font-size: 19px; margin: 0 0 8px; }
+    p { margin: 10px 0; }
+    ol { padding-left: 22px; }
+    li { margin: 9px 0; }
+    .warning { background: #fff8e6; border-color: #f3d28b; }
+    label { display: flex; gap: 10px; align-items: flex-start; margin: 18px 0; }
+    input { width: 19px; height: 19px; flex: 0 0 auto; margin: 3px 0 0; }
+    button { border: 0; border-radius: 10px; background: #1d4ed8; padding: 13px 18px; color: white; font-size: 16px; font-weight: 700; cursor: pointer; }
+    [hidden] { display: none !important; }
+    .small { color: #52627a; font-size: 14px; }
+  </style>
+</head>
+<body>
+<main>
+  <a href="/">&larr; Kembali ke flasher Flipper</a>
+  <div class="card">
+    <span class="label">ESP32-S3 · ST7789 240 × 240</span>
+    <h1>Tes layar DIY240</h1>
+    <p>Tes ini mengirim warna bergantian ke layar untuk memeriksa apakah layar merespons. Pin tetap mengikuti firmware DIY240.</p>
+    <ol>
+      <li>Buka halaman ini di Chrome atau Edge pada komputer, lalu sambungkan ESP32-S3 melalui USB.</li>
+      <li>Tutup serial monitor atau halaman lain yang sedang memakai port ESP32.</li>
+      <li>Centang persetujuan di bawah, pilih tombol pasang, lalu pilih port ESP32-S3 dan ikuti petunjuk.</li>
+      <li>Setelah selesai, tekan tombol RESET pada ESP32 bila tes tidak langsung berjalan, lalu tunggu hingga 30 detik. Layar seharusnya berganti warna merah, hijau, biru, putih, dan hitam berulang.</li>
+    </ol>
+    <p class="small">MicroSD tidak diperlukan untuk tes. BLK tidak perlu diubah selama lampu layar sudah menyala.</p>
+  </div>
+  <div class="card warning">
+    <h2>Sebelum memasang</h2>
+    <p>Tes ini <strong>menimpa firmware Flipper</strong> yang sekarang terpasang. Setelah tes, pasang kembali firmware Flipper melalui <a href="/">halaman utama</a>. Data di memori internal yang tertimpa dapat hilang, termasuk saat memasang ulang Flipper. Cadangkan data penting sebelum melanjutkan.</p>
+    <p>Jika muncul pilihan <strong>Erase device</strong>, jangan centang jika tidak ingin menghapus seluruh isi flash. Firmware tetap akan tertimpa meski pilihan itu tidak dicentang.</p>
+    <label><input id="confirm" type="checkbox"> <span>Saya paham firmware saat ini akan ditimpa dan perlu dipasang ulang setelah tes.</span></label>
+    <esp-web-install-button id="install" manifest="./manifest.json" hidden><button slot="activate">Hubungkan dan pasang tes layar</button><span slot="unsupported">Browser belum mendukung pemasangan. Gunakan Chrome atau Edge pada komputer.</span><span slot="not-allowed">Buka halaman ini melalui HTTPS.</span></esp-web-install-button>
+  </div>
+</main>
+<script>document.getElementById('confirm').addEventListener('change', e => { document.getElementById('install').hidden = !e.target.checked; });</script>
+</body>
+</html>
