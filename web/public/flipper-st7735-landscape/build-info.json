@@ -1,0 +1,36 @@
+{
+  "upstream_repository": "Sor3nt/Flipper-Zero-ESP32-Port",
+  "upstream_commit": "e6ec11972a8e025d7ab686a6ef3016cf52360834",
+  "board": "DIY ESP32-S3 N16R8",
+  "lcd": "ST7735S landscape 160x128 (CS tied to GND)",
+  "sd": "SPI3_HOST",
+  "images": [
+    {
+      "file": "bootloader/bootloader.bin",
+      "offset": "0x0",
+      "size_bytes": 20848,
+      "sha256": "38bda37cbe69eb3300cd5c4fa72a59ae8176a7a57ef3336c2d43d32f91c1982c"
+    },
+    {
+      "file": "partition_table/partition-table.bin",
+      "offset": "0x8000",
+      "size_bytes": 3072,
+      "sha256": "9170702b52423ec0ec06f98cb832e73d147b29bf04b47665c0b04574ddd5443e"
+    },
+    {
+      "file": "furi_esp32.bin",
+      "offset": "0x10000",
+      "size_bytes": 3289008,
+      "sha256": "6d5db056e938cdfff769a6ec8616f8089a935d01add9b9cedec712556042a19d"
+    },
+    {
+      "file": "ota_data_initial.bin",
+      "offset": "0xbf0000",
+      "size_bytes": 8192,
+      "sha256": "7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f"
+    }
+  ],
+  "display_driver": "waveshare/esp_lcd_st7735==2.0.0",
+  "lcd_spi_hz": 5000000,
+  "hardware_validation": "Portrait Flipper firmware and color diagnostic validated by user; landscape build requires hardware test."
+}
