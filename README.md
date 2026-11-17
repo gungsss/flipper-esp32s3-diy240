@@ -8,6 +8,21 @@
 
 Proyek ini adalah **repositori integrasi/patch**, bukan salinan penuh source upstream. Saat build, script mengambil source tepat pada commit di atas, menerapkan perubahan yang dapat direproduksi, lalu menghasilkan image untuk di-flash menggunakan ESP-IDF. Dengan cara ini, asal source tetap jelas dan repo ini tidak menyimpan ulang ribuan file/binary aplikasi pihak ketiga.
 
+## Web Flasher — Windows, Linux, macOS, Android
+
+**[Buka DIY240 Web Flasher](https://flipper-diy240-flasher.vercel.app)**
+
+Situs menyediakan flashing USB berbasis [ESP Web Tools](https://esphome.github.io/esp-web-tools/) pada browser yang kompatibel, file merged `.bin`, perintah esptool manual, diagram wiring, serta panduan Windows/Linux/macOS/Android/iOS.
+
+- Profil firmware: **ESP32-S3 N16R8**, ST7789 240×240 tanpa CS, microSD SPI3, enam tombol.
+- Firmware web dibangun dari empat image pada [build CI sukses](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43889135916), digabung menggunakan `esptool` dan diverifikasi checksum/offset.
+- **Windows**: utamakan Chrome atau Edge desktop. Linux dan macOS didukung pada browser kompatibel.
+- **Android**: memerlukan browser/perangkat yang mendukung USB Serial/OTG; dukungan tidak universal.
+- **iOS**: tidak dapat melakukan flashing USB langsung melalui halaman web, tetapi panduan tetap dapat dibaca.
+- Build sukses dan file tersedia **tidak menjamin semua fungsi hardware sudah diuji**. Pastikan wiring dan cadangkan data sebelum flashing.
+
+Source situs dan dokumentasi: [`web/`](web/README.md).
+
 ## Perangkat target
 
 | Komponen | Konfigurasi |
