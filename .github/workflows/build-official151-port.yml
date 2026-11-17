@@ -30,7 +30,9 @@ jobs:
           git init "$RUNNER_TEMP/flipper-official"
           git -C "$RUNNER_TEMP/flipper-official" remote add origin https://github.com/flipperdevices/flipperzero-firmware.git
           git -C "$RUNNER_TEMP/flipper-official" fetch --depth=1 --filter=blob:none origin refs/tags/1.5.1:refs/tags/1.5.1
+          git -C "$RUNNER_TEMP/flipper-official" fetch --depth=1 --filter=blob:none origin refs/tags/1.4.3:refs/tags/1.4.3
           python3 scripts/audit_official_151.py "$RUNNER_TEMP/flipper-official" .work/upstream --output "$RUNNER_TEMP/source-audit.json"
+          python3 tests/compat151/check_official_api_delta.py "$RUNNER_TEMP/flipper-official" .work/upstream
       - name: Verify ABI ordering and released view behavior
         run: |
           python3 tests/compat151/check_firmware_api.py .work/upstream

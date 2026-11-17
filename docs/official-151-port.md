@@ -38,6 +38,8 @@ review.
   whole source tree against the pinned official commit.
 - Matched the release's view-ID lookup behavior, including the discrepancy
   between its documented and implemented return value.
+- Added the missing GUI/date-time and preset symbols from the official 1.5.1
+  SDK API delta; this does not imply the rest of the official ABI is available.
 - Added the USB HID interrupt-OUT endpoint, like the 1.5.1 hardware interface,
   to both the standalone and qFlipper composite ESP32 USB configurations.
 - Tested both real TinyUSB descriptor layouts and keyboard LED report handling
