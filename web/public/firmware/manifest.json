@@ -1,0 +1,17 @@
+{
+  "name": "Flipper ESP32-S3 DIY240",
+  "version": "2.0.0-diy240.2026-11-16",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP32-S3",
+      "improv": false,
+      "parts": [
+        {
+          "path": "flipper-esp32s3-diy240-20261116-merged.bin",
+          "offset": 0
+        }
+      ]
+    }
+  ]
+}

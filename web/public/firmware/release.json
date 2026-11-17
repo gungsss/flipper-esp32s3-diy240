@@ -1,0 +1,11 @@
+{
+  "version": "2.0.0-diy240.2026-11-16",
+  "filename": "flipper-esp32s3-diy240-20261116-merged.bin",
+  "chip": "ESP32-S3",
+  "board": "DIY ESP32-S3 N16R8",
+  "source_actions_run": 43889135916,
+  "source_artifact": "flipper-diy-s3-n16r8-st7789-240",
+  "sha256": "cd37f026b7e2625b6b5cb455c84381c73c9f7fb114334f60eb2268e96c5dcbb6",
+  "size_bytes": 12525568,
+  "built_at": "2026-11-17T06:15:04.792466+00:00"
+}
