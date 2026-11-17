@@ -179,3 +179,22 @@ h2{font-size:clamp(29px,3.15vw,43px);line-height:1.14;letter-spacing:-1.8px;marg
 @media(max-width:820px){.hero{grid-template-columns:1fr;padding:67px 0 32px;gap:15px}.hero-left{text-align:left}.hero-description{max-width:700px}.hero-visual{height:415px}.device-wrap{transform:scale(.88)}.visual-caption{bottom:-5px}.feature-strip{grid-template-columns:1fr 1fr;gap:23px 0;padding:25px 0}.feature-strip>div:nth-child(3){padding-left:0;border-left:0}.section{padding-top:75px}.flash-layout{grid-template-columns:1fr}.flash-sidebar{display:grid;grid-template-columns:1fr .85fr}.wiring-grid{grid-template-columns:1fr 1fr}.wiring-panel:last-child{grid-column:span 2}.platform-content{gap:20px}.warning-panel{align-self:start}.section-heading{align-items:start}}
 @media(max-width:600px){.shell{width:calc(100% - 34px)}.header-inner{height:70px}.header-nav{display:none}.header-mobile-link{display:block}.brand-mark{width:36px;height:36px}.brand-copy{font-size:18px}.hero{padding:53px 0 25px}.eyebrow{font-size:10px;letter-spacing:1.1px}h1{font-size:clamp(42px,11.2vw,62px);letter-spacing:-2.7px;margin:18px 0 20px}.hero-description{font-size:13px;line-height:1.86}.hero-actions{gap:9px}.hero-visual{height:350px}.device-wrap{transform:scale(.74);height:405px}.floating-spec{font-size:11px}.spec-one{left:-40px!important}.spec-two{right:-39px!important}.feature-strip{grid-template-columns:1fr 1fr;gap:21px 7px}.feature-strip>div{gap:9px;padding-left:12px}.feature-strip>div:nth-child(odd){padding-left:0;border-left:0}.strip-icon{font-size:20px}.feature-strip strong{font-size:10px}.feature-strip small{font-size:9px}.section{padding-top:70px}.section-heading{flex-direction:column;align-items:start;margin-bottom:24px}.section-heading .version-pill{align-self:flex-start}.section-heading h2{font-size:32px}.flash-main{padding:22px}.flash-main h3{font-size:23px}.flash-sidebar{grid-template-columns:1fr}.info-panel{padding:23px}.info-title{margin-top:26px}.wiring-grid{grid-template-columns:1fr}.wiring-panel:last-child{grid-column:auto}.wiring-panel td{font-size:11px}.platform-tabs{padding:5px 12px 0}.platform-tabs button{padding:14px 14px;font-size:11px}.platform-content{grid-template-columns:1fr;padding:24px;gap:22px}.guide-steps{padding-left:15px}.faq-section{padding-bottom:82px}.faq-list summary{font-size:13px;padding:18px 0}.footer-inner{flex-direction:column}.footer-links{gap:16px;flex-wrap:wrap}.footer-bottom{flex-direction:column;gap:8px}.visual-caption{font-size:8px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+
+.manual-tools{margin-top:17px;padding:28px 31px}
+.manual-tool-header{display:flex;align-items:start;justify-content:space-between;gap:20px}
+.manual-tool-header h3{font-size:18px;letter-spacing:-.4px;margin:9px 0 5px}
+.manual-tool-header p{font-size:11px;color:#96abb5;line-height:1.7;margin:0}
+.manual-badge{background:#1b3838;border:1px solid #345c58;color:#90e7d0;border-radius:6px;padding:9px 11px;font:800 9px 'DM Sans',sans-serif;white-space:nowrap}
+.manual-terminal{background:#060f15;border:1px solid #304954;border-radius:11px;margin-top:22px;overflow:hidden}
+.terminal-header{background:#12252f;border-bottom:1px solid #2b4652;min-height:39px;display:flex;align-items:center;gap:12px;padding:0 13px;color:#8da5b1;font-size:10px}
+.terminal-dots{display:flex;gap:5px}
+.terminal-dots i{width:7px;height:7px;background:#536e74;border-radius:50%;display:block}
+.terminal-dots i:nth-child(1){background:#a25f5a}
+.terminal-dots i:nth-child(2){background:#b09a52}
+.terminal-dots i:nth-child(3){background:#4b977c}
+.terminal-copy{margin-left:auto;border:1px solid #36565c;background:#1c3841;color:#d7f2ed;border-radius:6px;padding:5px 9px;font-size:10px;font-weight:800}
+.terminal-copy:hover{border-color:#7cebc9}
+.manual-terminal code{font:500 11px/1.9 ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',monospace;display:block;color:#a2efcf;padding:15px 18px;overflow-wrap:anywhere;white-space:pre-wrap}
+.manual-caption{font-size:10px;color:#7895a1;line-height:1.7;margin-top:13px}
+@media(max-width:600px){.manual-tools{padding:21px}.manual-tool-header{flex-direction:column}.manual-tool-header h3{font-size:17px}.manual-badge{order:-1}.manual-terminal code{font-size:10px;padding:14px}}

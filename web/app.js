@@ -168,7 +168,37 @@ function renderPlatform(key) {
   if (!data) return;
   const content = $('#platform-content');
   const selectedTab = document.querySelector('[data-platform="' + key + '"]');
-  document.querySelectorAll('[data-platform]').forEach((tab) => {
+  
+const manualCommands = {
+  windows: 'py -3 -m esptool --chip esp32s3 --port COM5 --baud 460800 write_flash 0x0 flipper-esp32s3-diy240-20261116-merged.bin',
+  macos: 'python -m esptool --chip esp32s3 --port /dev/cu.usbmodemXXXX --baud 460800 write_flash 0x0 flipper-esp32s3-diy240-20261116-merged.bin',
+  linux: 'python -m esptool --chip esp32s3 --port /dev/ttyACM0 --baud 460800 write_flash 0x0 flipper-esp32s3-diy240-20261116-merged.bin',
+  android: 'Gunakan komputer Windows, Linux, atau macOS untuk flashing manual bila Web Serial tidak tersedia.',
+  ios: 'iPhone/iPad tidak mendukung USB flashing lewat browser. Gunakan komputer Windows, Linux, atau macOS.',
+};
+
+function updateManualCommand(platform) {
+  const label = $('#manual-os-label');
+  const code = $('#manual-command');
+  if (!label || !code) return;
+  label.textContent = ({ windows: 'Windows · PowerShell', macos: 'macOS · Terminal', linux: 'Linux · Terminal', android: 'Android · Alternatif', ios: 'iOS · Alternatif' })[platform];
+  code.textContent = manualCommands[platform];
+}
+
+const manualCopyButton = $('#manual-copy');
+manualCopyButton?.addEventListener('click', async () => {
+  const value = $('#manual-command')?.textContent || '';
+  try {
+    await navigator.clipboard.writeText(value);
+    const text = manualCopyButton.textContent;
+    manualCopyButton.textContent = 'Tersalin ✓';
+    setTimeout(() => { manualCopyButton.textContent = text; }, 1600);
+  } catch {
+    manualCopyButton.textContent = 'Pilih lalu salin manual';
+  }
+});
+
+document.querySelectorAll('[data-platform]').forEach((tab) => {
     const selected = tab === selectedTab;
     tab.classList.toggle('selected', selected);
     tab.setAttribute('aria-selected', String(selected));
@@ -181,6 +211,7 @@ function renderPlatform(key) {
   $('#platform-steps').innerHTML = data.steps.map((step, i) =>
     '<div><span>' + String(i + 1).padStart(2, '0') + '</span><p>' + step + '</p></div>'
   ).join('');
+  updateManualCommand(key);
 }
 
 document.querySelectorAll('[data-platform]').forEach((tab) => {

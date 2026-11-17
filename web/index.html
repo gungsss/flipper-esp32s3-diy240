@@ -122,6 +122,17 @@
           </div>
         </aside>
       </div>
+        <div class="manual-tools panel">
+          <div class="manual-tool-header">
+            <div><span class="panel-label">ALTERNATIF</span><h3>Flash manual dengan satu file .bin</h3><p>Jika Web Serial tidak tersedia, gunakan file gabungan yang diunduh di atas. Pilih sistem operasi pada bagian Panduan agar perintah disesuaikan.</p></div>
+            <span class="manual-badge">MERGED · OFFSET 0x0</span>
+          </div>
+          <div class="manual-terminal">
+            <div class="terminal-header"><span class="terminal-dots"><i></i><i></i><i></i></span><span id="manual-os-label">Windows · PowerShell</span><button type="button" class="terminal-copy" id="manual-copy">Salin perintah</button></div>
+            <code id="manual-command">py -3 -m esptool --chip esp32s3 --port COM5 --baud 460800 write_flash 0x0 flipper-esp32s3-diy240-20261116-merged.bin</code>
+          </div>
+          <div class="manual-caption">Pasang esptool terlebih dahulu. Jalankan perintah dari folder tempat file .bin diunduh; ganti port sesuai perangkat. Jangan memakai command empat-file untuk file merged.</div>
+        </div>
     </section>
 
     <section class="section shell" id="hardware" aria-labelledby="hardware-title">
