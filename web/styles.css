@@ -2,13 +2,14 @@
 :root{font-family:'DM Sans',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#eaf2f4;background:#07131b;font-synthesis:none;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
 *{box-sizing:border-box}
 html{scroll-padding-top:100px}
-body{margin:0;min-width:320px;overflow-x:hidden;background:#07131b;color:#edf7f8}
+body{position:relative;margin:0;min-width:320px;overflow-x:hidden;background:#07131b;color:#edf7f8}
 a{color:inherit;text-decoration:none}
 button,input{font:inherit}
 button{cursor:pointer}
 button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid #5bf1ce;outline-offset:4px}
 ::selection{background:#2fdcba;color:#06151b}
 .shell{width:min(1184px,calc(100% - 64px));margin:0 auto;position:relative}
+.ambient-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 .ambient{position:absolute;pointer-events:none;z-index:0;filter:blur(70px);opacity:.32;border-radius:50%;width:440px;height:440px}
 .ambient-a{top:20px;right:-200px;background:#0d5261}.ambient-b{top:650px;left:-280px;background:#10385d;opacity:.18}
 .skip-link{position:absolute;left:8px;top:-90px;padding:12px 18px;background:#5beacb;color:#07131b;z-index:9999}
@@ -198,3 +199,4 @@ h2{font-size:clamp(29px,3.15vw,43px);line-height:1.14;letter-spacing:-1.8px;marg
 .manual-terminal code{font:500 11px/1.9 ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',monospace;display:block;color:#a2efcf;padding:15px 18px;overflow-wrap:anywhere;white-space:pre-wrap}
 .manual-caption{font-size:10px;color:#7895a1;line-height:1.7;margin-top:13px}
 @media(max-width:600px){.manual-tools{padding:21px}.manual-tool-header{flex-direction:column}.manual-tool-header h3{font-size:17px}.manual-badge{order:-1}.manual-terminal code{font-size:10px;padding:14px}}
+
