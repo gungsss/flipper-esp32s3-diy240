@@ -35,6 +35,7 @@ jobs:
           python3 tests/compat151/check_official_api_delta.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_time_input.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_gui_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
+          python3 tests/compat151/check_official_core_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
       - name: Verify ABI ordering and released view behavior
         run: |
           python3 tests/compat151/check_firmware_api.py .work/upstream
@@ -84,3 +85,19 @@ jobs:
           source /opt/esp/idf/export.sh
           cd .work/upstream
           ./build_diy.sh --build-only
+      - name: Build an official 1.5.1 example for the DIY Xtensa target
+        if: matrix.orientation == 'landscape'
+        run: |
+          source /opt/esp/idf/export.sh
+          git init "$RUNNER_TEMP/fap-official"
+          git -C "$RUNNER_TEMP/fap-official" remote add origin https://github.com/flipperdevices/flipperzero-firmware.git
+          git -C "$RUNNER_TEMP/fap-official" fetch --depth=1 --filter=blob:none origin refs/tags/1.5.1:refs/tags/1.5.1
+          test "$(git -C "$RUNNER_TEMP/fap-official" rev-parse 1.5.1^{commit})" = 9e810dc399e027e48ce07751df72168abbb19065
+          mkdir -p "$RUNNER_TEMP/official-fap"
+          git -C "$RUNNER_TEMP/fap-official" archive 1.5.1 applications/examples/example_date_time_input | tar -x -C "$RUNNER_TEMP/official-fap"
+          cd .work/upstream
+          FAP_BOARD=DIY ./buildFap.sh "$RUNNER_TEMP/official-fap/applications/examples/example_date_time_input"
+          test -s build_diy/fap/example_date_time_input.fap
+          xtensa-esp32s3-elf-readelf -h build_diy/fap/example_date_time_input.fap | grep -E 'Machine:.*Xtensa'
+          python3 tools/check_fap_symbols.py components/flipper_application/flipper_application/firmware_api.c \
+            build_diy/fap/objects_example_date_time_input.fap/undef_syms.txt

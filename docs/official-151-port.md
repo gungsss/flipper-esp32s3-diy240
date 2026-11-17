@@ -43,6 +43,11 @@ review.
 - Added the remaining available official GUI SDK function exports and checked
   their C signatures against the 1.5.1 SDK list at compile time. These checks
   do not establish ABI or runtime equivalence across processor architectures.
+- Added 123 existing Furi core functions to the ESP32 SDK symbol table with
+  the official 1.5.1 C signature checks; many other SDK exports remain absent.
+- Added an explicit DIY target to the FAP builder and a CI check that builds
+  the official 1.5.1 date/time example for Xtensa, then checks its imports.
+  CI build results and real-device execution must be verified separately.
 - Replaced the port's date/time input implementation and header with the exact
   official 1.5.1 sources. Host tests check the 12-hour and 24-hour render paths.
 - Added the USB HID interrupt-OUT endpoint, like the 1.5.1 hardware interface,
