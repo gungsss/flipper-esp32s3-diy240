@@ -214,10 +214,16 @@ index c00cfac..97535d8 100644
          value |= data[position / 8 + 1] >> (8 - shift);
          value = value >> (8 - length);
 diff --git a/components/flipper_application/flipper_application/firmware_api.c b/components/flipper_application/flipper_application/firmware_api.c
-index 17259ed..85b4872 100644
+index 17259ed..92f7cf1 100644
 --- a/components/flipper_application/flipper_application/firmware_api.c
 +++ b/components/flipper_application/flipper_application/firmware_api.c
-@@ -65,6 +65,7 @@
+@@ -61,10 +61,13 @@
+ #include <gui/elements.h>
+ #include <gui/view.h>
+ #include <gui/view_dispatcher.h>
++#include <gui/view_holder.h>
++#include <gui/view_stack.h>
+ #include <gui/scene_manager.h>
  #include <gui/modules/submenu.h>
  #include <gui/modules/text_input.h>
  #include <gui/modules/variable_item_list.h>
@@ -225,7 +231,7 @@ index 17259ed..85b4872 100644
  #include <gui/modules/widget.h>
  #include <gui/modules/loading.h>
  #include <gui/modules/popup.h>
-@@ -158,6 +159,7 @@ extern double floor(double);
+@@ -158,6 +161,7 @@ extern double floor(double);
  #include "transmitter.h"
  #include "environment.h"
  #include "subghz_setting.h"
@@ -233,7 +239,27 @@ index 17259ed..85b4872 100644
  #include "subghz_worker.h"
  #include "subghz_keystore.h"
  #include "base.h"
-@@ -357,6 +359,7 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -311,6 +315,8 @@ extern int esp_rom_printf(const char* fmt, ...);
+  * firmware API with their own embedded-plugin API. */
+ extern const ElfApiInterface* const firmware_api_interface;
+ 
++#include "official_gui_151_abi_checks.h"
++
+ /* clang-format off */
+ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x00454575, .address = (uint32_t)variable_item_list_set_selected_item }, /* variable_item_list_set_selected_item */
+@@ -334,8 +340,10 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x04a1a19a, .address = (uint32_t)furi_string_cat_printf }, /* furi_string_cat_printf */
+     { .hash = 0x04af1dec, .address = (uint32_t)subghz_protocol_blocks_add_bit }, /* subghz_protocol_blocks_add_bit */
+     { .hash = 0x04ff5882, .address = (uint32_t)canvas_set_font }, /* canvas_set_font */
++    { .hash = 0x05364878, .address = (uint32_t)view_holder_send_to_back }, /* view_holder_send_to_back */
+     { .hash = 0x0542ffa8, .address = (uint32_t)furi_hal_bt_stop_advertising }, /* furi_hal_bt_stop_advertising */
+     { .hash = 0x0549bd0a, .address = (uint32_t)furi_record_open }, /* furi_record_open */
++    { .hash = 0x05556315, .address = (uint32_t)view_holder_set_free_callback }, /* view_holder_set_free_callback */
+     { .hash = 0x05b9c541, .address = (uint32_t)view_free }, /* view_free */
+     { .hash = 0x063285d8, .address = (uint32_t)furi_hal_infrared_async_tx_abort }, /* furi_hal_infrared_async_tx_abort */
+     { .hash = 0x06716444, .address = (uint32_t)mjs_is_null }, /* mjs_is_null */
+@@ -357,6 +365,7 @@ static const struct sym_entry firmware_api_table[] = {
      { .hash = 0x08669c74, .address = (uint32_t)mbedtls_ssl_init }, /* mbedtls_ssl_init */
      { .hash = 0x086b647c, .address = (uint32_t)mbedtls_ssl_read }, /* mbedtls_ssl_read */
      { .hash = 0x08982387, .address = (uint32_t)__unorddf2 }, /* __unorddf2 */
@@ -241,15 +267,24 @@ index 17259ed..85b4872 100644
      { .hash = 0x08d63d78, .address = (uint32_t)flipper_format_file_open_new }, /* flipper_format_file_open_new */
      { .hash = 0x0922fe88, .address = (uint32_t)view_dispatcher_add_view }, /* view_dispatcher_add_view */
      { .hash = 0x0939d78b, .address = (uint32_t)&sequence_set_blue_255 }, /* sequence_set_blue_255 */
-@@ -448,6 +451,7 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -381,6 +390,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x0b888d07, .address = (uint32_t)log }, /* log */
+     { .hash = 0x0b889e1b, .address = (uint32_t)pow }, /* pow */
+     { .hash = 0x0b88ad48, .address = (uint32_t)tan }, /* tan */
++    { .hash = 0x0b9a71c7, .address = (uint32_t)gui_remove_framebuffer_callback }, /* gui_remove_framebuffer_callback */
+     { .hash = 0x0bac2e75, .address = (uint32_t)furi_kernel_get_tick_frequency }, /* furi_kernel_get_tick_frequency */
+     { .hash = 0x0bde1aae, .address = (uint32_t)log10f }, /* log10f */
+     { .hash = 0x0c3ae7d9, .address = (uint32_t)locale_get_date_format }, /* locale_get_date_format */
+@@ -448,6 +458,8 @@ static const struct sym_entry firmware_api_table[] = {
      { .hash = 0x14e4c931, .address = (uint32_t)uart_flush_input }, /* uart_flush_input */
      { .hash = 0x152fa781, .address = (uint32_t)ble_profile_serial_notify_buffer_is_empty }, /* ble_profile_serial_notify_buffer_is_empty */
      { .hash = 0x156b2bb8, .address = (uint32_t)printf }, /* printf */
 +    { .hash = 0x15af897a, .address = (uint32_t)date_time_input_set_editable_fields }, /* date_time_input_set_editable_fields */
++    { .hash = 0x15bfef3f, .address = (uint32_t)view_stack_alloc }, /* view_stack_alloc */
      { .hash = 0x15ea5ff1, .address = (uint32_t)mbedtls_ssl_setup }, /* mbedtls_ssl_setup */
      { .hash = 0x15f21db9, .address = (uint32_t)&usb_cdc_single }, /* usb_cdc_single */
      { .hash = 0x1639b3eb, .address = (uint32_t)mbedtls_ssl_write }, /* mbedtls_ssl_write */
-@@ -458,6 +462,7 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -458,6 +470,7 @@ static const struct sym_entry firmware_api_table[] = {
      { .hash = 0x1761a36b, .address = (uint32_t)__ashldi3 }, /* __ashldi3 */
      { .hash = 0x177a11ff, .address = (uint32_t)subghz_protocol_decoder_base_serialize }, /* subghz_protocol_decoder_base_serialize */
      { .hash = 0x17c71f93, .address = (uint32_t)furi_hal_infrared_get_tx_output }, /* furi_hal_infrared_get_tx_output */
@@ -257,7 +292,71 @@ index 17259ed..85b4872 100644
      { .hash = 0x182e12dc, .address = (uint32_t)text_box_alloc }, /* text_box_alloc */
      { .hash = 0x182f2f55, .address = (uint32_t)bt_stop_stack }, /* bt_stop_stack */
      { .hash = 0x1852118a, .address = (uint32_t)lwip_connect }, /* lwip_connect */
-@@ -675,6 +680,7 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -507,6 +520,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x2038276b, .address = (uint32_t)esp_bt_controller_enable }, /* esp_bt_controller_enable */
+     { .hash = 0x206efd2d, .address = (uint32_t)esp_random }, /* esp_random */
+     { .hash = 0x207c260c, .address = (uint32_t)notification_internal_message }, /* notification_internal_message */
++    { .hash = 0x209b1679, .address = (uint32_t)canvas_get_font_params }, /* canvas_get_font_params */
+     { .hash = 0x20cbcf85, .address = (uint32_t)scene_manager_search_and_switch_to_previous_scene_one_of }, /* scene_manager_search_and_switch_to_previous_scene_one_of */
+     { .hash = 0x21ce0da1, .address = (uint32_t)&message_display_backlight_off }, /* message_display_backlight_off */
+     { .hash = 0x226cd7ee, .address = (uint32_t)&message_do_not_reset }, /* message_do_not_reset */
+@@ -531,6 +545,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x2649f22e, .address = (uint32_t)furi_mutex_free }, /* furi_mutex_free */
+     { .hash = 0x2688dd53, .address = (uint32_t)furi_delay_tick }, /* furi_delay_tick */
+     { .hash = 0x26aafac2, .address = (uint32_t)&g_wifi_osi_funcs }, /* g_wifi_osi_funcs */
++    { .hash = 0x26c9c382, .address = (uint32_t)gui_add_framebuffer_callback }, /* gui_add_framebuffer_callback */
+     { .hash = 0x26d193ca, .address = (uint32_t)dialog_ex_get_view }, /* dialog_ex_get_view */
+     { .hash = 0x26f1264d, .address = (uint32_t)furi_message_queue_alloc }, /* furi_message_queue_alloc */
+     { .hash = 0x2704b2a5, .address = (uint32_t)flipper_format_update_uint32 }, /* flipper_format_update_uint32 */
+@@ -552,6 +567,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x2a5091ac, .address = (uint32_t)subghz_receiver_set_rx_callback }, /* subghz_receiver_set_rx_callback */
+     { .hash = 0x2a542d82, .address = (uint32_t)furi_hal_infrared_save_tx_output }, /* furi_hal_infrared_save_tx_output */
+     { .hash = 0x2aaa426e, .address = (uint32_t)text_input_set_result_callback }, /* text_input_set_result_callback */
++    { .hash = 0x2abe3c57, .address = (uint32_t)view_holder_attach_to_gui }, /* view_holder_attach_to_gui */
+     { .hash = 0x2ad352a8, .address = (uint32_t)variable_item_list_set_enter_callback }, /* variable_item_list_set_enter_callback */
+     { .hash = 0x2b03fe22, .address = (uint32_t)view_dispatcher_set_event_callback_context }, /* view_dispatcher_set_event_callback_context */
+     { .hash = 0x2b2da690, .address = (uint32_t)furi_hal_usb_composite_install_for_owner }, /* furi_hal_usb_composite_install_for_owner */
+@@ -559,6 +575,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x2be2a572, .address = (uint32_t)flipper_format_get_raw_stream }, /* flipper_format_get_raw_stream */
+     { .hash = 0x2c940f5a, .address = (uint32_t)text_input_free }, /* text_input_free */
+     { .hash = 0x2d1a0a6f, .address = (uint32_t)nfc_device_set_data }, /* nfc_device_set_data */
++    { .hash = 0x2dc676a1, .address = (uint32_t)canvas_set_custom_u8g2_font }, /* canvas_set_custom_u8g2_font */
+     { .hash = 0x2df5d98e, .address = (uint32_t)plugin_manager_load_single }, /* plugin_manager_load_single */
+     { .hash = 0x2e30c31e, .address = (uint32_t)&I_settings }, /* I_settings */
+     { .hash = 0x2e42fe69, .address = (uint32_t)furi_hal_power_is_otg_enabled }, /* furi_hal_power_is_otg_enabled */
+@@ -567,6 +584,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x2f0e8211, .address = (uint32_t)esp_http_client_cleanup }, /* esp_http_client_cleanup */
+     { .hash = 0x2fcc784c, .address = (uint32_t)furi_hal_gpio_init_owned }, /* furi_hal_gpio_init_owned */
+     { .hash = 0x2fdde3d8, .address = (uint32_t)cli_vcp_disable }, /* cli_vcp_disable */
++    { .hash = 0x2fed55ff, .address = (uint32_t)view_holder_update }, /* view_holder_update */
+     { .hash = 0x30416817, .address = (uint32_t)furi_hal_rtc_get_locale_units }, /* furi_hal_rtc_get_locale_units */
+     { .hash = 0x30aa559e, .address = (uint32_t)furi_string_alloc_set_str }, /* furi_string_alloc_set_str */
+     { .hash = 0x31116c24, .address = (uint32_t)dialog_ex_set_header }, /* dialog_ex_set_header */
+@@ -592,6 +610,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x3595bd57, .address = (uint32_t)furi_hal_power_disable_otg }, /* furi_hal_power_disable_otg */
+     { .hash = 0x35c49b3f, .address = (uint32_t)i2s_del_channel }, /* i2s_del_channel */
+     { .hash = 0x35f92c1b, .address = (uint32_t)wlan_hal_survey_status }, /* wlan_hal_survey_status */
++    { .hash = 0x3654c449, .address = (uint32_t)view_port_is_enabled }, /* view_port_is_enabled */
+     { .hash = 0x36912185, .address = (uint32_t)mjs_mk_boolean }, /* mjs_mk_boolean */
+     { .hash = 0x36b7095d, .address = (uint32_t)esp_wifi_scan_get_ap_num }, /* esp_wifi_scan_get_ap_num */
+     { .hash = 0x36d439a9, .address = (uint32_t)byte_input_free }, /* byte_input_free */
+@@ -615,6 +634,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x3b2ba133, .address = (uint32_t)subghz_devices_get_by_name }, /* subghz_devices_get_by_name */
+     { .hash = 0x3b73a123, .address = (uint32_t)&g_wifi_default_wpa_crypto_funcs }, /* g_wifi_default_wpa_crypto_funcs */
+     { .hash = 0x3bc4e1b0, .address = (uint32_t)furi_hal_i2c_get_sniffer_pins }, /* furi_hal_i2c_get_sniffer_pins */
++    { .hash = 0x3c044b63, .address = (uint32_t)canvas_reset }, /* canvas_reset */
+     { .hash = 0x3c3a86eb, .address = (uint32_t)widget_reset }, /* widget_reset */
+     { .hash = 0x3c60b980, .address = (uint32_t)canvas_width }, /* canvas_width */
+     { .hash = 0x3cc7fa55, .address = (uint32_t)&WIFI_EVENT }, /* WIFI_EVENT */
+@@ -668,6 +688,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x481cbc9f, .address = (uint32_t)mbedtls_net_send }, /* mbedtls_net_send */
+     { .hash = 0x483e67d3, .address = (uint32_t)esp_wifi_set_promiscuous_filter }, /* esp_wifi_set_promiscuous_filter */
+     { .hash = 0x485c7430, .address = (uint32_t)mf_desfire_get_file_data }, /* mf_desfire_get_file_data */
++    { .hash = 0x48f2aba2, .address = (uint32_t)canvas_set_font_direction }, /* canvas_set_font_direction */
+     { .hash = 0x48f2d81c, .address = (uint32_t)furi_timer_free }, /* furi_timer_free */
+     { .hash = 0x48fa02e0, .address = (uint32_t)furi_timer_stop }, /* furi_timer_stop */
+     { .hash = 0x4925e255, .address = (uint32_t)furi_hal_board_get_name }, /* furi_hal_board_get_name */
+@@ -675,6 +696,7 @@ static const struct sym_entry firmware_api_table[] = {
      { .hash = 0x49506e3f, .address = (uint32_t)__floatsidf }, /* __floatsidf */
      { .hash = 0x49e0d1e3, .address = (uint32_t)furi_hal_nfc_field_is_present }, /* furi_hal_nfc_field_is_present */
      { .hash = 0x49ea8c5e, .address = (uint32_t)number_input_free }, /* number_input_free */
@@ -265,7 +364,7 @@ index 17259ed..85b4872 100644
      { .hash = 0x4a721d93, .address = (uint32_t)furi_hal_bt_extra_beacon_stop }, /* furi_hal_bt_extra_beacon_stop */
      { .hash = 0x4a758c4b, .address = (uint32_t)cli_is_pipe_broken_or_is_etx_next_char }, /* cli_is_pipe_broken_or_is_etx_next_char */
      { .hash = 0x4a90b15b, .address = (uint32_t)cli_registry_add_command }, /* cli_registry_add_command */
-@@ -696,6 +702,7 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -696,6 +718,7 @@ static const struct sym_entry firmware_api_table[] = {
      { .hash = 0x4f3578ea, .address = (uint32_t)saved_struct_save }, /* saved_struct_save */
      { .hash = 0x4f46f5e1, .address = (uint32_t)storage_file_get_error }, /* storage_file_get_error */
      { .hash = 0x4f791416, .address = (uint32_t)furi_mutex_acquire }, /* furi_mutex_acquire */
@@ -273,7 +372,14 @@ index 17259ed..85b4872 100644
      { .hash = 0x5007b55a, .address = (uint32_t)mjs_mk_foreign_func }, /* mjs_mk_foreign_func */
      { .hash = 0x507a84aa, .address = (uint32_t)infrared_worker_free }, /* infrared_worker_free */
      { .hash = 0x50b8922e, .address = (uint32_t)esp_netif_create_default_wifi_sta }, /* esp_netif_create_default_wifi_sta */
-@@ -727,6 +734,7 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -721,12 +744,14 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x54fd5635, .address = (uint32_t)subghz_protocol_blocks_crc8 }, /* subghz_protocol_blocks_crc8 */
+     { .hash = 0x552ecfcc, .address = (uint32_t)popup_set_icon }, /* popup_set_icon */
+     { .hash = 0x5534e1a8, .address = (uint32_t)popup_set_text }, /* popup_set_text */
++    { .hash = 0x5547adfb, .address = (uint32_t)view_port_get_height }, /* view_port_get_height */
+     { .hash = 0x558f9446, .address = (uint32_t)furi_hal_infrared_async_tx_stop }, /* furi_hal_infrared_async_tx_stop */
+     { .hash = 0x561f708b, .address = (uint32_t)nfc_device_get_uid }, /* nfc_device_get_uid */
+     { .hash = 0x568eaf4c, .address = (uint32_t)flipper_format_write_header_cstr }, /* flipper_format_write_header_cstr */
      { .hash = 0x575acaf9, .address = (uint32_t)&furi_hal_i2c_handle_external }, /* furi_hal_i2c_handle_external */
      { .hash = 0x57749c72, .address = (uint32_t)dialog_ex_free }, /* dialog_ex_free */
      { .hash = 0x57b6d918, .address = (uint32_t)wlan_hal_is_connected }, /* wlan_hal_is_connected */
@@ -281,15 +387,52 @@ index 17259ed..85b4872 100644
      { .hash = 0x5838cdf7, .address = (uint32_t)submenu_set_header }, /* submenu_set_header */
      { .hash = 0x58919eb5, .address = (uint32_t)furi_hal_i2c_acquire }, /* furi_hal_i2c_acquire */
      { .hash = 0x5949547e, .address = (uint32_t)subghz_devices_begin }, /* subghz_devices_begin */
-@@ -777,6 +785,7 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -736,11 +761,14 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x59cd36e3, .address = (uint32_t)furi_string_printf }, /* furi_string_printf */
+     { .hash = 0x59e930cc, .address = (uint32_t)popup_set_header }, /* popup_set_header */
+     { .hash = 0x59f662f1, .address = (uint32_t)furi_hal_rfid_field_is_present }, /* furi_hal_rfid_field_is_present */
++    { .hash = 0x59f99921, .address = (uint32_t)widget_add_line_element }, /* widget_add_line_element */
+     { .hash = 0x5a32bf67, .address = (uint32_t)mf_desfire_get_file_settings }, /* mf_desfire_get_file_settings */
++    { .hash = 0x5a4c0299, .address = (uint32_t)view_dispatcher_send_to_front }, /* view_dispatcher_send_to_front */
+     { .hash = 0x5a6b0f1c, .address = (uint32_t)subghz_devices_reset }, /* subghz_devices_reset */
+     { .hash = 0x5a74b905, .address = (uint32_t)furi_hal_power_suppress_charge_enter }, /* furi_hal_power_suppress_charge_enter */
+     { .hash = 0x5a80c2b2, .address = (uint32_t)subghz_devices_sleep }, /* subghz_devices_sleep */
+     { .hash = 0x5a869fea, .address = (uint32_t)furi_hal_i2c_read_reg_16 }, /* furi_hal_i2c_read_reg_16 */
++    { .hash = 0x5a997bb1, .address = (uint32_t)view_set_custom_callback }, /* view_set_custom_callback */
+     { .hash = 0x5ac304e4, .address = (uint32_t)furi_thread_flags_clear }, /* furi_thread_flags_clear */
+     { .hash = 0x5b1f405b, .address = (uint32_t)furi_hal_gpio_add_int_callback }, /* furi_hal_gpio_add_int_callback */
+     { .hash = 0x5bab36b9, .address = (uint32_t)variable_item_set_current_value_index }, /* variable_item_set_current_value_index */
+@@ -776,7 +804,9 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x653ccd66, .address = (uint32_t)flipper_format_file_open_append }, /* flipper_format_file_open_append */
      { .hash = 0x65cfd524, .address = (uint32_t)esp_wifi_disconnect }, /* esp_wifi_disconnect */
      { .hash = 0x65ee1254, .address = (uint32_t)furi_hal_infrared_is_available }, /* furi_hal_infrared_is_available */
++    { .hash = 0x66236b4e, .address = (uint32_t)view_port_get_orientation }, /* view_port_get_orientation */
      { .hash = 0x662589fc, .address = (uint32_t)__lshrdi3 }, /* __lshrdi3 */
 +    { .hash = 0x664eb8b3, .address = (uint32_t)canvas_get_buffer_size }, /* canvas_get_buffer_size */
      { .hash = 0x665323b8, .address = (uint32_t)mjs_destroy }, /* mjs_destroy */
      { .hash = 0x667f2ddb, .address = (uint32_t)furi_string_alloc }, /* furi_string_alloc */
      { .hash = 0x66bc73ce, .address = (uint32_t)infrared_worker_get_raw_signal }, /* infrared_worker_get_raw_signal */
-@@ -919,6 +928,7 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -788,6 +818,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x67280fac, .address = (uint32_t)furi_thread_set_stack_size }, /* furi_thread_set_stack_size */
+     { .hash = 0x6728399c, .address = (uint32_t)subghz_receiver_set_filter }, /* subghz_receiver_set_filter */
+     { .hash = 0x6776e177, .address = (uint32_t)esp_err_to_name }, /* esp_err_to_name */
++    { .hash = 0x677d5c70, .address = (uint32_t)canvas_draw_xbm_ex }, /* canvas_draw_xbm_ex */
+     { .hash = 0x678ee68d, .address = (uint32_t)loading_alloc }, /* loading_alloc */
+     { .hash = 0x6797793b, .address = (uint32_t)furi_hal_i2c_read_reg_8 }, /* furi_hal_i2c_read_reg_8 */
+     { .hash = 0x67af1453, .address = (uint32_t)furi_string_reset }, /* furi_string_reset */
+@@ -898,6 +929,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x7ea6a62f, .address = (uint32_t)furi_hal_version_uid_size }, /* furi_hal_version_uid_size */
+     { .hash = 0x7f30002b, .address = (uint32_t)nfc_listener_alloc }, /* nfc_listener_alloc */
+     { .hash = 0x7fa3b874, .address = (uint32_t)number_input_set_header_text }, /* number_input_set_header_text */
++    { .hash = 0x7fc62622, .address = (uint32_t)view_port_get_width }, /* view_port_get_width */
+     { .hash = 0x8079edee, .address = (uint32_t)nfc_listener_start }, /* nfc_listener_start */
+     { .hash = 0x815c5496, .address = (uint32_t)subghz_protocol_blocks_parity8 }, /* subghz_protocol_blocks_parity8 */
+     { .hash = 0x820e6bf0, .address = (uint32_t)__fixdfsi }, /* __fixdfsi */
+@@ -916,15 +948,19 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x8426fee9, .address = (uint32_t)&message_blink_set_color_blue }, /* message_blink_set_color_blue */
+     { .hash = 0x8470ad48, .address = (uint32_t)infrared_worker_signal_is_decoded }, /* infrared_worker_signal_is_decoded */
+     { .hash = 0x847e9302, .address = (uint32_t)esp_wifi_set_max_tx_power }, /* esp_wifi_set_max_tx_power */
++    { .hash = 0x84b51bec, .address = (uint32_t)view_dispatcher_alloc_ex }, /* view_dispatcher_alloc_ex */
      { .hash = 0x84d232d7, .address = (uint32_t)furi_hal_usb_uart_bridge_get_pins }, /* furi_hal_usb_uart_bridge_get_pins */
      { .hash = 0x84de816c, .address = (uint32_t)widget_add_text_scroll_element }, /* widget_add_text_scroll_element */
      { .hash = 0x8511e724, .address = (uint32_t)furi_message_queue_free }, /* furi_message_queue_free */
@@ -297,7 +440,102 @@ index 17259ed..85b4872 100644
      { .hash = 0x8593b6f2, .address = (uint32_t)number_input_set_result_callback }, /* number_input_set_result_callback */
      { .hash = 0x85aa1a2b, .address = (uint32_t)locale_celsius_to_fahrenheit }, /* locale_celsius_to_fahrenheit */
      { .hash = 0x85b3004e, .address = (uint32_t)subghz_setting_get_inx_preset_by_name }, /* subghz_setting_get_inx_preset_by_name */
-@@ -1284,7 +1294,9 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x85c67b87, .address = (uint32_t)view_port_set_height }, /* view_port_set_height */
+     { .hash = 0x85f4ecef, .address = (uint32_t)esp_rom_delay_us }, /* esp_rom_delay_us */
+     { .hash = 0x861acedf, .address = (uint32_t)gpio_set_pull_mode }, /* gpio_set_pull_mode */
+     { .hash = 0x8658fbb8, .address = (uint32_t)&I_Message_8x7 }, /* I_Message_8x7 */
++    { .hash = 0x86914487, .address = (uint32_t)gui_get_framebuffer_size }, /* gui_get_framebuffer_size */
+     { .hash = 0x86ac0d27, .address = (uint32_t)furi_hal_gpio_write }, /* furi_hal_gpio_write */
+     { .hash = 0x86de72c7, .address = (uint32_t)number_input_alloc }, /* number_input_alloc */
+     { .hash = 0x86eb1df6, .address = (uint32_t)furi_hal_infrared_is_busy }, /* furi_hal_infrared_is_busy */
+@@ -964,6 +1000,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x8bfc82db, .address = (uint32_t)args_read_probably_quoted_string_and_trim }, /* args_read_probably_quoted_string_and_trim */
+     { .hash = 0x8d08b4c9, .address = (uint32_t)text_input_set_validator }, /* text_input_set_validator */
+     { .hash = 0x8d8898b8, .address = (uint32_t)canvas_draw_frame }, /* canvas_draw_frame */
++    { .hash = 0x8d97cd71, .address = (uint32_t)canvas_draw_glyph }, /* canvas_draw_glyph */
+     { .hash = 0x8da35d29, .address = (uint32_t)furi_stream_buffer_alloc }, /* furi_stream_buffer_alloc */
+     { .hash = 0x8e28d05b, .address = (uint32_t)iso15693_3_get_block_count }, /* iso15693_3_get_block_count */
+     { .hash = 0x8e57da4c, .address = (uint32_t)subghz_worker_is_running }, /* subghz_worker_is_running */
+@@ -978,6 +1015,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x8fadac27, .address = (uint32_t)subghz_devices_stop_async_tx }, /* subghz_devices_stop_async_tx */
+     { .hash = 0x909815e6, .address = (uint32_t)esp_http_client_get_status_code }, /* esp_http_client_get_status_code */
+     { .hash = 0x9107569d, .address = (uint32_t)strtok_r }, /* strtok_r */
++    { .hash = 0x9138099b, .address = (uint32_t)gui_view_port_send_to_front }, /* gui_view_port_send_to_front */
+     { .hash = 0x9159da67, .address = (uint32_t)furi_semaphore_acquire }, /* furi_semaphore_acquire */
+     { .hash = 0x9162b0c3, .address = (uint32_t)mf_classic_alloc }, /* mf_classic_alloc */
+     { .hash = 0x9197df80, .address = (uint32_t)__extendsfdf2 }, /* __extendsfdf2 */
+@@ -986,6 +1024,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x9206d98e, .address = (uint32_t)elements_text_box }, /* elements_text_box */
+     { .hash = 0x923f9fe4, .address = (uint32_t)&I_Voltage_16x16 }, /* I_Voltage_16x16 */
+     { .hash = 0x925fb3e8, .address = (uint32_t)ble_profile_hid_kb_release }, /* ble_profile_hid_kb_release */
++    { .hash = 0x9277341e, .address = (uint32_t)view_holder_free }, /* view_holder_free */
+     { .hash = 0x927e632a, .address = (uint32_t)nfc_poller_free }, /* nfc_poller_free */
+     { .hash = 0x92858dee, .address = (uint32_t)nfc_poller_stop }, /* nfc_poller_stop */
+     { .hash = 0x92a7821c, .address = (uint32_t)furi_hal_speaker_is_mine }, /* furi_hal_speaker_is_mine */
+@@ -998,6 +1037,9 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x949adeb3, .address = (uint32_t)subghz_worker_set_pair_callback }, /* subghz_worker_set_pair_callback */
+     { .hash = 0x94add11a, .address = (uint32_t)elements_button_right }, /* elements_button_right */
+     { .hash = 0x9531b48a, .address = (uint32_t)widget_free }, /* widget_free */
++    { .hash = 0x953605e4, .address = (uint32_t)view_holder_set_back_callback }, /* view_holder_set_back_callback */
++    { .hash = 0x957212cb, .address = (uint32_t)widget_add_circle_element }, /* widget_add_circle_element */
++    { .hash = 0x95cbc77c, .address = (uint32_t)view_stack_remove_view }, /* view_stack_remove_view */
+     { .hash = 0x95fd32bb, .address = (uint32_t)flipper_format_buffered_file_open_existing }, /* flipper_format_buffered_file_open_existing */
+     { .hash = 0x962c4710, .address = (uint32_t)view_dispatcher_enable_queue }, /* view_dispatcher_enable_queue */
+     { .hash = 0x96408613, .address = (uint32_t)uart_set_baudrate }, /* uart_set_baudrate */
+@@ -1019,9 +1061,11 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x99f4abab, .address = (uint32_t)mf_desfire_get_application }, /* mf_desfire_get_application */
+     { .hash = 0x99f4ff3a, .address = (uint32_t)esp_timer_get_time }, /* esp_timer_get_time */
+     { .hash = 0x9a02017a, .address = (uint32_t)bit_buffer_append_bytes }, /* bit_buffer_append_bytes */
++    { .hash = 0x9a422229, .address = (uint32_t)canvas_commit }, /* canvas_commit */
+     { .hash = 0x9a9a8b99, .address = (uint32_t)infrared_send }, /* infrared_send */
+     { .hash = 0x9bc31804, .address = (uint32_t)esp_wifi_connect }, /* esp_wifi_connect */
+     { .hash = 0x9bc4b4b9, .address = (uint32_t)stream_rewind }, /* stream_rewind */
++    { .hash = 0x9bd259d6, .address = (uint32_t)view_stack_free }, /* view_stack_free */
+     { .hash = 0x9bf1c7e6, .address = (uint32_t)furi_hal_bw16_i2c_read }, /* furi_hal_bw16_i2c_read */
+     { .hash = 0x9c120acd, .address = (uint32_t)storage_dir_close }, /* storage_dir_close */
+     { .hash = 0x9c136b60, .address = (uint32_t)flipper_format_free }, /* flipper_format_free */
+@@ -1067,6 +1111,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0xa5b50f0b, .address = (uint32_t)sprintf }, /* sprintf */
+     { .hash = 0xa666cb6b, .address = (uint32_t)elements_multiline_text_aligned }, /* elements_multiline_text_aligned */
+     { .hash = 0xa73e0d0b, .address = (uint32_t)locale_fahrenheit_to_celsius }, /* locale_fahrenheit_to_celsius */
++    { .hash = 0xa7661d7d, .address = (uint32_t)view_set_update_callback_context }, /* view_set_update_callback_context */
+     { .hash = 0xa7e32bd6, .address = (uint32_t)canvas_invert_color }, /* canvas_invert_color */
+     { .hash = 0xa80d129b, .address = (uint32_t)furi_hal_hid_kb_press }, /* furi_hal_hid_kb_press */
+     { .hash = 0xa8168ef9, .address = (uint32_t)uart_get_buffered_data_len }, /* uart_get_buffered_data_len */
+@@ -1096,12 +1141,15 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0xabdff4d9, .address = (uint32_t)esp_bluedroid_disable }, /* esp_bluedroid_disable */
+     { .hash = 0xac055b11, .address = (uint32_t)i2s_channel_enable }, /* i2s_channel_enable */
+     { .hash = 0xac46f417, .address = (uint32_t)&sequence_display_backlight_on }, /* sequence_display_backlight_on */
++    { .hash = 0xac513fd0, .address = (uint32_t)view_holder_send_to_front }, /* view_holder_send_to_front */
+     { .hash = 0xac94b72e, .address = (uint32_t)subghz_setting_get_preset_count }, /* subghz_setting_get_preset_count */
+     { .hash = 0xacc5bb29, .address = (uint32_t)i2c_master_write_to_device }, /* i2c_master_write_to_device */
+     { .hash = 0xacfb6233, .address = (uint32_t)&I_DolphinMafia_119x62 }, /* I_DolphinMafia_119x62 */
++    { .hash = 0xad4b0fd5, .address = (uint32_t)gui_set_lockdown }, /* gui_set_lockdown */
+     { .hash = 0xad9fa210, .address = (uint32_t)lwip_accept }, /* lwip_accept */
+     { .hash = 0xada6324e, .address = (uint32_t)furi_record_close }, /* furi_record_close */
+     { .hash = 0xae3fb97f, .address = (uint32_t)furi_hal_infrared_get_last_tx_error }, /* furi_hal_infrared_get_last_tx_error */
++    { .hash = 0xae500991, .address = (uint32_t)view_free_model }, /* view_free_model */
+     { .hash = 0xae5e1eed, .address = (uint32_t)subghz_environment_free }, /* subghz_environment_free */
+     { .hash = 0xae808b92, .address = (uint32_t)wifite_cancel }, /* wifite_cancel */
+     { .hash = 0xaee3d796, .address = (uint32_t)flipper_format_write_comment_cstr }, /* flipper_format_write_comment_cstr */
+@@ -1134,6 +1182,8 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0xb3850d3a, .address = (uint32_t)strcasecmp }, /* strcasecmp */
+     { .hash = 0xb3b01449, .address = (uint32_t)subghz_receiver_alloc_init }, /* subghz_receiver_alloc_init */
+     { .hash = 0xb4024f2d, .address = (uint32_t)flipper_format_write_uint32 }, /* flipper_format_write_uint32 */
++    { .hash = 0xb478f5fb, .address = (uint32_t)scene_manager_get_current_scene }, /* scene_manager_get_current_scene */
++    { .hash = 0xb4d7632e, .address = (uint32_t)view_stack_get_view }, /* view_stack_get_view */
+     { .hash = 0xb4e4e3ac, .address = (uint32_t)dialog_message_set_header }, /* dialog_message_set_header */
+     { .hash = 0xb52305b4, .address = (uint32_t)&sequence_display_backlight_enforce_auto }, /* sequence_display_backlight_enforce_auto */
+     { .hash = 0xb54f6609, .address = (uint32_t)furi_hal_crypto_decrypt }, /* furi_hal_crypto_decrypt */
+@@ -1160,6 +1210,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0xb8e347e9, .address = (uint32_t)&gpio_ext_pc3 }, /* gpio_ext_pc3 */
+     { .hash = 0xb8ea6245, .address = (uint32_t)furi_hal_nfc_field_detect_stop }, /* furi_hal_nfc_field_detect_stop */
+     { .hash = 0xb8fef056, .address = (uint32_t)variable_item_list_reset }, /* variable_item_list_reset */
++    { .hash = 0xb8ff9f17, .address = (uint32_t)view_stack_add_view }, /* view_stack_add_view */
+     { .hash = 0xb9986c58, .address = (uint32_t)&gpio_ibutton }, /* gpio_ibutton */
+     { .hash = 0xb9a2ae7d, .address = (uint32_t)bt_start_stack }, /* bt_start_stack */
+     { .hash = 0xb9d4ae5e, .address = (uint32_t)mbedtls_sha1_update }, /* mbedtls_sha1_update */
+@@ -1284,15 +1335,20 @@ static const struct sym_entry firmware_api_table[] = {
      { .hash = 0xce19133e, .address = (uint32_t)flipper_format_write_float }, /* flipper_format_write_float */
      { .hash = 0xce3c78d1, .address = (uint32_t)scene_manager_has_previous_scene }, /* scene_manager_has_previous_scene */
      { .hash = 0xce421a34, .address = (uint32_t)simple_array_get_count }, /* simple_array_get_count */
@@ -306,8 +544,27 @@ index 17259ed..85b4872 100644
 +    { .hash = 0xcf468c55, .address = (uint32_t)date_time_input_set_result_callback }, /* date_time_input_set_result_callback */
      { .hash = 0xcfb7dc05, .address = (uint32_t)submenu_free }, /* submenu_free */
      { .hash = 0xcfbd5603, .address = (uint32_t)&sequence_semi_success }, /* sequence_semi_success */
++    { .hash = 0xcfc37a68, .address = (uint32_t)view_tie_icon_animation }, /* view_tie_icon_animation */
      { .hash = 0xcfde1058, .address = (uint32_t)esp_bt_controller_disable }, /* esp_bt_controller_disable */
-@@ -1331,6 +1343,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0xd00066e0, .address = (uint32_t)furi_string_equal_str }, /* furi_string_equal_str */
+     { .hash = 0xd03b919f, .address = (uint32_t)furi_hal_infrared_set_tx_output }, /* furi_hal_infrared_set_tx_output */
++    { .hash = 0xd04c959f, .address = (uint32_t)view_dispatcher_get_event_loop }, /* view_dispatcher_get_event_loop */
+     { .hash = 0xd05afca7, .address = (uint32_t)&sequence_error }, /* sequence_error */
+     { .hash = 0xd05b251e, .address = (uint32_t)esp_wifi_get_mode }, /* esp_wifi_get_mode */
+     { .hash = 0xd0b4f256, .address = (uint32_t)mbedtls_ctr_drbg_random }, /* mbedtls_ctr_drbg_random */
++    { .hash = 0xd126eea3, .address = (uint32_t)canvas_glyph_width }, /* canvas_glyph_width */
+     { .hash = 0xd25b78fc, .address = (uint32_t)text_box_set_focus }, /* text_box_set_focus */
+     { .hash = 0xd2a1cc32, .address = (uint32_t)furi_hal_bt_extra_beacon_set_data }, /* furi_hal_bt_extra_beacon_set_data */
+     { .hash = 0xd2f13e5e, .address = (uint32_t)furi_hal_infrared_release_claim }, /* furi_hal_infrared_release_claim */
+@@ -1322,6 +1378,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0xd8d0e145, .address = (uint32_t)scene_manager_set_scene_state }, /* scene_manager_set_scene_state */
+     { .hash = 0xd91f014d, .address = (uint32_t)view_dispatcher_set_navigation_event_callback }, /* view_dispatcher_set_navigation_event_callback */
+     { .hash = 0xd93acffc, .address = (uint32_t)mjs_mk_object }, /* mjs_mk_object */
++    { .hash = 0xd959a3d5, .address = (uint32_t)canvas_draw_icon_animation }, /* canvas_draw_icon_animation */
+     { .hash = 0xd988dc2f, .address = (uint32_t)nfc_scanner_alloc }, /* nfc_scanner_alloc */
+     { .hash = 0xd9b8d0fe, .address = (uint32_t)furi_hal_subghz_idle }, /* furi_hal_subghz_idle */
+     { .hash = 0xda3ec7b3, .address = (uint32_t)datetime_timestamp_to_datetime }, /* datetime_timestamp_to_datetime */
+@@ -1331,6 +1388,7 @@ static const struct sym_entry firmware_api_table[] = {
      { .hash = 0xdb02a5b6, .address = (uint32_t)canvas_string_width }, /* canvas_string_width */
      { .hash = 0xdba0969e, .address = (uint32_t)furi_hal_shared_pins_release }, /* furi_hal_shared_pins_release */
      { .hash = 0xdbbbe852, .address = (uint32_t)popup_disable_timeout }, /* popup_disable_timeout */
@@ -315,7 +572,38 @@ index 17259ed..85b4872 100644
      { .hash = 0xdc070dfa, .address = (uint32_t)dialog_message_free }, /* dialog_message_free */
      { .hash = 0xdc0cbdab, .address = (uint32_t)text_box_get_view }, /* text_box_get_view */
      { .hash = 0xdc0e05b9, .address = (uint32_t)dialog_message_show }, /* dialog_message_show */
-@@ -1487,6 +1500,7 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1348,11 +1406,14 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0xdda0fada, .address = (uint32_t)mf_classic_free }, /* mf_classic_free */
+     { .hash = 0xddc80662, .address = (uint32_t)flipper_format_read_header }, /* flipper_format_read_header */
+     { .hash = 0xde4da201, .address = (uint32_t)furi_hal_display_get_v_res }, /* furi_hal_display_get_v_res */
++    { .hash = 0xde861c02, .address = (uint32_t)view_holder_set_view }, /* view_holder_set_view */
+     { .hash = 0xdf0ba445, .address = (uint32_t)flipper_format_read_bool }, /* flipper_format_read_bool */
++    { .hash = 0xdf379799, .address = (uint32_t)view_set_update_callback }, /* view_set_update_callback */
+     { .hash = 0xdf6806b0, .address = (uint32_t)subghz_devices_end }, /* subghz_devices_end */
+     { .hash = 0xdf81ea15, .address = (uint32_t)bt_keys_storage_set_storage_path }, /* bt_keys_storage_set_storage_path */
+     { .hash = 0xdf922d84, .address = (uint32_t)lwip_recvfrom }, /* lwip_recvfrom */
+     { .hash = 0xe07429bb, .address = (uint32_t)mjs_is_undefined }, /* mjs_is_undefined */
++    { .hash = 0xe1001287, .address = (uint32_t)view_holder_alloc }, /* view_holder_alloc */
+     { .hash = 0xe187b854, .address = (uint32_t)view_set_enter_callback }, /* view_set_enter_callback */
+     { .hash = 0xe1adfa83, .address = (uint32_t)furi_string_search_char }, /* furi_string_search_char */
+     { .hash = 0xe1d208c0, .address = (uint32_t)subghz_setting_get_frequency_default_index }, /* subghz_setting_get_frequency_default_index */
+@@ -1372,6 +1433,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0xe3812d8b, .address = (uint32_t)furi_string_get_cstr }, /* furi_string_get_cstr */
+     { .hash = 0xe381bfbc, .address = (uint32_t)loading_get_view }, /* loading_get_view */
+     { .hash = 0xe3b1825b, .address = (uint32_t)furi_hal_gpio_unreserve }, /* furi_hal_gpio_unreserve */
++    { .hash = 0xe3d1cb81, .address = (uint32_t)view_holder_get_free_context }, /* view_holder_get_free_context */
+     { .hash = 0xe3d9a0fc, .address = (uint32_t)mjs_mk_string }, /* mjs_mk_string */
+     { .hash = 0xe4161c5e, .address = (uint32_t)&I_DolphinWait_59x54 }, /* I_DolphinWait_59x54 */
+     { .hash = 0xe41634f2, .address = (uint32_t)furi_string_free }, /* furi_string_free */
+@@ -1469,6 +1531,7 @@ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0xf567b2bd, .address = (uint32_t)iso14443_3a_copy }, /* iso14443_3a_copy */
+     { .hash = 0xf5696324, .address = (uint32_t)iso14443_3a_free }, /* iso14443_3a_free */
+     { .hash = 0xf580f8d3, .address = (uint32_t)&I_Ok_btn_9x9 }, /* I_Ok_btn_9x9 */
++    { .hash = 0xf59b722e, .address = (uint32_t)view_port_set_width }, /* view_port_set_width */
+     { .hash = 0xf5cbc8a5, .address = (uint32_t)cli_registry_delete_command }, /* cli_registry_delete_command */
+     { .hash = 0xf5e616f3, .address = (uint32_t)calloc }, /* calloc */
+     { .hash = 0xf64d7879, .address = (uint32_t)mjs_get_bool }, /* mjs_get_bool */
+@@ -1487,6 +1550,7 @@ static const struct sym_entry firmware_api_table[] = {
      { .hash = 0xfa3567e9, .address = (uint32_t)furi_hal_power_light_sleep_inhibit_exit }, /* furi_hal_power_light_sleep_inhibit_exit */
      { .hash = 0xfa6b18ae, .address = (uint32_t)view_port_alloc }, /* view_port_alloc */
      { .hash = 0xfa87b7d2, .address = (uint32_t)&I_Button_18x18 }, /* I_Button_18x18 */
@@ -323,6 +611,158 @@ index 17259ed..85b4872 100644
      { .hash = 0xfacb9ae5, .address = (uint32_t)submenu_set_selected_item }, /* submenu_set_selected_item */
      { .hash = 0xfb46fcd5, .address = (uint32_t)subghz_devices_is_frequency_valid }, /* subghz_devices_is_frequency_valid */
      { .hash = 0xfb4fa57b, .address = (uint32_t)esp_wifi_set_promiscuous_rx_cb }, /* esp_wifi_set_promiscuous_rx_cb */
+diff --git a/components/flipper_application/flipper_application/official_gui_151_abi_checks.h b/components/flipper_application/flipper_application/official_gui_151_abi_checks.h
+new file mode 100644
+index 0000000..208cfb5
+--- /dev/null
++++ b/components/flipper_application/flipper_application/official_gui_151_abi_checks.h
+@@ -0,0 +1,146 @@
++#pragma once
++
++/* Official Flipper 1.5.1 GUI API signatures; generated from its SDK CSV.
++ * This checks C types only; architecture and behavior require separate tests. */
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_clear), void (*)(Canvas*)), "official 1.5.1 signature: canvas_clear");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_commit), void (*)(Canvas*)), "official 1.5.1 signature: canvas_commit");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_current_font_height), size_t (*)(const Canvas*)), "official 1.5.1 signature: canvas_current_font_height");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_bitmap), void (*)(Canvas*, int32_t, int32_t, size_t, size_t, const uint8_t*)), "official 1.5.1 signature: canvas_draw_bitmap");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_box), void (*)(Canvas*, int32_t, int32_t, size_t, size_t)), "official 1.5.1 signature: canvas_draw_box");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_circle), void (*)(Canvas*, int32_t, int32_t, size_t)), "official 1.5.1 signature: canvas_draw_circle");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_disc), void (*)(Canvas*, int32_t, int32_t, size_t)), "official 1.5.1 signature: canvas_draw_disc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_dot), void (*)(Canvas*, int32_t, int32_t)), "official 1.5.1 signature: canvas_draw_dot");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_frame), void (*)(Canvas*, int32_t, int32_t, size_t, size_t)), "official 1.5.1 signature: canvas_draw_frame");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_glyph), void (*)(Canvas*, int32_t, int32_t, uint16_t)), "official 1.5.1 signature: canvas_draw_glyph");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_icon), void (*)(Canvas*, int32_t, int32_t, const Icon*)), "official 1.5.1 signature: canvas_draw_icon");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_icon_animation), void (*)(Canvas*, int32_t, int32_t, IconAnimation*)), "official 1.5.1 signature: canvas_draw_icon_animation");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_icon_ex), void (*)(Canvas*, int32_t, int32_t, const Icon*, IconRotation)), "official 1.5.1 signature: canvas_draw_icon_ex");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_line), void (*)(Canvas*, int32_t, int32_t, int32_t, int32_t)), "official 1.5.1 signature: canvas_draw_line");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_rbox), void (*)(Canvas*, int32_t, int32_t, size_t, size_t, size_t)), "official 1.5.1 signature: canvas_draw_rbox");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_rframe), void (*)(Canvas*, int32_t, int32_t, size_t, size_t, size_t)), "official 1.5.1 signature: canvas_draw_rframe");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_str), void (*)(Canvas*, int32_t, int32_t, const char*)), "official 1.5.1 signature: canvas_draw_str");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_str_aligned), void (*)(Canvas*, int32_t, int32_t, Align, Align, const char*)), "official 1.5.1 signature: canvas_draw_str_aligned");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_triangle), void (*)(Canvas*, int32_t, int32_t, size_t, size_t, CanvasDirection)), "official 1.5.1 signature: canvas_draw_triangle");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_xbm), void (*)(Canvas*, int32_t, int32_t, size_t, size_t, const uint8_t*)), "official 1.5.1 signature: canvas_draw_xbm");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_draw_xbm_ex), void (*)(Canvas*, int32_t, int32_t, size_t, size_t, IconRotation, const uint8_t*)), "official 1.5.1 signature: canvas_draw_xbm_ex");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_get_buffer), uint8_t* (*)(Canvas*)), "official 1.5.1 signature: canvas_get_buffer");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_get_buffer_size), size_t (*)(const Canvas*)), "official 1.5.1 signature: canvas_get_buffer_size");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_get_font_params), const CanvasFontParameters* (*)(const Canvas*, Font)), "official 1.5.1 signature: canvas_get_font_params");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_glyph_width), size_t (*)(Canvas*, uint16_t)), "official 1.5.1 signature: canvas_glyph_width");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_height), size_t (*)(const Canvas*)), "official 1.5.1 signature: canvas_height");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_invert_color), void (*)(Canvas*)), "official 1.5.1 signature: canvas_invert_color");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_reset), void (*)(Canvas*)), "official 1.5.1 signature: canvas_reset");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_set_bitmap_mode), void (*)(Canvas*, _Bool)), "official 1.5.1 signature: canvas_set_bitmap_mode");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_set_color), void (*)(Canvas*, Color)), "official 1.5.1 signature: canvas_set_color");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_set_custom_u8g2_font), void (*)(Canvas*, const uint8_t*)), "official 1.5.1 signature: canvas_set_custom_u8g2_font");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_set_font), void (*)(Canvas*, Font)), "official 1.5.1 signature: canvas_set_font");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_set_font_direction), void (*)(Canvas*, CanvasDirection)), "official 1.5.1 signature: canvas_set_font_direction");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_string_width), uint16_t (*)(Canvas*, const char*)), "official 1.5.1 signature: canvas_string_width");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&canvas_width), size_t (*)(const Canvas*)), "official 1.5.1 signature: canvas_width");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&date_time_input_alloc), DateTimeInput* (*)(void)), "official 1.5.1 signature: date_time_input_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&date_time_input_free), void (*)(DateTimeInput*)), "official 1.5.1 signature: date_time_input_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&date_time_input_get_view), View* (*)(DateTimeInput*)), "official 1.5.1 signature: date_time_input_get_view");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&date_time_input_set_editable_fields), void (*)(DateTimeInput*, _Bool, _Bool, _Bool, _Bool, _Bool, _Bool)), "official 1.5.1 signature: date_time_input_set_editable_fields");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&date_time_input_set_result_callback), void (*)(DateTimeInput*, DateTimeChangedCallback, DateTimeDoneCallback, void*, DateTime*)), "official 1.5.1 signature: date_time_input_set_result_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&gui_add_framebuffer_callback), void (*)(Gui*, GuiCanvasCommitCallback, void*)), "official 1.5.1 signature: gui_add_framebuffer_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&gui_add_view_port), void (*)(Gui*, ViewPort*, GuiLayer)), "official 1.5.1 signature: gui_add_view_port");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&gui_direct_draw_acquire), Canvas* (*)(Gui*)), "official 1.5.1 signature: gui_direct_draw_acquire");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&gui_direct_draw_release), void (*)(Gui*)), "official 1.5.1 signature: gui_direct_draw_release");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&gui_get_framebuffer_size), size_t (*)(const Gui*)), "official 1.5.1 signature: gui_get_framebuffer_size");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&gui_remove_framebuffer_callback), void (*)(Gui*, GuiCanvasCommitCallback, void*)), "official 1.5.1 signature: gui_remove_framebuffer_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&gui_remove_view_port), void (*)(Gui*, ViewPort*)), "official 1.5.1 signature: gui_remove_view_port");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&gui_set_lockdown), void (*)(Gui*, _Bool)), "official 1.5.1 signature: gui_set_lockdown");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&gui_view_port_send_to_back), void (*)(Gui*, ViewPort*)), "official 1.5.1 signature: gui_view_port_send_to_back");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&gui_view_port_send_to_front), void (*)(Gui*, ViewPort*)), "official 1.5.1 signature: gui_view_port_send_to_front");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_alloc), SceneManager* (*)(const SceneManagerHandlers*, void*)), "official 1.5.1 signature: scene_manager_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_free), void (*)(SceneManager*)), "official 1.5.1 signature: scene_manager_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_get_current_scene), uint32_t (*)(SceneManager*)), "official 1.5.1 signature: scene_manager_get_current_scene");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_get_scene_state), uint32_t (*)(const SceneManager*, uint32_t)), "official 1.5.1 signature: scene_manager_get_scene_state");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_handle_back_event), _Bool (*)(SceneManager*)), "official 1.5.1 signature: scene_manager_handle_back_event");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_handle_custom_event), _Bool (*)(SceneManager*, uint32_t)), "official 1.5.1 signature: scene_manager_handle_custom_event");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_handle_tick_event), void (*)(SceneManager*)), "official 1.5.1 signature: scene_manager_handle_tick_event");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_has_previous_scene), _Bool (*)(const SceneManager*, uint32_t)), "official 1.5.1 signature: scene_manager_has_previous_scene");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_next_scene), void (*)(SceneManager*, uint32_t)), "official 1.5.1 signature: scene_manager_next_scene");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_previous_scene), _Bool (*)(SceneManager*)), "official 1.5.1 signature: scene_manager_previous_scene");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_search_and_switch_to_another_scene), _Bool (*)(SceneManager*, uint32_t)), "official 1.5.1 signature: scene_manager_search_and_switch_to_another_scene");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_search_and_switch_to_previous_scene), _Bool (*)(SceneManager*, uint32_t)), "official 1.5.1 signature: scene_manager_search_and_switch_to_previous_scene");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_search_and_switch_to_previous_scene_one_of), _Bool (*)(SceneManager*, const uint32_t*, size_t)), "official 1.5.1 signature: scene_manager_search_and_switch_to_previous_scene_one_of");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_set_scene_state), void (*)(SceneManager*, uint32_t, uint32_t)), "official 1.5.1 signature: scene_manager_set_scene_state");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&scene_manager_stop), void (*)(SceneManager*)), "official 1.5.1 signature: scene_manager_stop");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_alloc), View* (*)(void)), "official 1.5.1 signature: view_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_allocate_model), void (*)(View*, ViewModelType, size_t)), "official 1.5.1 signature: view_allocate_model");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_commit_model), void (*)(View*, _Bool)), "official 1.5.1 signature: view_commit_model");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_add_view), void (*)(ViewDispatcher*, uint32_t, View*)), "official 1.5.1 signature: view_dispatcher_add_view");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_alloc), ViewDispatcher* (*)(void)), "official 1.5.1 signature: view_dispatcher_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_alloc_ex), ViewDispatcher* (*)(FuriEventLoop*)), "official 1.5.1 signature: view_dispatcher_alloc_ex");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_attach_to_gui), void (*)(ViewDispatcher*, Gui*, ViewDispatcherType)), "official 1.5.1 signature: view_dispatcher_attach_to_gui");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_check_id), _Bool (*)(ViewDispatcher*, uint32_t)), "official 1.5.1 signature: view_dispatcher_check_id");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_enable_queue), void (*)(ViewDispatcher*)), "official 1.5.1 signature: view_dispatcher_enable_queue");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_free), void (*)(ViewDispatcher*)), "official 1.5.1 signature: view_dispatcher_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_get_event_loop), FuriEventLoop* (*)(ViewDispatcher*)), "official 1.5.1 signature: view_dispatcher_get_event_loop");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_remove_view), void (*)(ViewDispatcher*, uint32_t)), "official 1.5.1 signature: view_dispatcher_remove_view");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_run), void (*)(ViewDispatcher*)), "official 1.5.1 signature: view_dispatcher_run");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_send_custom_event), void (*)(ViewDispatcher*, uint32_t)), "official 1.5.1 signature: view_dispatcher_send_custom_event");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_send_to_back), void (*)(ViewDispatcher*)), "official 1.5.1 signature: view_dispatcher_send_to_back");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_send_to_front), void (*)(ViewDispatcher*)), "official 1.5.1 signature: view_dispatcher_send_to_front");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_set_custom_event_callback), void (*)(ViewDispatcher*, ViewDispatcherCustomEventCallback)), "official 1.5.1 signature: view_dispatcher_set_custom_event_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_set_event_callback_context), void (*)(ViewDispatcher*, void*)), "official 1.5.1 signature: view_dispatcher_set_event_callback_context");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_set_navigation_event_callback), void (*)(ViewDispatcher*, ViewDispatcherNavigationEventCallback)), "official 1.5.1 signature: view_dispatcher_set_navigation_event_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_set_tick_event_callback), void (*)(ViewDispatcher*, ViewDispatcherTickEventCallback, uint32_t)), "official 1.5.1 signature: view_dispatcher_set_tick_event_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_stop), void (*)(ViewDispatcher*)), "official 1.5.1 signature: view_dispatcher_stop");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_dispatcher_switch_to_view), void (*)(ViewDispatcher*, uint32_t)), "official 1.5.1 signature: view_dispatcher_switch_to_view");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_free), void (*)(View*)), "official 1.5.1 signature: view_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_free_model), void (*)(View*)), "official 1.5.1 signature: view_free_model");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_get_model), void* (*)(View*)), "official 1.5.1 signature: view_get_model");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_holder_alloc), ViewHolder* (*)(void)), "official 1.5.1 signature: view_holder_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_holder_attach_to_gui), void (*)(ViewHolder*, Gui*)), "official 1.5.1 signature: view_holder_attach_to_gui");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_holder_free), void (*)(ViewHolder*)), "official 1.5.1 signature: view_holder_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_holder_get_free_context), void* (*)(ViewHolder*)), "official 1.5.1 signature: view_holder_get_free_context");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_holder_send_to_back), void (*)(ViewHolder*)), "official 1.5.1 signature: view_holder_send_to_back");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_holder_send_to_front), void (*)(ViewHolder*)), "official 1.5.1 signature: view_holder_send_to_front");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_holder_set_back_callback), void (*)(ViewHolder*, BackCallback, void*)), "official 1.5.1 signature: view_holder_set_back_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_holder_set_free_callback), void (*)(ViewHolder*, FreeCallback, void*)), "official 1.5.1 signature: view_holder_set_free_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_holder_set_view), void (*)(ViewHolder*, View*)), "official 1.5.1 signature: view_holder_set_view");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_holder_update), void (*)(View*, void*)), "official 1.5.1 signature: view_holder_update");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_port_alloc), ViewPort* (*)(void)), "official 1.5.1 signature: view_port_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_port_draw_callback_set), void (*)(ViewPort*, ViewPortDrawCallback, void*)), "official 1.5.1 signature: view_port_draw_callback_set");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_port_enabled_set), void (*)(ViewPort*, _Bool)), "official 1.5.1 signature: view_port_enabled_set");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_port_free), void (*)(ViewPort*)), "official 1.5.1 signature: view_port_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_port_get_height), uint8_t (*)(const ViewPort*)), "official 1.5.1 signature: view_port_get_height");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_port_get_orientation), ViewPortOrientation (*)(const ViewPort*)), "official 1.5.1 signature: view_port_get_orientation");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_port_get_width), uint8_t (*)(const ViewPort*)), "official 1.5.1 signature: view_port_get_width");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_port_input_callback_set), void (*)(ViewPort*, ViewPortInputCallback, void*)), "official 1.5.1 signature: view_port_input_callback_set");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_port_is_enabled), _Bool (*)(const ViewPort*)), "official 1.5.1 signature: view_port_is_enabled");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_port_set_height), void (*)(ViewPort*, uint8_t)), "official 1.5.1 signature: view_port_set_height");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_port_set_orientation), void (*)(ViewPort*, ViewPortOrientation)), "official 1.5.1 signature: view_port_set_orientation");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_port_set_width), void (*)(ViewPort*, uint8_t)), "official 1.5.1 signature: view_port_set_width");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_port_update), void (*)(ViewPort*)), "official 1.5.1 signature: view_port_update");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_set_context), void (*)(View*, void*)), "official 1.5.1 signature: view_set_context");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_set_custom_callback), void (*)(View*, ViewCustomCallback)), "official 1.5.1 signature: view_set_custom_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_set_draw_callback), void (*)(View*, ViewDrawCallback)), "official 1.5.1 signature: view_set_draw_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_set_enter_callback), void (*)(View*, ViewCallback)), "official 1.5.1 signature: view_set_enter_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_set_exit_callback), void (*)(View*, ViewCallback)), "official 1.5.1 signature: view_set_exit_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_set_input_callback), void (*)(View*, ViewInputCallback)), "official 1.5.1 signature: view_set_input_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_set_orientation), void (*)(View*, ViewOrientation)), "official 1.5.1 signature: view_set_orientation");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_set_previous_callback), void (*)(View*, ViewNavigationCallback)), "official 1.5.1 signature: view_set_previous_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_set_update_callback), void (*)(View*, ViewUpdateCallback)), "official 1.5.1 signature: view_set_update_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_set_update_callback_context), void (*)(View*, void*)), "official 1.5.1 signature: view_set_update_callback_context");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_stack_add_view), void (*)(ViewStack*, View*)), "official 1.5.1 signature: view_stack_add_view");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_stack_alloc), ViewStack* (*)(void)), "official 1.5.1 signature: view_stack_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_stack_free), void (*)(ViewStack*)), "official 1.5.1 signature: view_stack_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_stack_get_view), View* (*)(ViewStack*)), "official 1.5.1 signature: view_stack_get_view");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_stack_remove_view), void (*)(ViewStack*, View*)), "official 1.5.1 signature: view_stack_remove_view");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&view_tie_icon_animation), void (*)(View*, IconAnimation*)), "official 1.5.1 signature: view_tie_icon_animation");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&widget_add_button_element), void (*)(Widget*, GuiButtonType, const char*, ButtonCallback, void*)), "official 1.5.1 signature: widget_add_button_element");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&widget_add_circle_element), void (*)(Widget*, uint8_t, uint8_t, uint8_t, _Bool)), "official 1.5.1 signature: widget_add_circle_element");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&widget_add_icon_element), void (*)(Widget*, uint8_t, uint8_t, const Icon*)), "official 1.5.1 signature: widget_add_icon_element");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&widget_add_line_element), void (*)(Widget*, uint8_t, uint8_t, uint8_t, uint8_t)), "official 1.5.1 signature: widget_add_line_element");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&widget_add_rect_element), void (*)(Widget*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, _Bool)), "official 1.5.1 signature: widget_add_rect_element");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&widget_add_string_element), void (*)(Widget*, uint8_t, uint8_t, Align, Align, Font, const char*)), "official 1.5.1 signature: widget_add_string_element");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&widget_add_string_multiline_element), void (*)(Widget*, uint8_t, uint8_t, Align, Align, Font, const char*)), "official 1.5.1 signature: widget_add_string_multiline_element");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&widget_add_text_box_element), void (*)(Widget*, uint8_t, uint8_t, uint8_t, uint8_t, Align, Align, const char*, _Bool)), "official 1.5.1 signature: widget_add_text_box_element");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&widget_add_text_scroll_element), void (*)(Widget*, uint8_t, uint8_t, uint8_t, uint8_t, const char*)), "official 1.5.1 signature: widget_add_text_scroll_element");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&widget_alloc), Widget* (*)(void)), "official 1.5.1 signature: widget_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&widget_free), void (*)(Widget*)), "official 1.5.1 signature: widget_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&widget_get_view), View* (*)(Widget*)), "official 1.5.1 signature: widget_get_view");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&widget_reset), void (*)(Widget*)), "official 1.5.1 signature: widget_reset");
 diff --git a/components/furi/core/event_loop.c b/components/furi/core/event_loop.c
 index f4f44a7..eec3329 100644
 --- a/components/furi/core/event_loop.c
@@ -550,6 +990,54 @@ index 0fb523a..0ac7bf0 100644
  /** Set drawing region relative to real screen buffer
   *
   * @param      canvas    Canvas instance
+diff --git a/components/gui/modules/date_time_input.c b/components/gui/modules/date_time_input.c
+index f48ec4d..7fe5571 100644
+--- a/components/gui/modules/date_time_input.c
++++ b/components/gui/modules/date_time_input.c
+@@ -1,20 +1,8 @@
+ #include "date_time_input.h"
+-// #include "furi_hal_rtc.h" // ESP32: not available
++#include "furi_hal_rtc.h"
+ #include <furi.h>
+ #include <assets_icons.h>
+ 
+-// ESP32: provide fallback for missing furi_hal_rtc locale definitions
+-#ifndef FuriHalRtcLocaleTimeFormat24h
+-typedef enum {
+-    FuriHalRtcLocaleTimeFormat24h,
+-    FuriHalRtcLocaleTimeFormat12h,
+-} FuriHalRtcLocaleTimeFormat;
+-
+-static inline FuriHalRtcLocaleTimeFormat furi_hal_rtc_get_locale_timeformat(void) {
+-    return FuriHalRtcLocaleTimeFormat24h; // Default to 24h format on ESP32
+-}
+-#endif
+-
+ #define get_state(m, r, c, f)                                                           \
+     ((m)->editable.f ? ((m)->row == (r) && (m)->column == (c) ?                         \
+                             ((m)->editing ? EditStateActiveEditing : EditStateActive) : \
+@@ -152,7 +140,7 @@ static void date_time_input_draw_hour_12hr_callback(Canvas* canvas, DateTimeInpu
+ 
+     // Placeholder spaces to make room for AM/PM since FontBigNumbers can't draw letters
+     date_time_input_draw_block(
+-        canvas, 8, ROW_1_Y, 50, ROW_1_H, FontBigNumbers, get_state(model, 1, 0, hour), buffer);
++        canvas, 8, ROW_1_Y, 50, ROW_1_H, FontBigNumbers, get_state(model, 1, 0, hour), "  ");
+     canvas_draw_box(canvas, 60, ROW_1_Y + ROW_1_H - 7, 2, 2);
+     canvas_draw_box(canvas, 60, ROW_1_Y + ROW_1_H - 7 - 6, 2, 2);
+ 
+diff --git a/components/gui/modules/date_time_input.h b/components/gui/modules/date_time_input.h
+index 9aa3b68..1c8cdd7 100644
+--- a/components/gui/modules/date_time_input.h
++++ b/components/gui/modules/date_time_input.h
+@@ -5,7 +5,7 @@
+ 
+ #pragma once
+ 
+-#include "../view.h"
++#include <gui/view.h>
+ #include <datetime.h>
+ 
+ #ifdef __cplusplus
 diff --git a/components/gui/view.h b/components/gui/view.h
 index d79cbb8..69d0e92 100644
 --- a/components/gui/view.h

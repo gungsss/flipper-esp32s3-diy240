@@ -40,6 +40,11 @@ review.
   between its documented and implemented return value.
 - Added the missing GUI/date-time and preset symbols from the official 1.5.1
   SDK API delta; this does not imply the rest of the official ABI is available.
+- Added the remaining available official GUI SDK function exports and checked
+  their C signatures against the 1.5.1 SDK list at compile time. These checks
+  do not establish ABI or runtime equivalence across processor architectures.
+- Replaced the port's date/time input implementation and header with the exact
+  official 1.5.1 sources. Host tests check the 12-hour and 24-hour render paths.
 - Added the USB HID interrupt-OUT endpoint, like the 1.5.1 hardware interface,
   to both the standalone and qFlipper composite ESP32 USB configurations.
 - Tested both real TinyUSB descriptor layouts and keyboard LED report handling
