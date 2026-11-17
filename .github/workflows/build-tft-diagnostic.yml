@@ -1,0 +1,53 @@
+name: Build TFT diagnostic
+on:
+  push:
+    branches: [fix/tft-diagnostic]
+    paths:
+      - 'diagnostics/tft-diag/**'
+      - '.github/workflows/build-tft-diagnostic.yml'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    container: espressif/idf:v5.4.1
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build diagnostic for ESP32-S3
+        run: |
+          source /opt/esp/idf/export.sh
+          cd diagnostics/tft-diag
+          idf.py set-target esp32s3
+          idf.py build
+      - name: Verify offsets and publish binaries to diagnostic branch
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          import shutil
+          build = Path('diagnostics/tft-diag/build')
+          args = json.loads((build / 'flasher_args.json').read_text())
+          expected = {'0x0': 'bootloader/bootloader.bin', '0x8000': 'partition_table/partition-table.bin', '0x10000': 'tft_diagnostic.bin'}
+          actual = {hex(int(k, 0)): v for k, v in args['flash_files'].items()}
+          for offset, path in expected.items():
+              if actual.get(offset) != path:
+                  raise SystemExit(f'Unexpected flash layout at {offset}: {actual}')
+          output = Path('web/public/tes-layar/firmware')
+          output.mkdir(parents=True, exist_ok=True)
+          for path in expected.values():
+              shutil.copy2(build / path, output / Path(path).name)
+          PY
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/public/tes-layar/firmware
+          git commit -m "build: add TFT diagnostic binaries"
+          git push origin HEAD:fix/tft-diagnostic
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tft-diagnostic-esp32s3
+          path: web/public/tes-layar/firmware/*.bin
+          if-no-files-found: error
