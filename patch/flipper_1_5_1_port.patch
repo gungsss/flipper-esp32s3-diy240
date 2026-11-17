@@ -251,6 +251,25 @@ index c00cfac..97535d8 100644
          uint8_t value = (data[position / 8] << (shift));
          value |= data[position / 8 + 1] >> (8 - shift);
          value = value >> (8 - length);
+diff --git a/components/flipper_application/CMakeLists.txt b/components/flipper_application/CMakeLists.txt
+index 205ffbe..dd7dfb6 100644
+--- a/components/flipper_application/CMakeLists.txt
++++ b/components/flipper_application/CMakeLists.txt
+@@ -12,6 +12,14 @@ idf_component_register(
+     REQUIRES furi furi_hal storage toolbox gui notification dialogs flipper_format subghz assets mjs nfc bit_lib datetime mbedtls locale infrared esp_driver_uart esp_driver_gpio wifi bt esp_http_client json
+ )
+ 
++# These official Storage API implementations live in the application archive.
++# The FAP symbol table may be pulled in only after that archive was scanned; keep
++# the two functions available even when nothing in the built-in apps uses them.
++target_link_options(${COMPONENT_LIB} INTERFACE
++    "LINKER:--undefined=storage_int_backup"
++    "LINKER:--undefined=storage_int_restore"
++)
++
+ # firmware_api.c ist die FAP-ABI-Symboltabelle und exportiert bewusst auch deprecated APIs
+ # (z.B. view_dispatcher_enable_queue) -> deprecated-Warnung hier gezielt unterdruecken.
+ # Ein #pragma scheidet aus: die Tabelle ist ein Array-Initializer, dort sind keine Statements erlaubt.
 diff --git a/components/flipper_application/flipper_application/firmware_api.c b/components/flipper_application/flipper_application/firmware_api.c
 index 17259ed..1ea7b78 100644
 --- a/components/flipper_application/flipper_application/firmware_api.c
