@@ -63,6 +63,11 @@ jobs:
               digest = hashlib.sha256(data).hexdigest()
               if row['offset'] != expected_offset or row['sha256'] != digest or row['size_bytes'] != len(data):
                   raise SystemExit(f'Image verification failed: {relative}')
+              if int(expected_offset, 16) + len(data) > 16 * 1024 * 1024:
+                  raise SystemExit(f'Image exceeds 16 MiB flash: {relative}')
+              if relative in ('bootloader/bootloader.bin', 'furi_esp32.bin'):
+                  if len(data) < 16 or data[0] != 0xe9 or data[12:14] != bytes((9, 0)):
+                      raise SystemExit(f'Invalid ESP32-S3 image header: {relative}')
               name = Path(relative).name
               shutil.copy2(source / relative, out / name)
               parts.append({'path': 'firmware/' + name, 'offset': int(expected_offset, 16)})

@@ -40,6 +40,17 @@ def patch_display(s):
                      "ST7735S driver include")
     s = replace_once(s, "#define STRIPE_HEIGHT 32", "#define STRIPE_HEIGHT 10",
                      "DMA stripe size")
+    # waveshare/esp_lcd_st7735 2.0.0 exposes DISPON/DISPOFF, but does not
+    # implement esp_lcd_panel_disp_sleep. Send the ST7735 sleep commands via
+    # the panel IO and wait for the controller to settle instead.
+    s = replace_once(s, "    esp_lcd_panel_disp_sleep(panel_handle, true);",
+                     "    esp_lcd_panel_io_tx_param(io_handle, 0x10 /* SLPIN */, NULL, 0);\n"
+                     "    vTaskDelay(pdMS_TO_TICKS(120));", "panel sleep")
+    s = replace_once(s, "    /* SLPOUT (driver waits ~100 ms to settle) then DISPON. */",
+                     "    /* ST7735S SLPOUT needs time to settle before DISPON. */", "wake comment")
+    s = replace_once(s, "    esp_lcd_panel_disp_sleep(panel_handle, false);",
+                     "    esp_lcd_panel_io_tx_param(io_handle, 0x11 /* SLPOUT */, NULL, 0);\n"
+                     "    vTaskDelay(pdMS_TO_TICKS(120));", "panel wake")
     marker = "    /* ST7735S startup used by the validated color diagnostic. */\n"
     if marker not in s:
         start = "    /* Create ST7789 panel */\n"
