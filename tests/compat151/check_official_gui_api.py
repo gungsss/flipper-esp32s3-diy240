@@ -14,7 +14,11 @@ version = subprocess.check_output(
 assert version == '9e810dc399e027e48ce07751df72168abbb19065', 'unexpected official commit'
 csv_data = subprocess.check_output(
     ['git', '-C', str(official), 'show', '1.5.1:targets/f7/api_symbols.csv'], text=True)
-prefixes = ('canvas_', 'gui_', 'view_', 'widget_', 'scene_manager_', 'date_time_input_')
+prefixes = (
+    'canvas_', 'gui_', 'view_', 'widget_', 'scene_manager_', 'date_time_input_',
+    'button_menu_', 'button_panel_', 'icon_', 'elements_', 'submenu_', 'menu_',
+    'dialog_ex_', 'text_input_',
+)
 rows = [r for r in csv.DictReader(io.StringIO(csv_data))
         if r['entry'] == 'Function' and r['status'] == '+' and r['name'].startswith(prefixes)]
 table = (port / 'components/flipper_application/flipper_application/firmware_api.c').read_text()
@@ -32,6 +36,9 @@ with tempfile.TemporaryDirectory() as tmp:
     (tmp / 'core').mkdir()
     # Only these platform definitions are needed to parse the real GUI headers.
     (tmp / 'core/common_defines.h').write_text('#pragma once\n#define FURI_DEPRECATED\n')
+    (tmp / 'furi.h').write_text(
+        '#pragma once\n#include <stdbool.h>\n#include <stddef.h>\n#include <stdint.h>\n'
+        'typedef struct FuriString FuriString;\n')
     (tmp / 'input.h').write_text(
         '#pragma once\n#include <stdbool.h>\n'
         'typedef struct InputEvent InputEvent;\n'
@@ -44,6 +51,16 @@ with tempfile.TemporaryDirectory() as tmp:
 #include <gui/view_holder.h>
 #include <gui/view_stack.h>
 #include <gui/scene_manager.h>
+#include <gui/elements.h>
+#include <gui/icon.h>
+#include <gui/icon_i.h>
+#include <gui/icon_animation.h>
+#include <gui/modules/button_menu.h>
+#include <gui/modules/button_panel.h>
+#include <gui/modules/menu.h>
+#include <gui/modules/submenu.h>
+#include <gui/modules/dialog_ex.h>
+#include <gui/modules/text_input.h>
 #include <gui/modules/widget.h>
 #include <gui/modules/date_time_input.h>
 #include "official_gui_151_abi_checks.h"

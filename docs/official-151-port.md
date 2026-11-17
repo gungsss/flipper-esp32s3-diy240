@@ -40,8 +40,9 @@ review.
   between its documented and implemented return value.
 - Added the missing GUI/date-time and preset symbols from the official 1.5.1
   SDK API delta; this does not imply the rest of the official ABI is available.
-- Added the remaining available official GUI SDK function exports and checked
-  their C signatures against the 1.5.1 SDK list at compile time. These checks
+- Added official GUI SDK exports for canvas, views, widgets, scenes, menus,
+  buttons, icons, text input, dialogs and drawing elements. All 231 selected
+  functions have C signature checks against the 1.5.1 SDK list. These checks
   do not establish ABI or runtime equivalence across processor architectures.
 - Added 123 existing Furi core functions to the ESP32 SDK symbol table with
   the official 1.5.1 C signature checks, and the RTC format function used by
