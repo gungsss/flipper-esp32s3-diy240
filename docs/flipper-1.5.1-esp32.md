@@ -15,8 +15,9 @@ Some 1.5.1 features, including the Elplast protocol and the wider BLE HID
 keyboard report, were already present in the ESP32 source. Existing ESP32
 storage, hardware HAL, Bluetooth and custom protocol modifications are
 retained. Changes that only target the original STM32 hardware cannot simply
-be applied to the ESP32 HAL. The NFC hotel parser source is included, but its
-separately compiled plugin and NFC hardware are not part of the present build.
+be applied to the ESP32 HAL. The upstream hotel-card parser was deliberately
+excluded because it contains access keys; NFC hardware is not part of this
+build profile.
 
 The official `view_dispatcher_check_id` implementation in tag `1.5.1`
 returns the opposite of the public header's documented result; this port
