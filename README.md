@@ -10,7 +10,7 @@ Proyek ini adalah **repositori integrasi/patch**, bukan salinan penuh source ups
 
 ## Web Flasher — Windows, Linux, macOS, Android
 
-**[Buka DIY240 Web Flasher](https://flipper-diy240-flasher.vercel.app)**
+**[Buka DIY240 Web Flasher](https://diy240.vercel.app)**
 
 Situs menyediakan flashing USB berbasis [ESP Web Tools](https://esphome.github.io/esp-web-tools/) pada browser yang kompatibel, file merged `.bin`, perintah esptool manual, diagram wiring, serta panduan Windows/Linux/macOS/Android/iOS.
 
