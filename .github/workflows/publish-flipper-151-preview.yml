@@ -1,0 +1,73 @@
+name: Publish experimental 1.5.1 flasher preview
+on:
+  push:
+    branches: [work/flipper-1.5.1-st7735]
+    paths:
+      - '.github/workflows/publish-flipper-151-preview.yml'
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download successful portrait build
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 44117359364
+          name: flipper-151-st7735-portrait
+          path: web/public/flipper-st7735-151/portrait
+      - name: Download successful landscape build
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 44117359364
+          name: flipper-151-st7735-landscape
+          path: web/public/flipper-st7735-151/landscape
+      - name: Verify images and correct the LCD metadata
+        run: |
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('web/public/flipper-st7735-151')
+          expected = {
+              'portrait': '37d63f6189ce1c0164d6492df4a65db8bc18286fcdf5528e1e6912ce198961a3',
+              'landscape': '78ae950e66a50eef8b95505160cd93d1b423cfbe7ef05026595bd6bb6cd365ed',
+          }
+          for orientation, digest in expected.items():
+              folder = root / orientation
+              info = json.loads((folder / 'build-info.json').read_text())
+              manifest = json.loads((folder / 'manifest.json').read_text())
+              records = {Path(row['file']).name: row for row in info['images']}
+              assert info['orientation'] == orientation
+              assert manifest['builds'][0]['chipFamily'] == 'ESP32-S3'
+              assert set(records) == {'bootloader.bin', 'partition-table.bin', 'furi_esp32.bin', 'ota_data_initial.bin'}
+              assert records['furi_esp32.bin']['sha256'] == digest
+              for part in manifest['builds'][0]['parts']:
+                  name = part['path']
+                  assert Path(name).name == name and name in records
+                  data = (folder / name).read_bytes()
+                  row = records[name]
+                  assert hashlib.sha256(data).hexdigest() == row['sha256']
+                  assert len(data) == row['size_bytes'] and part['offset'] == int(row['offset'], 16)
+                  row['file'] = name
+              info['lcd'] = 'ST7735S 128x160' if orientation == 'portrait' else 'ST7735S 160x128 landscape'
+              info['display_driver'] = 'waveshare/esp_lcd_st7735 2.0.0'
+              info['board_connection'] = 'ESP32-S3 DIY, CS connected to GND, SD on SPI3'
+              info['source_build_run'] = 'https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/44117359364'
+              (folder / 'build-info.json').write_text(json.dumps(info, indent=2) + '\n')
+              print(f'{orientation} verified: {digest}')
+          PY
+      - name: Publish only the separate experimental preview
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f web/public/flipper-st7735-151/portrait web/public/flipper-st7735-151/landscape
+          git diff --cached --check
+          git commit -m 'build: add experimental ST7735S 1.5.1-backport images'
+          git push origin HEAD:work/flipper-1.5.1-st7735
