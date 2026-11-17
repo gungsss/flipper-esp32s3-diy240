@@ -20,7 +20,7 @@ root = port / 'components/flipper_application/flipper_application'
 table = (root / 'firmware_api.c').read_text()
 header = (root / 'official_core_151_abi_checks.h').read_text()
 names = re.findall(r'official 1\.5\.1 signature: (furi_\w+)', header)
-assert len(names) == 123 and len(set(names)) == len(names), 'unexpected core function set'
+assert len(names) == 124 and len(set(names)) == len(names), 'unexpected core/RTC function set'
 table_names = re.findall(r'\.hash = 0x[0-9a-fA-F]+,\s*\.address = \(uint32_t\).*?/\* (.*?) \*/', table)
 for name in names:
     row = official_api[name]
@@ -39,12 +39,14 @@ with tempfile.TemporaryDirectory() as tmp:
     (tmp / 'freertos/task.h').write_text('#pragma once\n')
     source = tmp / 'core_types.c'
     source.write_text('#include <stdint.h>\n#define _ATTRIBUTE(x) __attribute__(x)\n'
-                      '#include <furi.h>\n#include "official_core_151_abi_checks.h"\n')
+                      '#include <furi.h>\n#include <furi_hal_rtc.h>\n'
+                      '#include "official_core_151_abi_checks.h"\n')
     subprocess.run([
         'gcc', '-std=gnu11', '-Wall', '-Wextra', '-Werror', '-fsyntax-only',
-        '-I', str(tmp), '-I', str(port / 'components/furi'),
+        '-I', str(tmp), '-I', str(port / 'components'), '-I', str(port / 'components/furi_hal'),
+        '-I', str(port / 'components/furi'),
         '-I', str(port / 'components/furi/core'), '-I', str(port / 'components/mlib'),
         '-I', str(root), str(source),
     ], check=True)
-print(f'{len(names)} Furi core exports match the official 1.5.1 SDK C signatures on host.')
+print(f'{len(names)} Furi core/RTC exports match official 1.5.1 SDK C signatures on host.')
 print('Actual behavior and Xtensa versus ARM ABI still need separate validation.')

@@ -44,10 +44,16 @@ review.
   their C signatures against the 1.5.1 SDK list at compile time. These checks
   do not establish ABI or runtime equivalence across processor architectures.
 - Added 123 existing Furi core functions to the ESP32 SDK symbol table with
-  the official 1.5.1 C signature checks; many other SDK exports remain absent.
+  the official 1.5.1 C signature checks, and the RTC format function used by
+  the example; many other SDK exports remain absent.
+- Exposed 25 additional storage, locale, and date/time functions; all 64
+  official functions in those groups have 1.5.1 SDK C signature checks.
+  Device storage behavior remains untested.
 - Added an explicit DIY target to the FAP builder and a CI check that builds
   the official 1.5.1 date/time example for Xtensa, then checks its imports.
   CI build results and real-device execution must be verified separately.
+- The same official example compiles on the host against the port headers and
+  its unresolved symbols are checked against the current firmware API table.
 - Replaced the port's date/time input implementation and header with the exact
   official 1.5.1 sources. Host tests check the 12-hour and 24-hour render paths.
 - Added the USB HID interrupt-OUT endpoint, like the 1.5.1 hardware interface,

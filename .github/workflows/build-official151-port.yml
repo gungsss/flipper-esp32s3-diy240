@@ -36,6 +36,8 @@ jobs:
           python3 tests/compat151/check_official_time_input.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_gui_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_core_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
+          python3 tests/compat151/check_official_storage_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
+          python3 tests/compat151/check_official_example.py "$RUNNER_TEMP/flipper-official" .work/upstream
       - name: Verify ABI ordering and released view behavior
         run: |
           python3 tests/compat151/check_firmware_api.py .work/upstream
