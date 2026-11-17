@@ -41,17 +41,34 @@ function updateButton() {
 
 function updateBrowserStatus() {
   const info = browserInfo();
-  // ESP Web Tools has its own support detection. Web Serial is the reliable
-  // native path, while non-Chromium browsers may use an implementation-specific path.
-  browserSupported = info.webSerialNative && !info.isIOS && window.isSecureContext;
+  const webToolsSupported = elements.installer.hasAttribute('install-supported');
+  const webToolsUnsupported = elements.installer.hasAttribute('install-unsupported');
+  // Prefer the support attributes from ESP Web Tools: it also supports
+  // browsers with a USB polyfill, where navigator.serial may be absent.
+  browserSupported = !info.isIOS && window.isSecureContext && !webToolsUnsupported &&
+    (info.webSerialNative || webToolsSupported);
+
   if (info.isIOS) elements.browser.textContent = 'Tidak didukung (iOS)';
   else if (!window.isSecureContext) elements.browser.textContent = 'Perlu HTTPS';
-  else if (!info.webSerialNative) elements.browser.textContent = 'Tanpa Web Serial';
-  else elements.browser.textContent = 'USB tersedia';
+  else if (webToolsUnsupported) elements.browser.textContent = 'Tidak didukung';
+  else if (info.webSerialNative) elements.browser.textContent = 'USB tersedia';
+  else if (webToolsSupported) elements.browser.textContent = 'USB via installer';
+  else elements.browser.textContent = 'Memeriksa dukungan USB';
+
   elements.browserDot.textContent = browserSupported ? '✓' : '!';
   elements.browserDot.classList.toggle('good', browserSupported);
   elements.browserDot.classList.toggle('bad', !browserSupported);
   updateButton();
+}
+
+// The custom element can determine support after its module has loaded.
+if (window.customElements && elements.installer) {
+  const observer = new MutationObserver(updateBrowserStatus);
+  observer.observe(elements.installer, {
+    attributes: true,
+    attributeFilter: ['install-supported', 'install-unsupported', 'install-not-allowed'],
+  });
+  customElements.whenDefined('esp-web-install-button').then(updateBrowserStatus).catch(() => {});
 }
 
 function prettyBytes(bytes) {
