@@ -1,0 +1,57 @@
+name: Publish verified DIY240 web firmware
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-web-firmware.yml'
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    name: Merge and publish verified ESP32-S3 web image
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Download successful firmware build artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/diy240-build"
+          gh run download 43889135916 --repo gungsss/flipper-esp32s3-diy240 --name flipper-diy-s3-n16r8-st7789-240 --dir "$RUNNER_TEMP/diy240-build"
+          test -f "$RUNNER_TEMP/diy240-build/BUILD_INFO.json"
+          test -f "$RUNNER_TEMP/diy240-build/ota_data_initial.bin"
+
+      - name: Prepare trusted esptool version
+        run: |
+          python3 -m venv "$RUNNER_TEMP/diy240-esptool"
+          "$RUNNER_TEMP/diy240-esptool/bin/python" -m pip install --disable-pip-version-check "esptool==4.8.1"
+
+      - name: Merge firmware and validate binary, manifest and checksum
+        run: |
+          "$RUNNER_TEMP/diy240-esptool/bin/python" web/tools/publish_firmware.py \
+            --input "$RUNNER_TEMP/diy240-build" \
+            --output web/public/firmware
+          test -s web/public/firmware/flipper-esp32s3-diy240-20261116-merged.bin
+          "$RUNNER_TEMP/diy240-esptool/bin/python" -m esptool image_info web/public/firmware/flipper-esp32s3-diy240-20261116-merged.bin > /dev/null
+
+      - name: Commit web assets to main
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/public/firmware/*.bin web/public/firmware/*.json
+          if git diff --cached --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+          git commit -m "build(web): publish verified DIY240 merged firmware image"
+          git push origin HEAD:main
