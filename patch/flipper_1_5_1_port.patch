@@ -283,6 +283,143 @@ index 63f020f..1165130 100644
   */
  #pragma once
  
+diff --git a/components/furi_hal/furi_hal_usb_hid_output_report.h b/components/furi_hal/furi_hal_usb_hid_output_report.h
+new file mode 100644
+index 0000000..56fb06f
+--- /dev/null
++++ b/components/furi_hal/furi_hal_usb_hid_output_report.h
+@@ -0,0 +1,26 @@
++#pragma once
++
++#include <stdbool.h>
++#include <stdint.h>
++
++#define FURI_HAL_USB_HID_KEYBOARD_REPORT_ID 1
++
++/* TinyUSB delivers SET_REPORT with its report ID separately, but calls the
++ * interrupt-OUT endpoint with report_id == 0 and the ID in the payload. */
++static inline bool furi_hal_usb_hid_keyboard_led_report(
++    uint8_t report_id,
++    const uint8_t* buffer,
++    uint16_t length,
++    uint8_t* led_state) {
++    if(!buffer || !led_state) return false;
++
++    if(report_id == 0) {
++        if(length < 2) return false;
++        report_id = *buffer++;
++        --length;
++    }
++
++    if(report_id != FURI_HAL_USB_HID_KEYBOARD_REPORT_ID || length < 1) return false;
++    *led_state = buffer[0];
++    return true;
++}
+diff --git a/components/furi_hal/furi_hal_usb_hid_tinyusb.c b/components/furi_hal/furi_hal_usb_hid_tinyusb.c
+index 872bf2e..bb9872f 100644
+--- a/components/furi_hal/furi_hal_usb_hid_tinyusb.c
++++ b/components/furi_hal/furi_hal_usb_hid_tinyusb.c
+@@ -1,6 +1,7 @@
+ #include "furi_hal_usb.h"
+ #include "furi_hal_usb_hid.h"
+ #include "furi_hal_usb_hid_backend.h"
++#include "furi_hal_usb_hid_output_report.h"
+ 
+ #include <furi.h>
+ #include <furi_hal_version.h>
+@@ -18,10 +19,11 @@
+ #define TAG "FuriHalUsbHid"
+ 
+ #define USB_REENUMERATE_DISCONNECT_MS 300
+-#define REPORT_ID_KEYBOARD 1
++#define REPORT_ID_KEYBOARD FURI_HAL_USB_HID_KEYBOARD_REPORT_ID
+ #define REPORT_ID_MOUSE    2
+ #define REPORT_ID_CONSUMER 3
+ 
++#define HID_EP_OUT      0x01
+ #define HID_EP_IN       0x81
+ #define HID_EP_BUF_SIZE 16
+ #define HID_POLL_MS     5
+@@ -32,15 +34,16 @@ static const uint8_t hid_report_descriptor[] = {
+     TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(REPORT_ID_CONSUMER)),
+ };
+ 
+-#define HID_CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN)
++#define HID_CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN)
+ 
+ static const uint8_t hid_configuration_descriptor[] = {
+     TUD_CONFIG_DESCRIPTOR(1, 1, 0, HID_CONFIG_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100),
+-    TUD_HID_DESCRIPTOR(
++    TUD_HID_INOUT_DESCRIPTOR(
+         0,
+         4,
+         false,
+         sizeof(hid_report_descriptor),
++        HID_EP_OUT,
+         HID_EP_IN,
+         HID_EP_BUF_SIZE,
+         HID_POLL_MS),
+@@ -204,9 +207,10 @@ void tud_hid_set_report_cb(
+         return;
+     }
+ #endif
+-    if(report_type == HID_REPORT_TYPE_OUTPUT && report_id == REPORT_ID_KEYBOARD &&
+-       bufsize >= 1) {
+-        s_state.led_state = buffer[0];
++    uint8_t leds;
++    if(report_type == HID_REPORT_TYPE_OUTPUT &&
++       furi_hal_usb_hid_keyboard_led_report(report_id, buffer, bufsize, &leds)) {
++        s_state.led_state = leds;
+     }
+ }
+ 
+diff --git a/components/furi_hal/furi_hal_usb_tinyusb_composite.c b/components/furi_hal/furi_hal_usb_tinyusb_composite.c
+index 6098b28..9c9114b 100644
+--- a/components/furi_hal/furi_hal_usb_tinyusb_composite.c
++++ b/components/furi_hal/furi_hal_usb_tinyusb_composite.c
+@@ -39,6 +39,7 @@
+ #define REPORT_ID_CONSUMER 3
+ 
+ /* Endpoint layout */
++#define HID_EP_OUT      0x01
+ #define HID_EP_IN       0x81
+ #define HID_EP_BUF_SIZE 16
+ #define HID_POLL_MS     5
+@@ -60,7 +61,7 @@
+ #define ITF_TOTAL         4
+ 
+ #define COMP_CONFIG_TOTAL_LEN \
+-    (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN + TUD_CDC_DESC_LEN + TUD_MSC_DESC_LEN)
++    (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_CDC_DESC_LEN + TUD_MSC_DESC_LEN)
+ 
+ /* Forward-declared from furi_hal_usb_hid_tinyusb.c */
+ extern const uint8_t* furi_hal_usb_hid_report_desc(size_t* out_len);
+@@ -78,11 +79,12 @@ static const uint8_t s_composite_config_desc[] = {
+         TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP,
+         100),
+     /* HID */
+-    TUD_HID_DESCRIPTOR(
++    TUD_HID_INOUT_DESCRIPTOR(
+         ITF_NUM_HID,
+         4 /* iInterface = "HID" */,
+         false,
+         0 /* report_desc_len patched at install-time */,
++        HID_EP_OUT,
+         HID_EP_IN,
+         HID_EP_BUF_SIZE,
+         HID_POLL_MS),
+@@ -188,9 +190,9 @@ static bool furi_hal_usb_composite_install_internal(
+     if(vid) s_device_descriptor.idVendor = vid;
+     if(pid) s_device_descriptor.idProduct = pid;
+ 
+-    /* Patch the HID descriptor length (offset 16 inside TUD_HID_DESCRIPTOR within
++    /* Patch the HID descriptor length (offset 16 inside TUD_HID_INOUT_DESCRIPTOR within
+      * the config blob: TUD_CONFIG (9 bytes) + TUD_HID up to wDescriptorLength.
+-     * TUD_HID_DESCRIPTOR layout is 9-byte interface + 9-byte hid + 7-byte EP.
++     * The class descriptor precedes the separate OUT and IN endpoints.
+      * wDescriptorLength is inside the 9-byte HID class descriptor at offset 7..8.
+      * Absolute: 9 (config) + 9 (interface) + 7 (in HID class desc up to wDesc) = 25.
+      */
 diff --git a/components/gui/canvas.c b/components/gui/canvas.c
 index b4ad7a8..946e427 100644
 --- a/components/gui/canvas.c
@@ -361,16 +498,18 @@ index d79cbb8..69d0e92 100644
   * @param      view      View instance
   * @param      callback  draw callback
 diff --git a/components/gui/view_dispatcher.c b/components/gui/view_dispatcher.c
-index b7f267e..bfc44f3 100644
+index b7f267e..0d6984d 100644
 --- a/components/gui/view_dispatcher.c
 +++ b/components/gui/view_dispatcher.c
-@@ -142,6 +142,11 @@ void view_dispatcher_stop(ViewDispatcher* view_dispatcher) {
+@@ -142,6 +142,13 @@ void view_dispatcher_stop(ViewDispatcher* view_dispatcher) {
      furi_event_loop_stop(view_dispatcher->event_loop);
  }
  
 +bool view_dispatcher_check_id(ViewDispatcher* view_dispatcher, uint32_t view_id) {
 +    furi_check(view_dispatcher);
-+    return ViewDict_get(view_dispatcher->views, view_id) != NULL;
++    /* Match official 1.5.1 behavior even though its header documents the
++     * opposite return value. Keep this explicit for source compatibility. */
++    return ViewDict_get(view_dispatcher->views, view_id) == NULL;
 +}
 +
  void view_dispatcher_add_view(ViewDispatcher* view_dispatcher, uint32_t view_id, View* view) {

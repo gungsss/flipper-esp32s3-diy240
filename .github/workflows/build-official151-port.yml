@@ -1,0 +1,82 @@
+name: Verify Flipper 1.5.1 ESP32 development port
+on:
+  push:
+    branches: [work/flipper-1.5.1-official-port]
+    paths:
+      - 'patch/flipper_1_5_1_port.patch'
+      - 'tests/compat151/**'
+      - 'scripts/audit_official_151.py'
+      - '.github/workflows/build-official151-port.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the existing DIY board contracts
+        run: python3 -m unittest discover -s tests -v
+      - name: Prepare the ESP32 adaptation
+        run: |
+          bash scripts/fetch_upstream.sh
+          git -C .work/upstream apply --check "$GITHUB_WORKSPACE/patch/flipper_1_5_1_port.patch"
+          git -C .work/upstream apply "$GITHUB_WORKSPACE/patch/flipper_1_5_1_port.patch"
+      - name: Audit against the exact official 1.5.1 source commit
+        run: |
+          git init "$RUNNER_TEMP/flipper-official"
+          git -C "$RUNNER_TEMP/flipper-official" remote add origin https://github.com/flipperdevices/flipperzero-firmware.git
+          git -C "$RUNNER_TEMP/flipper-official" fetch --depth=1 --filter=blob:none origin refs/tags/1.5.1:refs/tags/1.5.1
+          python3 scripts/audit_official_151.py "$RUNNER_TEMP/flipper-official" .work/upstream --output "$RUNNER_TEMP/source-audit.json"
+      - name: Verify ABI ordering and released view behavior
+        run: |
+          python3 tests/compat151/check_firmware_api.py .work/upstream
+          python3 tests/compat151/check_view_api.py .work/upstream
+      - name: Verify HID descriptors and output report handling
+        run: |
+          git clone --quiet --depth=1 --branch 0.21.0 https://github.com/hathach/tinyusb.git "$RUNNER_TEMP/tinyusb"
+          test "$(git -C "$RUNNER_TEMP/tinyusb" rev-parse HEAD)" = dae3f9a366bfcddbf9dcf1b48d7500286a849539
+          python3 tests/compat151/check_usb_descriptors.py .work/upstream "$RUNNER_TEMP/tinyusb"
+      - name: Verify bit extraction with sanitizers
+        run: |
+          gcc -g -O1 -std=c11 -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -Itests/compat151/include -I.work/upstream/components/bit_lib \
+            tests/compat151/bit_lib_regression.c .work/upstream/components/bit_lib/bit_lib.c \
+            -o "$RUNNER_TEMP/bit-lib-regression"
+          ASAN_OPTIONS=detect_leaks=0 "$RUNNER_TEMP/bit-lib-regression"
+
+  compile:
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        orientation: [portrait, landscape]
+    container: espressif/idf:v5.4.1
+    defaults:
+      run:
+        shell: bash
+    env:
+      ESP_IDF_EXPORT_SCRIPT: /opt/esp/idf/export.sh
+      ORIENTATION: ${{ matrix.orientation }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply ESP32 and ST7735S adaptations
+        run: |
+          bash scripts/fetch_upstream.sh
+          git -C .work/upstream apply --check "$GITHUB_WORKSPACE/patch/flipper_1_5_1_port.patch"
+          git -C .work/upstream apply "$GITHUB_WORKSPACE/patch/flipper_1_5_1_port.patch"
+          python3 patch/patch_flipper.py .work/upstream
+          python3 variants/st7735/patch_st7735.py .work/upstream
+          if [[ "$ORIENTATION" == landscape ]]; then
+            python3 variants/st7735/patch_landscape.py .work/upstream
+          fi
+      - name: Compile ESP32-S3 firmware without publishing it
+        run: |
+          source /opt/esp/idf/export.sh
+          cd .work/upstream
+          ./build_diy.sh --build-only

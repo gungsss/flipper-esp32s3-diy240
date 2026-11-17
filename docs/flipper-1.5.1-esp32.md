@@ -20,9 +20,10 @@ excluded because it contains access keys; NFC hardware is not part of this
 build profile.
 
 The official `view_dispatcher_check_id` implementation in tag `1.5.1`
-returns the opposite of the public header's documented result; this port
-returns true when a view exists. The five added FAP exports are inserted in
-hash order without changing the ESP32 FAP API's existing major version.
+returns the opposite of the public header's documented result. The current
+development branch preserves the released implementation's behavior and
+tests it explicitly. The five added FAP exports are inserted in hash order
+without changing the ESP32 FAP API's existing major version.
 Official Flipper FAPs are compiled for a different architecture and are not
 made compatible by these exports.
 

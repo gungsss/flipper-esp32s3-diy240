@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Run the public view-ID contract against the actual ported function body."""
+"""Verify the port matches the released 1.5.1 view-ID behavior.
+
+The 1.5.1 header documents the opposite result. This checks implementation
+compatibility with the release, rather than silently fixing the upstream bug.
+"""
 import re
 import subprocess
 import sys
@@ -24,8 +28,8 @@ static int* ViewDict_get(ViewMap* map, uint32_t id) {
 int main(void) {
     ViewMap map = {.id = 42, .value = 7};
     ViewDispatcher dispatcher = {.views = &map};
-    assert(view_dispatcher_check_id(&dispatcher, 42));
-    assert(!view_dispatcher_check_id(&dispatcher, 43));
+    assert(!view_dispatcher_check_id(&dispatcher, 42));
+    assert(view_dispatcher_check_id(&dispatcher, 43));
     return 0;
 }
 '''
@@ -35,4 +39,4 @@ with tempfile.TemporaryDirectory() as tmp:
     exe = Path(tmp, 'test')
     subprocess.run(['gcc', '-std=c11', '-Wall', '-Werror', str(path), '-o', str(exe)], check=True)
     subprocess.run([str(exe)], check=True)
-print('View-ID lookup passed for both present and absent IDs.')
+print('View-ID lookup matches the 1.5.1 implementation for present and absent IDs.')
