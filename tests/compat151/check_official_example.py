@@ -44,7 +44,9 @@ with tempfile.TemporaryDirectory() as directory:
     flags = [arg for folder in include_dirs for arg in ('-I', str(folder))]
     for index, source in enumerate(sources):
         obj = root / f'app_{index}.o'
-        subprocess.run(['gcc', '-std=gnu11', '-c', '-include', str(stub / 'prelude.h'),
+        # Host distributions may inject x86-specific stack-protector imports;
+        # the independently compiled Xtensa example checks its own imports.
+        subprocess.run(['gcc', '-std=gnu11', '-fno-stack-protector', '-c', '-include', str(stub / 'prelude.h'),
                         *flags, str(source), '-o', str(obj)], check=True)
         objects.append(str(obj))
     combined = root / 'app.o'
