@@ -1,0 +1,100 @@
+name: Build Flipper ST7735S
+on:
+  push:
+    branches: [fix/flipper-st7735]
+    paths:
+      - 'patch/patch_st7735.py'
+      - '.github/workflows/build-flipper-st7735.yml'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    container: espressif/idf:v5.4.1
+    defaults:
+      run:
+        shell: bash
+    env:
+      ESP_IDF_EXPORT_SCRIPT: /opt/esp/idf/export.sh
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run integration contract tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Fetch pinned upstream firmware
+        run: bash scripts/fetch_upstream.sh
+      - name: Apply DIY and ST7735S profiles
+        run: |
+          python3 patch/patch_flipper.py .work/upstream
+          python3 patch/patch_st7735.py .work/upstream
+          sha256sum .work/upstream/tools/gen_diy_board.py .work/upstream/components/furi_hal/furi_hal_display.c .work/upstream/components/furi_hal/idf_component.yml .work/upstream/components/furi_hal/CMakeLists.txt > /tmp/st7735-patch.sha256
+          python3 patch/patch_st7735.py .work/upstream
+          sha256sum -c /tmp/st7735-patch.sha256
+      - name: Build Flipper for ESP32-S3 (no flashing)
+        run: |
+          source /opt/esp/idf/export.sh
+          cd .work/upstream
+          ./build_diy.sh --build-only
+      - name: Verify and package generated flash images
+        run: |
+          python3 scripts/package_artifacts.py --source .work/upstream --output /tmp/st7735-build
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import shutil
+          from pathlib import Path
+          source = Path('/tmp/st7735-build')
+          info = json.loads((source / 'BUILD_INFO.json').read_text())
+          expected = {
+              'bootloader/bootloader.bin': '0x0',
+              'partition_table/partition-table.bin': '0x8000',
+              'furi_esp32.bin': '0x10000',
+              'ota_data_initial.bin': '0xbf0000',
+          }
+          observed = {row['file']: row for row in info['images']}
+          if set(observed) != set(expected):
+              raise SystemExit(f'Unexpected image list: {list(observed)}')
+          out = Path('web/public/flipper-st7735/firmware')
+          out.mkdir(parents=True, exist_ok=True)
+          parts = []
+          for relative, expected_offset in expected.items():
+              row = observed[relative]
+              data = (source / relative).read_bytes()
+              digest = hashlib.sha256(data).hexdigest()
+              if row['offset'] != expected_offset or row['sha256'] != digest or row['size_bytes'] != len(data):
+                  raise SystemExit(f'Image verification failed: {relative}')
+              name = Path(relative).name
+              shutil.copy2(source / relative, out / name)
+              parts.append({'path': 'firmware/' + name, 'offset': int(expected_offset, 16)})
+          # Ensure no byte ranges overlap before allowing ESP Web Tools to write.
+          intervals = sorted((part['offset'], part['offset'] + len((out / Path(part['path']).name).read_bytes())) for part in parts)
+          if any(end > next_start for (_, end), (next_start, _) in zip(intervals, intervals[1:])):
+              raise SystemExit(f'Overlapping flash regions: {intervals}')
+          manifest = {'name': 'Flipper ESP32-S3 ST7735S', 'version': '2.0.0-st7735s.20261117', 'new_install_prompt_erase': True, 'builds': [{'chipFamily': 'ESP32-S3', 'parts': parts}]}
+          (out.parent / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+          info['lcd'] = 'ST7735S 128x160 (CS tied to GND)'
+          info['display_driver'] = 'waveshare/esp_lcd_st7735==2.0.0'
+          info['lcd_spi_hz'] = 5000000
+          info['hardware_validation'] = 'Color diagnostic validated by user; complete Flipper firmware not yet tested on hardware.'
+          (out.parent / 'build-info.json').write_text(json.dumps(info, indent=2) + '\n')
+          for relative, row in observed.items():
+              print(row['offset'], relative, row['size_bytes'], row['sha256'])
+          PY
+      - name: Publish verified binary files to build branch
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f web/public/flipper-st7735/firmware/*.bin
+          git add web/public/flipper-st7735/manifest.json web/public/flipper-st7735/build-info.json
+          git commit -m "build: add Flipper ST7735S verified images"
+          git push origin HEAD:fix/flipper-st7735
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flipper-esp32s3-st7735s
+          path: |
+            web/public/flipper-st7735/firmware/*.bin
+            web/public/flipper-st7735/manifest.json
+            web/public/flipper-st7735/build-info.json
+          if-no-files-found: error
+          retention-days: 30
