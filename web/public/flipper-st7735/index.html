@@ -36,8 +36,9 @@
   <section class="card">
     <span class="eyebrow">Firmware Flipper · ESP32-S3 N16R8</span>
     <h1>Untuk layar ST7735S</h1>
+    <p><a href="/flipper-st7735-landscape/">Ingin layar mendatar? Buka versi landscape →</a></p>
     <p>Versi firmware Flipper yang disesuaikan untuk layar ST7735S 8 pin dan sambungan yang digunakan pada tes warna.</p>
-    <p>Firmware ini sudah berhasil dikompilasi. Tes warna telah berhasil di perangkat, tetapi <strong>menu dan fungsi firmware lengkap masih perlu diuji langsung</strong> setelah pemasangan.</p>
+    <p>Firmware ini sudah berhasil dikompilasi dan menunya telah tampil pada satu perangkat uji. Fungsi lain tetap perlu diuji pada perangkat masing-masing.</p>
   </section>
   <section class="card">
     <h2>Sebelum flash</h2>
@@ -51,7 +52,7 @@
   </section>
   <section class="card warning">
     <h2>Firmware akan diganti</h2>
-    <p>Pemasangan menimpa firmware tes yang sekarang. <strong>Data internal pada area flash yang ditulis dapat hilang.</strong> Cadangkan data penting sebelum memasang.</p>
+    <p>Pemasangan menimpa firmware yang sekarang terpasang. <strong>Data internal pada area flash yang ditulis dapat hilang.</strong> Cadangkan data penting sebelum memasang.</p>
     <p>Jika muncul pilihan <strong>Erase device</strong>, biarkan tidak dicentang jika tidak ingin menghapus seluruh isi flash. Firmware tetap akan ditimpa.</p>
     <label><input id="confirm" type="checkbox"><span>Saya memakai ESP32-S3 N16R8 dan ST7735S sesuai sambungan di bawah, serta memahami bahwa firmware dan area flash yang ditulis akan ditimpa.</span></label>
     <esp-web-install-button id="install" manifest="./manifest.json" hidden><button slot="activate">Hubungkan dan flash Flipper</button><span slot="unsupported">Gunakan Chrome atau Edge pada komputer yang mendukung Web Serial.</span><span slot="not-allowed">Buka halaman ini melalui HTTPS.</span></esp-web-install-button>

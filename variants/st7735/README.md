@@ -20,3 +20,17 @@ cd .work/upstream
 The dedicated web installer uses separate images and verified ESP-IDF flash
 offsets. A successful build and color diagnostic do not verify that the full
 Flipper firmware, SD card, or buttons work on any particular device.
+
+## Landscape profile
+
+After applying the DIY and ST7735S profiles, run
+`python3 variants/st7735/patch_landscape.py .work/upstream` before building.
+This selects a 160x128 logical panel, rotates the display using the ST7735S
+driver's axis-swap and mirror controls, and keeps the existing physical
+wiring. The 128x64 UI is scaled with its original aspect ratio to 160x80 and
+centered vertically. The standalone landscape web installer is available at
+`/flipper-st7735-landscape/`; the original portrait version remains at
+`/flipper-st7735/`.
+
+The portrait display and menu were observed working on the user's board.
+The landscape build and its orientation still need to be tested on that board.
