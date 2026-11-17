@@ -1,0 +1,130 @@
+name: Build experimental Flipper 1.5.1 backport
+on:
+  push:
+    branches: [work/flipper-1.5.1-st7735]
+    paths:
+      - 'patch/flipper_1_5_1_port.patch'
+      - 'tests/compat151/**'
+      - '.github/workflows/build-flipper-151.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate existing board and packaging contracts
+        run: python3 -m unittest discover -s tests -v
+      - name: Fetch the pinned ESP32 port and apply the reviewed patch
+        run: |
+          bash scripts/fetch_upstream.sh
+          git -C .work/upstream apply --check "$GITHUB_WORKSPACE/patch/flipper_1_5_1_port.patch"
+          git -C .work/upstream apply "$GITHUB_WORKSPACE/patch/flipper_1_5_1_port.patch"
+      - name: Check firmware API ordering and view lookup semantics
+        run: |
+          python3 tests/compat151/check_firmware_api.py .work/upstream
+          python3 tests/compat151/check_view_api.py .work/upstream
+      - name: Test bit-extraction boundaries with sanitizers
+        run: |
+          gcc -g -O1 -std=c11 -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -Itests/compat151/include -I.work/upstream/components/bit_lib \
+            tests/compat151/bit_lib_regression.c .work/upstream/components/bit_lib/bit_lib.c \
+            -o /tmp/bit-lib-regression
+          ASAN_OPTIONS=detect_leaks=0 /tmp/bit-lib-regression
+
+  build:
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        orientation: [portrait, landscape]
+    container: espressif/idf:v5.4.1
+    defaults:
+      run:
+        shell: bash
+    env:
+      ESP_IDF_EXPORT_SCRIPT: /opt/esp/idf/export.sh
+      ORIENTATION: ${{ matrix.orientation }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply Flipper 1.5.1 changes and the tested ST7735S wiring
+        run: |
+          bash scripts/fetch_upstream.sh
+          git -C .work/upstream apply --check "$GITHUB_WORKSPACE/patch/flipper_1_5_1_port.patch"
+          git -C .work/upstream apply "$GITHUB_WORKSPACE/patch/flipper_1_5_1_port.patch"
+          python3 patch/patch_flipper.py .work/upstream
+          python3 variants/st7735/patch_st7735.py .work/upstream
+          if [[ "$ORIENTATION" == landscape ]]; then
+            python3 variants/st7735/patch_landscape.py .work/upstream
+          fi
+          python3 tests/compat151/check_firmware_api.py .work/upstream
+      - name: Build ESP32-S3 firmware
+        run: |
+          source /opt/esp/idf/export.sh
+          cd .work/upstream
+          ./build_diy.sh --build-only
+      - name: Verify flash images and create install manifest
+        run: |
+          python3 scripts/package_artifacts.py --source .work/upstream --output /tmp/verified-build
+          python3 - <<'PY'
+          import hashlib, json, os, shutil
+          from pathlib import Path
+          source = Path('/tmp/verified-build')
+          out = Path('/tmp/install')
+          out.mkdir(exist_ok=True)
+          info = json.loads((source / 'BUILD_INFO.json').read_text())
+          expected = {
+              'bootloader/bootloader.bin': '0x0',
+              'partition_table/partition-table.bin': '0x8000',
+              'furi_esp32.bin': '0x10000',
+              'ota_data_initial.bin': '0xbf0000',
+          }
+          observed = {row['file']: row for row in info['images']}
+          if set(observed) != set(expected):
+              raise SystemExit(f'Unexpected image list: {list(observed)}')
+          parts = []
+          for path, offset in expected.items():
+              row = observed[path]
+              data = (source / path).read_bytes()
+              if row['offset'] != offset or row['size_bytes'] != len(data):
+                  raise SystemExit(f'Bad image metadata: {path}')
+              if row['sha256'] != hashlib.sha256(data).hexdigest():
+                  raise SystemExit(f'Bad image digest: {path}')
+              if path in ('bootloader/bootloader.bin', 'furi_esp32.bin'):
+                  if len(data) < 16 or data[0] != 0xe9 or data[12:14] != bytes((9, 0)):
+                      raise SystemExit(f'Invalid ESP32-S3 image: {path}')
+              if path == 'furi_esp32.bin' and len(data) > 0x5f0000:
+                  raise SystemExit('Firmware exceeds OTA slot')
+              if int(offset, 16) + len(data) > 16 * 1024 * 1024:
+                  raise SystemExit(f'Image exceeds flash: {path}')
+              name = Path(path).name
+              shutil.copy2(source / path, out / name)
+              parts.append({'path': name, 'offset': int(offset, 16)})
+          intervals = sorted((p['offset'], p['offset'] + (out / p['path']).stat().st_size) for p in parts)
+          if any(end > start for (_, end), (start, _) in zip(intervals, intervals[1:])):
+              raise SystemExit(f'Overlapping images: {intervals}')
+          orientation = os.environ['ORIENTATION']
+          manifest = {'name': f'ESP32-S3 ST7735S 1.5.1 backport ({orientation})',
+                      'version': '2.0.0-flipper151-experimental',
+                      'new_install_prompt_erase': False,
+                      'builds': [{'chipFamily': 'ESP32-S3', 'parts': parts}]}
+          (out / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+          info['orientation'] = orientation
+          info['scope'] = 'Selected 1.5.1 changes adapted to Sor3nt ESP32 port; not full upstream parity.'
+          info['hardware_validation'] = 'This build has not yet been tested on the physical ESP32.'
+          (out / 'build-info.json').write_text(json.dumps(info, indent=2) + '\n')
+          for row in observed.values():
+              print(row['offset'], row['file'], row['size_bytes'], row['sha256'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flipper-151-st7735-${{ matrix.orientation }}
+          path: /tmp/install/*
+          if-no-files-found: error
+          retention-days: 30
