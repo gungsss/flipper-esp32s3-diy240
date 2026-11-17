@@ -1,0 +1,39 @@
+{
+  "upstream_repository": "Sor3nt/Flipper-Zero-ESP32-Port",
+  "upstream_commit": "e6ec11972a8e025d7ab686a6ef3016cf52360834",
+  "board": "DIY ESP32-S3 N16R8",
+  "lcd": "ST7735S 128x160",
+  "sd": "SPI3_HOST",
+  "images": [
+    {
+      "file": "bootloader.bin",
+      "offset": "0x0",
+      "size_bytes": 20848,
+      "sha256": "bcc0dec7cdac0d4b2dda6ca648d4c95532bb4c6e122b3a103f93ed4f70e00a0d"
+    },
+    {
+      "file": "partition-table.bin",
+      "offset": "0x8000",
+      "size_bytes": 3072,
+      "sha256": "9170702b52423ec0ec06f98cb832e73d147b29bf04b47665c0b04574ddd5443e"
+    },
+    {
+      "file": "furi_esp32.bin",
+      "offset": "0x10000",
+      "size_bytes": 3290320,
+      "sha256": "37d63f6189ce1c0164d6492df4a65db8bc18286fcdf5528e1e6912ce198961a3"
+    },
+    {
+      "file": "ota_data_initial.bin",
+      "offset": "0xbf0000",
+      "size_bytes": 8192,
+      "sha256": "7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f"
+    }
+  ],
+  "orientation": "portrait",
+  "scope": "Selected 1.5.1 changes adapted to Sor3nt ESP32 port; not full upstream parity.",
+  "hardware_validation": "This build has not yet been tested on the physical ESP32.",
+  "display_driver": "waveshare/esp_lcd_st7735 2.0.0",
+  "board_connection": "ESP32-S3 DIY, CS connected to GND, SD on SPI3",
+  "source_build_run": "https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/44117359364"
+}
