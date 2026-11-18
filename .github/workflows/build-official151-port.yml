@@ -156,6 +156,7 @@ jobs:
             -o "$RUNNER_TEMP/simulated-flash.bin" @flash_project_args
           set +e
           timeout 45s "$qemu_bin" -nographic -no-reboot -machine esp32s3 -m 8M \
+            -global driver=ssi_psram,property=is_octal,value=true \
             -drive "file=$RUNNER_TEMP/simulated-flash.bin,if=mtd,format=raw" \
             > "$RUNNER_TEMP/qemu-boot.log" 2>&1
           status=$?
