@@ -181,7 +181,9 @@ jobs:
           manifest = {
               'name': f'ESP32-S3 ST7735S development ({orientation})',
               'version': f'1.4.3-base-dev-{sha[:12]}',
-              'new_install_prompt_erase': False,
+              # Offer the erase choice; false would force full-chip erase on a new install.
+              'new_install_prompt_erase': True,
+              'new_install_improv_wait_time': 0,
               'builds': [{'chipFamily': 'ESP32-S3', 'parts': parts}],
           }
           (out / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
