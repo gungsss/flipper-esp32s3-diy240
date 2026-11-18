@@ -15,7 +15,8 @@ assert subprocess.check_output(
 raw = subprocess.check_output(
     ['git', '-C', str(official), 'show', '1.5.1:targets/f7/api_symbols.csv'], text=True)
 prefixes = ('tar_archive_', 'simple_array_', 'dir_walk_', 'path_', 'args_',
-            'value_index_', 'name_generator_', 'strint_')
+            'value_index_', 'name_generator_', 'strint_', 'protocol_dict_', 'hex_',
+            'furi_hal_gpio_')
 rows = [r for r in csv.DictReader(io.StringIO(raw)) if r['entry'] == 'Function'
         and r['status'] == '+' and r['name'].startswith(prefixes)]
 root = port / 'components/flipper_application/flipper_application'
@@ -42,6 +43,7 @@ with tempfile.TemporaryDirectory() as tmp:
 #define _ATTRIBUTE(x) __attribute__(x)
 #include <furi.h>
 #include <furi_hal_rtc.h>
+#include <furi_hal_gpio.h>
 #include <toolbox/tar/tar_archive.h>
 #include <toolbox/simple_array.h>
 #include <toolbox/dir_walk.h>
@@ -50,11 +52,13 @@ with tempfile.TemporaryDirectory() as tmp:
 #include <toolbox/value_index.h>
 #include <toolbox/name_generator.h>
 #include <toolbox/strint.h>
+#include <toolbox/hex.h>
+#include <lib/toolbox/protocols/protocol_dict.h>
 #include "official_toolbox_151_abi_checks.h"
 ''')
-    include_dirs = (tmp, port / 'components', port / 'components/furi_hal',
+    include_dirs = (tmp, port / 'components', port / 'components/toolbox', port / 'components/furi_hal',
                     port / 'components/furi', port / 'components/furi/core',
-                    port / 'components/mlib', port / 'components/datetime', root)
+                    port / 'components/mlib', port / 'components/datetime', port, root)
     flags = [arg for folder in include_dirs for arg in ('-I', str(folder))]
     subprocess.run(['gcc', '-std=gnu11', '-Wall', '-Wextra', '-Werror',
                     '-fsyntax-only', *flags, str(source)], check=True)
