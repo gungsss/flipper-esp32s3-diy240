@@ -9,7 +9,7 @@ libraries, even though the NFC app is disabled on this target.
 
 The separate compatibility changes cover the loader, command-line parser,
 GUI, storage and Furi API exports, file/stream and locale API exports,
-file-browser callback compatibility,
+file-browser callback compatibility, 12/24-hour date-input fixes,
 JavaScript timer validation, RPC application context validation, ELF
 architecture validation, and archive/bit-reading fixes.
 The checked-in tests verify the resolver and compare these exported function

@@ -15,7 +15,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: esp32s3-st7735-basic-151-preview
-          run-id: 44367242830
+          run-id: 44415036607
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: firmware
       - name: Verify files and assemble virtual flash
@@ -54,5 +54,5 @@ jobs:
           tail -n 100 boot.log
           echo "Emulator exit code: $status"
           grep -q 'All services started' boot.log
-          grep -q 'Display initialized (160x128' boot.log
+          grep -q 'Display initialized (128x64, scaled 160x80' boot.log
           echo 'Boot and display driver initialization observed in simulator; physical display, input, SD and Bluetooth are not validated.'

@@ -1428,6 +1428,29 @@ index 5d5737d..7ae4bac 100644
 +uint8_t* canvas_get_buffer(Canvas* canvas);
 +size_t canvas_get_buffer_size(const Canvas* canvas);
 +
+diff --git a/components/gui/modules/date_time_input.c b/components/gui/modules/date_time_input.c
+index f48ec4d..e3e7da3 100644
+--- a/components/gui/modules/date_time_input.c
++++ b/components/gui/modules/date_time_input.c
+@@ -2 +2 @@
+-// #include "furi_hal_rtc.h" // ESP32: not available
++#include <furi_hal_rtc.h>
+@@ -6,12 +5,0 @@
+-// ESP32: provide fallback for missing furi_hal_rtc locale definitions
+-#ifndef FuriHalRtcLocaleTimeFormat24h
+-typedef enum {
+-    FuriHalRtcLocaleTimeFormat24h,
+-    FuriHalRtcLocaleTimeFormat12h,
+-} FuriHalRtcLocaleTimeFormat;
+-
+-static inline FuriHalRtcLocaleTimeFormat furi_hal_rtc_get_locale_timeformat(void) {
+-    return FuriHalRtcLocaleTimeFormat24h; // Default to 24h format on ESP32
+-}
+-#endif
+-
+@@ -155 +143 @@ static void date_time_input_draw_hour_12hr_callback(Canvas* canvas, DateTimeInpu
+-        canvas, 8, ROW_1_Y, 50, ROW_1_H, FontBigNumbers, get_state(model, 1, 0, hour), buffer);
++        canvas, 8, ROW_1_Y, 50, ROW_1_H, FontBigNumbers, get_state(model, 1, 0, hour), "  ");
 diff --git a/components/gui/modules/file_browser.c b/components/gui/modules/file_browser.c
 index 89c2ea7..fa50301 100644
 --- a/components/gui/modules/file_browser.c
