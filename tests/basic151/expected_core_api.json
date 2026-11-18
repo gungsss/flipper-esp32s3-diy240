@@ -1,8 +1,218 @@
 [
   {
+    "name": "args_char_to_hex",
+    "type": "_Bool",
+    "params": "char, char, uint8_t*"
+  },
+  {
+    "name": "args_get_first_word_length",
+    "type": "size_t",
+    "params": "FuriString*"
+  },
+  {
+    "name": "args_length",
+    "type": "size_t",
+    "params": "FuriString*"
+  },
+  {
+    "name": "args_read_duration",
+    "type": "_Bool",
+    "params": "FuriString*, uint32_t*, const char*"
+  },
+  {
+    "name": "args_read_float_and_trim",
+    "type": "_Bool",
+    "params": "FuriString*, float*"
+  },
+  {
+    "name": "args_read_hex_bytes",
+    "type": "_Bool",
+    "params": "FuriString*, uint8_t*, size_t"
+  },
+  {
+    "name": "args_read_int_and_trim",
+    "type": "_Bool",
+    "params": "FuriString*, int*"
+  },
+  {
+    "name": "args_read_probably_quoted_string_and_trim",
+    "type": "_Bool",
+    "params": "FuriString*, FuriString*"
+  },
+  {
+    "name": "args_read_string_and_trim",
+    "type": "_Bool",
+    "params": "FuriString*, FuriString*"
+  },
+  {
+    "name": "buffered_file_stream_alloc",
+    "type": "Stream*",
+    "params": "Storage*"
+  },
+  {
+    "name": "buffered_file_stream_close",
+    "type": "_Bool",
+    "params": "Stream*"
+  },
+  {
+    "name": "buffered_file_stream_get_error",
+    "type": "FS_Error",
+    "params": "Stream*"
+  },
+  {
+    "name": "buffered_file_stream_open",
+    "type": "_Bool",
+    "params": "Stream*, const char*, FS_AccessMode, FS_OpenMode"
+  },
+  {
+    "name": "buffered_file_stream_sync",
+    "type": "_Bool",
+    "params": "Stream*"
+  },
+  {
+    "name": "button_menu_add_item",
+    "type": "ButtonMenuItem*",
+    "params": "ButtonMenu*, const char*, int32_t, ButtonMenuItemCallback, ButtonMenuItemType, void*"
+  },
+  {
+    "name": "button_menu_alloc",
+    "type": "ButtonMenu*",
+    "params": ""
+  },
+  {
+    "name": "button_menu_free",
+    "type": "void",
+    "params": "ButtonMenu*"
+  },
+  {
+    "name": "button_menu_get_view",
+    "type": "View*",
+    "params": "ButtonMenu*"
+  },
+  {
+    "name": "button_menu_reset",
+    "type": "void",
+    "params": "ButtonMenu*"
+  },
+  {
+    "name": "button_menu_set_header",
+    "type": "void",
+    "params": "ButtonMenu*, const char*"
+  },
+  {
+    "name": "button_menu_set_selected_item",
+    "type": "void",
+    "params": "ButtonMenu*, uint32_t"
+  },
+  {
+    "name": "button_panel_add_icon",
+    "type": "void",
+    "params": "ButtonPanel*, uint16_t, uint16_t, const Icon*"
+  },
+  {
+    "name": "button_panel_add_item",
+    "type": "void",
+    "params": "ButtonPanel*, uint32_t, uint16_t, uint16_t, uint16_t, uint16_t, const Icon*, const Icon*, ButtonItemCallback, void*"
+  },
+  {
+    "name": "button_panel_add_label",
+    "type": "void",
+    "params": "ButtonPanel*, uint16_t, uint16_t, Font, const char*"
+  },
+  {
+    "name": "button_panel_alloc",
+    "type": "ButtonPanel*",
+    "params": ""
+  },
+  {
+    "name": "button_panel_free",
+    "type": "void",
+    "params": "ButtonPanel*"
+  },
+  {
+    "name": "button_panel_get_view",
+    "type": "View*",
+    "params": "ButtonPanel*"
+  },
+  {
+    "name": "button_panel_reserve",
+    "type": "void",
+    "params": "ButtonPanel*, size_t, size_t"
+  },
+  {
+    "name": "button_panel_reset",
+    "type": "void",
+    "params": "ButtonPanel*"
+  },
+  {
+    "name": "byte_input_alloc",
+    "type": "ByteInput*",
+    "params": ""
+  },
+  {
+    "name": "byte_input_free",
+    "type": "void",
+    "params": "ByteInput*"
+  },
+  {
+    "name": "byte_input_get_view",
+    "type": "View*",
+    "params": "ByteInput*"
+  },
+  {
+    "name": "byte_input_set_header_text",
+    "type": "void",
+    "params": "ByteInput*, const char*"
+  },
+  {
+    "name": "byte_input_set_result_callback",
+    "type": "void",
+    "params": "ByteInput*, ByteInputCallback, ByteChangedCallback, void*, uint8_t*, uint8_t"
+  },
+  {
+    "name": "canvas_clear",
+    "type": "void",
+    "params": "Canvas*"
+  },
+  {
     "name": "canvas_commit",
     "type": "void",
     "params": "Canvas*"
+  },
+  {
+    "name": "canvas_current_font_height",
+    "type": "size_t",
+    "params": "const Canvas*"
+  },
+  {
+    "name": "canvas_draw_bitmap",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t, const uint8_t*"
+  },
+  {
+    "name": "canvas_draw_box",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
+  },
+  {
+    "name": "canvas_draw_circle",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t"
+  },
+  {
+    "name": "canvas_draw_disc",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t"
+  },
+  {
+    "name": "canvas_draw_dot",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t"
+  },
+  {
+    "name": "canvas_draw_frame",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
   },
   {
     "name": "canvas_draw_glyph",
@@ -10,14 +220,69 @@
     "params": "Canvas*, int32_t, int32_t, uint16_t"
   },
   {
+    "name": "canvas_draw_icon",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, const Icon*"
+  },
+  {
     "name": "canvas_draw_icon_animation",
     "type": "void",
     "params": "Canvas*, int32_t, int32_t, IconAnimation*"
   },
   {
+    "name": "canvas_draw_icon_ex",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, const Icon*, IconRotation"
+  },
+  {
+    "name": "canvas_draw_line",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, int32_t, int32_t"
+  },
+  {
+    "name": "canvas_draw_rbox",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t, size_t"
+  },
+  {
+    "name": "canvas_draw_rframe",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t, size_t"
+  },
+  {
+    "name": "canvas_draw_str",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, const char*"
+  },
+  {
+    "name": "canvas_draw_str_aligned",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, Align, Align, const char*"
+  },
+  {
+    "name": "canvas_draw_triangle",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t, CanvasDirection"
+  },
+  {
+    "name": "canvas_draw_xbm",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t, const uint8_t*"
+  },
+  {
     "name": "canvas_draw_xbm_ex",
     "type": "void",
     "params": "Canvas*, int32_t, int32_t, size_t, size_t, IconRotation, const uint8_t*"
+  },
+  {
+    "name": "canvas_get_buffer",
+    "type": "uint8_t*",
+    "params": "Canvas*"
+  },
+  {
+    "name": "canvas_get_buffer_size",
+    "type": "size_t",
+    "params": "const Canvas*"
   },
   {
     "name": "canvas_get_font_params",
@@ -30,9 +295,29 @@
     "params": "Canvas*, uint16_t"
   },
   {
+    "name": "canvas_height",
+    "type": "size_t",
+    "params": "const Canvas*"
+  },
+  {
+    "name": "canvas_invert_color",
+    "type": "void",
+    "params": "Canvas*"
+  },
+  {
     "name": "canvas_reset",
     "type": "void",
     "params": "Canvas*"
+  },
+  {
+    "name": "canvas_set_bitmap_mode",
+    "type": "void",
+    "params": "Canvas*, _Bool"
+  },
+  {
+    "name": "canvas_set_color",
+    "type": "void",
+    "params": "Canvas*, Color"
   },
   {
     "name": "canvas_set_custom_u8g2_font",
@@ -40,9 +325,704 @@
     "params": "Canvas*, const uint8_t*"
   },
   {
+    "name": "canvas_set_font",
+    "type": "void",
+    "params": "Canvas*, Font"
+  },
+  {
     "name": "canvas_set_font_direction",
     "type": "void",
     "params": "Canvas*, CanvasDirection"
+  },
+  {
+    "name": "canvas_string_width",
+    "type": "uint16_t",
+    "params": "Canvas*, const char*"
+  },
+  {
+    "name": "canvas_width",
+    "type": "size_t",
+    "params": "const Canvas*"
+  },
+  {
+    "name": "date_time_input_alloc",
+    "type": "DateTimeInput*",
+    "params": ""
+  },
+  {
+    "name": "date_time_input_free",
+    "type": "void",
+    "params": "DateTimeInput*"
+  },
+  {
+    "name": "date_time_input_get_view",
+    "type": "View*",
+    "params": "DateTimeInput*"
+  },
+  {
+    "name": "date_time_input_set_editable_fields",
+    "type": "void",
+    "params": "DateTimeInput*, _Bool, _Bool, _Bool, _Bool, _Bool, _Bool"
+  },
+  {
+    "name": "date_time_input_set_result_callback",
+    "type": "void",
+    "params": "DateTimeInput*, DateTimeChangedCallback, DateTimeDoneCallback, void*, DateTime*"
+  },
+  {
+    "name": "datetime_datetime_to_timestamp",
+    "type": "uint32_t",
+    "params": "DateTime*"
+  },
+  {
+    "name": "datetime_get_days_per_month",
+    "type": "uint8_t",
+    "params": "_Bool, uint8_t"
+  },
+  {
+    "name": "datetime_get_days_per_year",
+    "type": "uint16_t",
+    "params": "uint16_t"
+  },
+  {
+    "name": "datetime_is_leap_year",
+    "type": "_Bool",
+    "params": "uint16_t"
+  },
+  {
+    "name": "datetime_timestamp_to_datetime",
+    "type": "void",
+    "params": "uint32_t, DateTime*"
+  },
+  {
+    "name": "datetime_validate_datetime",
+    "type": "_Bool",
+    "params": "DateTime*"
+  },
+  {
+    "name": "dialog_ex_alloc",
+    "type": "DialogEx*",
+    "params": ""
+  },
+  {
+    "name": "dialog_ex_disable_extended_events",
+    "type": "void",
+    "params": "DialogEx*"
+  },
+  {
+    "name": "dialog_ex_enable_extended_events",
+    "type": "void",
+    "params": "DialogEx*"
+  },
+  {
+    "name": "dialog_ex_free",
+    "type": "void",
+    "params": "DialogEx*"
+  },
+  {
+    "name": "dialog_ex_get_view",
+    "type": "View*",
+    "params": "DialogEx*"
+  },
+  {
+    "name": "dialog_ex_reset",
+    "type": "void",
+    "params": "DialogEx*"
+  },
+  {
+    "name": "dialog_ex_set_center_button_text",
+    "type": "void",
+    "params": "DialogEx*, const char*"
+  },
+  {
+    "name": "dialog_ex_set_context",
+    "type": "void",
+    "params": "DialogEx*, void*"
+  },
+  {
+    "name": "dialog_ex_set_header",
+    "type": "void",
+    "params": "DialogEx*, const char*, uint8_t, uint8_t, Align, Align"
+  },
+  {
+    "name": "dialog_ex_set_icon",
+    "type": "void",
+    "params": "DialogEx*, uint8_t, uint8_t, const Icon*"
+  },
+  {
+    "name": "dialog_ex_set_left_button_text",
+    "type": "void",
+    "params": "DialogEx*, const char*"
+  },
+  {
+    "name": "dialog_ex_set_result_callback",
+    "type": "void",
+    "params": "DialogEx*, DialogExResultCallback"
+  },
+  {
+    "name": "dialog_ex_set_right_button_text",
+    "type": "void",
+    "params": "DialogEx*, const char*"
+  },
+  {
+    "name": "dialog_ex_set_text",
+    "type": "void",
+    "params": "DialogEx*, const char*, uint8_t, uint8_t, Align, Align"
+  },
+  {
+    "name": "elements_bold_rounded_frame",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
+  },
+  {
+    "name": "elements_bubble",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
+  },
+  {
+    "name": "elements_bubble_str",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, const char*, Align, Align"
+  },
+  {
+    "name": "elements_button_center",
+    "type": "void",
+    "params": "Canvas*, const char*"
+  },
+  {
+    "name": "elements_button_down",
+    "type": "void",
+    "params": "Canvas*, const char*"
+  },
+  {
+    "name": "elements_button_left",
+    "type": "void",
+    "params": "Canvas*, const char*"
+  },
+  {
+    "name": "elements_button_right",
+    "type": "void",
+    "params": "Canvas*, const char*"
+  },
+  {
+    "name": "elements_button_up",
+    "type": "void",
+    "params": "Canvas*, const char*"
+  },
+  {
+    "name": "elements_frame",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
+  },
+  {
+    "name": "elements_multiline_text",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, const char*"
+  },
+  {
+    "name": "elements_multiline_text_aligned",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, Align, Align, const char*"
+  },
+  {
+    "name": "elements_multiline_text_framed",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, const char*"
+  },
+  {
+    "name": "elements_progress_bar",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, float"
+  },
+  {
+    "name": "elements_progress_bar_with_text",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, float, const char*"
+  },
+  {
+    "name": "elements_scrollable_text_line",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, FuriString*, size_t, _Bool"
+  },
+  {
+    "name": "elements_scrollbar",
+    "type": "void",
+    "params": "Canvas*, size_t, size_t"
+  },
+  {
+    "name": "elements_scrollbar_pos",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t, size_t"
+  },
+  {
+    "name": "elements_slightly_rounded_box",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
+  },
+  {
+    "name": "elements_slightly_rounded_frame",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
+  },
+  {
+    "name": "elements_string_fit_width",
+    "type": "void",
+    "params": "Canvas*, FuriString*, size_t"
+  },
+  {
+    "name": "elements_text_box",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t, Align, Align, const char*, _Bool"
+  },
+  {
+    "name": "file_browser_alloc",
+    "type": "FileBrowser*",
+    "params": "FuriString*"
+  },
+  {
+    "name": "file_browser_configure",
+    "type": "void",
+    "params": "FileBrowser*, const char*, const char*, _Bool, _Bool, const Icon*, _Bool"
+  },
+  {
+    "name": "file_browser_free",
+    "type": "void",
+    "params": "FileBrowser*"
+  },
+  {
+    "name": "file_browser_get_view",
+    "type": "View*",
+    "params": "FileBrowser*"
+  },
+  {
+    "name": "file_browser_set_callback",
+    "type": "void",
+    "params": "FileBrowser*, FileBrowserCallback, void*"
+  },
+  {
+    "name": "file_browser_set_item_callback",
+    "type": "void",
+    "params": "FileBrowser*, FileBrowserLoadItemCallback, void*"
+  },
+  {
+    "name": "file_browser_start",
+    "type": "void",
+    "params": "FileBrowser*, FuriString*"
+  },
+  {
+    "name": "file_browser_stop",
+    "type": "void",
+    "params": "FileBrowser*"
+  },
+  {
+    "name": "file_browser_worker_alloc",
+    "type": "BrowserWorker*",
+    "params": "FuriString*, const char*, const char*, _Bool, _Bool"
+  },
+  {
+    "name": "file_browser_worker_folder_enter",
+    "type": "void",
+    "params": "BrowserWorker*, FuriString*, int32_t"
+  },
+  {
+    "name": "file_browser_worker_folder_exit",
+    "type": "void",
+    "params": "BrowserWorker*"
+  },
+  {
+    "name": "file_browser_worker_folder_refresh",
+    "type": "void",
+    "params": "BrowserWorker*, int32_t"
+  },
+  {
+    "name": "file_browser_worker_free",
+    "type": "void",
+    "params": "BrowserWorker*"
+  },
+  {
+    "name": "file_browser_worker_is_in_start_folder",
+    "type": "_Bool",
+    "params": "BrowserWorker*"
+  },
+  {
+    "name": "file_browser_worker_load",
+    "type": "void",
+    "params": "BrowserWorker*, uint32_t, uint32_t"
+  },
+  {
+    "name": "file_browser_worker_set_callback_context",
+    "type": "void",
+    "params": "BrowserWorker*, void*"
+  },
+  {
+    "name": "file_browser_worker_set_config",
+    "type": "void",
+    "params": "BrowserWorker*, FuriString*, const char*, _Bool, _Bool"
+  },
+  {
+    "name": "file_browser_worker_set_folder_callback",
+    "type": "void",
+    "params": "BrowserWorker*, BrowserWorkerFolderOpenCallback"
+  },
+  {
+    "name": "file_browser_worker_set_item_callback",
+    "type": "void",
+    "params": "BrowserWorker*, BrowserWorkerListItemCallback"
+  },
+  {
+    "name": "file_browser_worker_set_list_callback",
+    "type": "void",
+    "params": "BrowserWorker*, BrowserWorkerListLoadCallback"
+  },
+  {
+    "name": "file_browser_worker_set_long_load_callback",
+    "type": "void",
+    "params": "BrowserWorker*, BrowserWorkerLongLoadCallback"
+  },
+  {
+    "name": "file_stream_alloc",
+    "type": "Stream*",
+    "params": "Storage*"
+  },
+  {
+    "name": "file_stream_close",
+    "type": "_Bool",
+    "params": "Stream*"
+  },
+  {
+    "name": "file_stream_get_error",
+    "type": "FS_Error",
+    "params": "Stream*"
+  },
+  {
+    "name": "file_stream_open",
+    "type": "_Bool",
+    "params": "Stream*, const char*, FS_AccessMode, FS_OpenMode"
+  },
+  {
+    "name": "flipper_format_buffered_file_alloc",
+    "type": "FlipperFormat*",
+    "params": "Storage*"
+  },
+  {
+    "name": "flipper_format_buffered_file_close",
+    "type": "_Bool",
+    "params": "FlipperFormat*"
+  },
+  {
+    "name": "flipper_format_buffered_file_open_always",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*"
+  },
+  {
+    "name": "flipper_format_buffered_file_open_existing",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*"
+  },
+  {
+    "name": "flipper_format_delete_key",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*"
+  },
+  {
+    "name": "flipper_format_file_alloc",
+    "type": "FlipperFormat*",
+    "params": "Storage*"
+  },
+  {
+    "name": "flipper_format_file_close",
+    "type": "_Bool",
+    "params": "FlipperFormat*"
+  },
+  {
+    "name": "flipper_format_file_open_always",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*"
+  },
+  {
+    "name": "flipper_format_file_open_append",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*"
+  },
+  {
+    "name": "flipper_format_file_open_existing",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*"
+  },
+  {
+    "name": "flipper_format_file_open_new",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*"
+  },
+  {
+    "name": "flipper_format_free",
+    "type": "void",
+    "params": "FlipperFormat*"
+  },
+  {
+    "name": "flipper_format_get_raw_stream",
+    "type": "Stream*",
+    "params": "FlipperFormat*"
+  },
+  {
+    "name": "flipper_format_get_value_count",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, uint32_t*"
+  },
+  {
+    "name": "flipper_format_insert_or_update_bool",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const _Bool*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_insert_or_update_float",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const float*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_insert_or_update_hex",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const uint8_t*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_insert_or_update_int32",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const int32_t*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_insert_or_update_string",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, FuriString*"
+  },
+  {
+    "name": "flipper_format_insert_or_update_string_cstr",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const char*"
+  },
+  {
+    "name": "flipper_format_insert_or_update_uint32",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const uint32_t*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_key_exist",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*"
+  },
+  {
+    "name": "flipper_format_read_bool",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, _Bool*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_read_float",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, float*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_read_header",
+    "type": "_Bool",
+    "params": "FlipperFormat*, FuriString*, uint32_t*"
+  },
+  {
+    "name": "flipper_format_read_hex",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, uint8_t*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_read_hex_uint64",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, uint64_t*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_read_int32",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, int32_t*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_read_string",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, FuriString*"
+  },
+  {
+    "name": "flipper_format_read_uint32",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, uint32_t*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_rewind",
+    "type": "_Bool",
+    "params": "FlipperFormat*"
+  },
+  {
+    "name": "flipper_format_seek",
+    "type": "_Bool",
+    "params": "FlipperFormat*, int32_t, FlipperFormatOffset"
+  },
+  {
+    "name": "flipper_format_seek_to_end",
+    "type": "_Bool",
+    "params": "FlipperFormat*"
+  },
+  {
+    "name": "flipper_format_set_strict_mode",
+    "type": "void",
+    "params": "FlipperFormat*, _Bool"
+  },
+  {
+    "name": "flipper_format_stream_delete_key_and_write",
+    "type": "_Bool",
+    "params": "Stream*, FlipperStreamWriteData*, _Bool"
+  },
+  {
+    "name": "flipper_format_stream_get_value_count",
+    "type": "_Bool",
+    "params": "Stream*, const char*, uint32_t*, _Bool"
+  },
+  {
+    "name": "flipper_format_stream_read_value_line",
+    "type": "_Bool",
+    "params": "Stream*, const char*, FlipperStreamValue, void*, size_t, _Bool"
+  },
+  {
+    "name": "flipper_format_stream_write_comment_cstr",
+    "type": "_Bool",
+    "params": "Stream*, const char*"
+  },
+  {
+    "name": "flipper_format_stream_write_value_line",
+    "type": "_Bool",
+    "params": "Stream*, FlipperStreamWriteData*"
+  },
+  {
+    "name": "flipper_format_string_alloc",
+    "type": "FlipperFormat*",
+    "params": ""
+  },
+  {
+    "name": "flipper_format_tell",
+    "type": "size_t",
+    "params": "FlipperFormat*"
+  },
+  {
+    "name": "flipper_format_update_bool",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const _Bool*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_update_float",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const float*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_update_hex",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const uint8_t*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_update_int32",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const int32_t*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_update_string",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, FuriString*"
+  },
+  {
+    "name": "flipper_format_update_string_cstr",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const char*"
+  },
+  {
+    "name": "flipper_format_update_uint32",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const uint32_t*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_write_bool",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const _Bool*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_write_comment",
+    "type": "_Bool",
+    "params": "FlipperFormat*, FuriString*"
+  },
+  {
+    "name": "flipper_format_write_comment_cstr",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*"
+  },
+  {
+    "name": "flipper_format_write_empty_line",
+    "type": "_Bool",
+    "params": "FlipperFormat*"
+  },
+  {
+    "name": "flipper_format_write_float",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const float*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_write_header",
+    "type": "_Bool",
+    "params": "FlipperFormat*, FuriString*, const uint32_t"
+  },
+  {
+    "name": "flipper_format_write_header_cstr",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const uint32_t"
+  },
+  {
+    "name": "flipper_format_write_hex",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const uint8_t*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_write_hex_uint64",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const uint64_t*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_write_int32",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const int32_t*, const uint16_t"
+  },
+  {
+    "name": "flipper_format_write_string",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, FuriString*"
+  },
+  {
+    "name": "flipper_format_write_string_cstr",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const char*"
+  },
+  {
+    "name": "flipper_format_write_uint32",
+    "type": "_Bool",
+    "params": "FlipperFormat*, const char*, const uint32_t*, const uint16_t"
+  },
+  {
+    "name": "furi_delay_ms",
+    "type": "void",
+    "params": "uint32_t"
+  },
+  {
+    "name": "furi_delay_tick",
+    "type": "void",
+    "params": "uint32_t"
+  },
+  {
+    "name": "furi_delay_until_tick",
+    "type": "FuriStatus",
+    "params": "uint32_t"
+  },
+  {
+    "name": "furi_delay_us",
+    "type": "void",
+    "params": "uint32_t"
   },
   {
     "name": "furi_event_flag_alloc",
@@ -190,134 +1170,14 @@
     "params": "FuriEventLoop*"
   },
   {
-    "name": "gui_add_framebuffer_callback",
-    "type": "void",
-    "params": "Gui*, GuiCanvasCommitCallback, void*"
+    "name": "furi_get_tick",
+    "type": "uint32_t",
+    "params": ""
   },
   {
-    "name": "gui_get_framebuffer_size",
-    "type": "size_t",
-    "params": "const Gui*"
-  },
-  {
-    "name": "gui_remove_framebuffer_callback",
-    "type": "void",
-    "params": "Gui*, GuiCanvasCommitCallback, void*"
-  },
-  {
-    "name": "gui_set_lockdown",
-    "type": "void",
-    "params": "Gui*, _Bool"
-  },
-  {
-    "name": "gui_view_port_send_to_front",
-    "type": "void",
-    "params": "Gui*, ViewPort*"
-  },
-  {
-    "name": "storage_common_equivalent_path",
-    "type": "_Bool",
-    "params": "Storage*, const char*, const char*"
-  },
-  {
-    "name": "storage_common_fs_info",
-    "type": "FS_Error",
-    "params": "Storage*, const char*, uint64_t*, uint64_t*"
-  },
-  {
-    "name": "storage_common_is_subdir",
-    "type": "_Bool",
-    "params": "Storage*, const char*, const char*"
-  },
-  {
-    "name": "storage_common_merge",
-    "type": "FS_Error",
-    "params": "Storage*, const char*, const char*"
-  },
-  {
-    "name": "storage_common_resolve_path_and_ensure_app_directory",
-    "type": "void",
-    "params": "Storage*, FuriString*"
-  },
-  {
-    "name": "storage_common_timestamp",
-    "type": "FS_Error",
-    "params": "Storage*, const char*, uint32_t*"
-  },
-  {
-    "name": "storage_error_get_desc",
-    "type": "const char*",
-    "params": "FS_Error"
-  },
-  {
-    "name": "storage_file_copy_to_file",
-    "type": "_Bool",
-    "params": "File*, File*, size_t"
-  },
-  {
-    "name": "storage_file_get_error_desc",
-    "type": "const char*",
-    "params": "File*"
-  },
-  {
-    "name": "storage_file_is_dir",
-    "type": "_Bool",
-    "params": "File*"
-  },
-  {
-    "name": "storage_file_truncate",
-    "type": "_Bool",
-    "params": "File*"
-  },
-  {
-    "name": "storage_get_next_filename",
-    "type": "void",
-    "params": "Storage*, const char*, const char*, const char*, FuriString*, uint8_t"
-  },
-  {
-    "name": "storage_get_pubsub",
-    "type": "FuriPubSub*",
-    "params": "Storage*"
-  },
-  {
-    "name": "storage_int_backup",
-    "type": "FS_Error",
-    "params": "Storage*, const char*"
-  },
-  {
-    "name": "storage_int_restore",
-    "type": "FS_Error",
-    "params": "Storage*, const char*, StorageNameConverter"
-  },
-  {
-    "name": "storage_sd_format",
-    "type": "FS_Error",
-    "params": "Storage*"
-  },
-  {
-    "name": "storage_sd_info",
-    "type": "FS_Error",
-    "params": "Storage*, SDInfo*"
-  },
-  {
-    "name": "storage_sd_mount",
-    "type": "FS_Error",
-    "params": "Storage*"
-  },
-  {
-    "name": "storage_sd_status",
-    "type": "FS_Error",
-    "params": "Storage*"
-  },
-  {
-    "name": "storage_sd_unmount",
-    "type": "FS_Error",
-    "params": "Storage*"
-  },
-  {
-    "name": "furi_delay_until_tick",
-    "type": "FuriStatus",
-    "params": "uint32_t"
+    "name": "furi_kernel_get_tick_frequency",
+    "type": "uint32_t",
+    "params": ""
   },
   {
     "name": "furi_kernel_is_irq_or_masked",
@@ -365,6 +1225,11 @@
     "params": "FuriLogLevel, const char**"
   },
   {
+    "name": "furi_log_print_format",
+    "type": "void",
+    "params": "FuriLogLevel, const char*, const char*, ..."
+  },
+  {
     "name": "furi_log_print_raw_format",
     "type": "void",
     "params": "FuriLogLevel, const char*, ..."
@@ -390,6 +1255,21 @@
     "params": "const uint8_t*, size_t"
   },
   {
+    "name": "furi_message_queue_alloc",
+    "type": "FuriMessageQueue*",
+    "params": "uint32_t, uint32_t"
+  },
+  {
+    "name": "furi_message_queue_free",
+    "type": "void",
+    "params": "FuriMessageQueue*"
+  },
+  {
+    "name": "furi_message_queue_get",
+    "type": "FuriStatus",
+    "params": "FuriMessageQueue*, void*, uint32_t"
+  },
+  {
     "name": "furi_message_queue_get_capacity",
     "type": "uint32_t",
     "params": "FuriMessageQueue*"
@@ -410,8 +1290,43 @@
     "params": "FuriMessageQueue*"
   },
   {
+    "name": "furi_message_queue_put",
+    "type": "FuriStatus",
+    "params": "FuriMessageQueue*, const void*, uint32_t"
+  },
+  {
+    "name": "furi_message_queue_reset",
+    "type": "FuriStatus",
+    "params": "FuriMessageQueue*"
+  },
+  {
+    "name": "furi_ms_to_ticks",
+    "type": "uint32_t",
+    "params": "uint32_t"
+  },
+  {
+    "name": "furi_mutex_acquire",
+    "type": "FuriStatus",
+    "params": "FuriMutex*, uint32_t"
+  },
+  {
+    "name": "furi_mutex_alloc",
+    "type": "FuriMutex*",
+    "params": "FuriMutexType"
+  },
+  {
+    "name": "furi_mutex_free",
+    "type": "void",
+    "params": "FuriMutex*"
+  },
+  {
     "name": "furi_mutex_get_owner",
     "type": "FuriThreadId",
+    "params": "FuriMutex*"
+  },
+  {
+    "name": "furi_mutex_release",
+    "type": "FuriStatus",
     "params": "FuriMutex*"
   },
   {
@@ -430,6 +1345,21 @@
     "params": "FuriPubSub*, void*"
   },
   {
+    "name": "furi_pubsub_subscribe",
+    "type": "FuriPubSubSubscription*",
+    "params": "FuriPubSub*, FuriPubSubCallback, void*"
+  },
+  {
+    "name": "furi_pubsub_unsubscribe",
+    "type": "void",
+    "params": "FuriPubSub*, FuriPubSubSubscription*"
+  },
+  {
+    "name": "furi_record_close",
+    "type": "void",
+    "params": "const char*"
+  },
+  {
     "name": "furi_record_create",
     "type": "void",
     "params": "const char*, void*"
@@ -445,9 +1375,29 @@
     "params": "const char*"
   },
   {
+    "name": "furi_record_open",
+    "type": "void*",
+    "params": "const char*"
+  },
+  {
     "name": "furi_run",
     "type": "void",
     "params": ""
+  },
+  {
+    "name": "furi_semaphore_acquire",
+    "type": "FuriStatus",
+    "params": "FuriSemaphore*, uint32_t"
+  },
+  {
+    "name": "furi_semaphore_alloc",
+    "type": "FuriSemaphore*",
+    "params": "uint32_t, uint32_t"
+  },
+  {
+    "name": "furi_semaphore_free",
+    "type": "void",
+    "params": "FuriSemaphore*"
   },
   {
     "name": "furi_semaphore_get_count",
@@ -460,8 +1410,23 @@
     "params": "FuriSemaphore*"
   },
   {
+    "name": "furi_semaphore_release",
+    "type": "FuriStatus",
+    "params": "FuriSemaphore*"
+  },
+  {
+    "name": "furi_stream_buffer_alloc",
+    "type": "FuriStreamBuffer*",
+    "params": "size_t, size_t"
+  },
+  {
     "name": "furi_stream_buffer_bytes_available",
     "type": "size_t",
+    "params": "FuriStreamBuffer*"
+  },
+  {
+    "name": "furi_stream_buffer_free",
+    "type": "void",
     "params": "FuriStreamBuffer*"
   },
   {
@@ -475,9 +1440,19 @@
     "params": "FuriStreamBuffer*"
   },
   {
+    "name": "furi_stream_buffer_receive",
+    "type": "size_t",
+    "params": "FuriStreamBuffer*, void*, size_t, uint32_t"
+  },
+  {
     "name": "furi_stream_buffer_reset",
     "type": "FuriStatus",
     "params": "FuriStreamBuffer*"
+  },
+  {
+    "name": "furi_stream_buffer_send",
+    "type": "size_t",
+    "params": "FuriStreamBuffer*, const void*, size_t, uint32_t"
   },
   {
     "name": "furi_stream_buffer_spaces_available",
@@ -495,9 +1470,29 @@
     "params": "FuriStreamBuffer*, size_t"
   },
   {
+    "name": "furi_string_alloc",
+    "type": "FuriString*",
+    "params": ""
+  },
+  {
     "name": "furi_string_alloc_move",
     "type": "FuriString*",
     "params": "FuriString*"
+  },
+  {
+    "name": "furi_string_alloc_printf",
+    "type": "FuriString*",
+    "params": "const char[], ..."
+  },
+  {
+    "name": "furi_string_alloc_set",
+    "type": "FuriString*",
+    "params": "const FuriString*"
+  },
+  {
+    "name": "furi_string_alloc_set_str",
+    "type": "FuriString*",
+    "params": "const char[]"
   },
   {
     "name": "furi_string_alloc_vprintf",
@@ -505,14 +1500,49 @@
     "params": "const char[], va_list"
   },
   {
+    "name": "furi_string_cat",
+    "type": "void",
+    "params": "FuriString*, const FuriString*"
+  },
+  {
+    "name": "furi_string_cat_printf",
+    "type": "int",
+    "params": "FuriString*, const char[], ..."
+  },
+  {
+    "name": "furi_string_cat_str",
+    "type": "void",
+    "params": "FuriString*, const char[]"
+  },
+  {
     "name": "furi_string_cat_vprintf",
     "type": "int",
     "params": "FuriString*, const char[], va_list"
   },
   {
+    "name": "furi_string_cmp",
+    "type": "int",
+    "params": "const FuriString*, const FuriString*"
+  },
+  {
+    "name": "furi_string_cmp_str",
+    "type": "int",
+    "params": "const FuriString*, const char[]"
+  },
+  {
     "name": "furi_string_cmpi",
     "type": "int",
     "params": "const FuriString*, const FuriString*"
+  },
+  {
+    "name": "furi_string_cmpi_str",
+    "type": "int",
+    "params": "const FuriString*, const char[]"
+  },
+  {
+    "name": "furi_string_empty",
+    "type": "_Bool",
+    "params": "const FuriString*"
   },
   {
     "name": "furi_string_end_with",
@@ -535,14 +1565,59 @@
     "params": "const FuriString*, const char[]"
   },
   {
+    "name": "furi_string_equal",
+    "type": "_Bool",
+    "params": "const FuriString*, const FuriString*"
+  },
+  {
+    "name": "furi_string_equal_str",
+    "type": "_Bool",
+    "params": "const FuriString*, const char[]"
+  },
+  {
+    "name": "furi_string_free",
+    "type": "void",
+    "params": "FuriString*"
+  },
+  {
+    "name": "furi_string_get_char",
+    "type": "char",
+    "params": "const FuriString*, size_t"
+  },
+  {
+    "name": "furi_string_get_cstr",
+    "type": "const char*",
+    "params": "const FuriString*"
+  },
+  {
     "name": "furi_string_hash",
     "type": "size_t",
     "params": "const FuriString*"
   },
   {
+    "name": "furi_string_left",
+    "type": "void",
+    "params": "FuriString*, size_t"
+  },
+  {
     "name": "furi_string_mid",
     "type": "void",
     "params": "FuriString*, size_t, size_t"
+  },
+  {
+    "name": "furi_string_move",
+    "type": "void",
+    "params": "FuriString*, FuriString*"
+  },
+  {
+    "name": "furi_string_printf",
+    "type": "int",
+    "params": "FuriString*, const char[], ..."
+  },
+  {
+    "name": "furi_string_push_back",
+    "type": "void",
+    "params": "FuriString*, char"
   },
   {
     "name": "furi_string_replace",
@@ -555,9 +1630,34 @@
     "params": "FuriString*, const FuriString*, const FuriString*"
   },
   {
+    "name": "furi_string_replace_all_str",
+    "type": "void",
+    "params": "FuriString*, const char[], const char[]"
+  },
+  {
     "name": "furi_string_replace_at",
     "type": "void",
     "params": "FuriString*, size_t, size_t, const char[]"
+  },
+  {
+    "name": "furi_string_replace_str",
+    "type": "size_t",
+    "params": "FuriString*, const char[], const char[], size_t"
+  },
+  {
+    "name": "furi_string_reserve",
+    "type": "void",
+    "params": "FuriString*, size_t"
+  },
+  {
+    "name": "furi_string_reset",
+    "type": "void",
+    "params": "FuriString*"
+  },
+  {
+    "name": "furi_string_right",
+    "type": "void",
+    "params": "FuriString*, size_t"
   },
   {
     "name": "furi_string_search",
@@ -565,9 +1665,59 @@
     "params": "const FuriString*, const FuriString*, size_t"
   },
   {
+    "name": "furi_string_search_char",
+    "type": "size_t",
+    "params": "const FuriString*, char, size_t"
+  },
+  {
+    "name": "furi_string_search_rchar",
+    "type": "size_t",
+    "params": "const FuriString*, char, size_t"
+  },
+  {
+    "name": "furi_string_search_str",
+    "type": "size_t",
+    "params": "const FuriString*, const char[], size_t"
+  },
+  {
+    "name": "furi_string_set",
+    "type": "void",
+    "params": "FuriString*, FuriString*"
+  },
+  {
+    "name": "furi_string_set_char",
+    "type": "void",
+    "params": "FuriString*, size_t, const char"
+  },
+  {
+    "name": "furi_string_set_n",
+    "type": "void",
+    "params": "FuriString*, const FuriString*, size_t, size_t"
+  },
+  {
+    "name": "furi_string_set_str",
+    "type": "void",
+    "params": "FuriString*, const char[]"
+  },
+  {
+    "name": "furi_string_set_strn",
+    "type": "void",
+    "params": "FuriString*, const char[], size_t"
+  },
+  {
+    "name": "furi_string_size",
+    "type": "size_t",
+    "params": "const FuriString*"
+  },
+  {
     "name": "furi_string_start_with",
     "type": "_Bool",
     "params": "const FuriString*, const FuriString*"
+  },
+  {
+    "name": "furi_string_start_with_str",
+    "type": "_Bool",
+    "params": "const FuriString*, const char[]"
   },
   {
     "name": "furi_string_swap",
@@ -575,9 +1725,19 @@
     "params": "FuriString*, FuriString*"
   },
   {
+    "name": "furi_string_trim",
+    "type": "void",
+    "params": "FuriString*, const char[]"
+  },
+  {
     "name": "furi_string_utf8_decode",
     "type": "void",
     "params": "char, FuriStringUTF8State*, FuriStringUnicodeValue*"
+  },
+  {
+    "name": "furi_string_utf8_length",
+    "type": "size_t",
+    "params": "FuriString*"
   },
   {
     "name": "furi_string_utf8_push",
@@ -590,6 +1750,16 @@
     "params": "FuriString*, const char[], va_list"
   },
   {
+    "name": "furi_thread_alloc",
+    "type": "FuriThread*",
+    "params": ""
+  },
+  {
+    "name": "furi_thread_alloc_ex",
+    "type": "FuriThread*",
+    "params": "const char*, uint32_t, FuriThreadCallback, void*"
+  },
+  {
     "name": "furi_thread_enable_heap_trace",
     "type": "void",
     "params": "FuriThread*"
@@ -598,6 +1768,31 @@
     "name": "furi_thread_enumerate",
     "type": "_Bool",
     "params": "FuriThreadList*"
+  },
+  {
+    "name": "furi_thread_flags_clear",
+    "type": "uint32_t",
+    "params": "uint32_t"
+  },
+  {
+    "name": "furi_thread_flags_get",
+    "type": "uint32_t",
+    "params": ""
+  },
+  {
+    "name": "furi_thread_flags_set",
+    "type": "uint32_t",
+    "params": "FuriThreadId, uint32_t"
+  },
+  {
+    "name": "furi_thread_flags_wait",
+    "type": "uint32_t",
+    "params": "uint32_t, uint32_t, uint32_t"
+  },
+  {
+    "name": "furi_thread_free",
+    "type": "void",
+    "params": "FuriThread*"
   },
   {
     "name": "furi_thread_get_appid",
@@ -622,6 +1817,11 @@
   {
     "name": "furi_thread_get_heap_size",
     "type": "size_t",
+    "params": "FuriThread*"
+  },
+  {
+    "name": "furi_thread_get_id",
+    "type": "FuriThreadId",
     "params": "FuriThread*"
   },
   {
@@ -670,6 +1870,11 @@
     "params": "FuriThreadId"
   },
   {
+    "name": "furi_thread_join",
+    "type": "_Bool",
+    "params": "FuriThread*"
+  },
+  {
     "name": "furi_thread_list_alloc",
     "type": "FuriThreadList*",
     "params": ""
@@ -710,9 +1915,39 @@
     "params": "FuriThread*, const char*"
   },
   {
+    "name": "furi_thread_set_callback",
+    "type": "void",
+    "params": "FuriThread*, FuriThreadCallback"
+  },
+  {
+    "name": "furi_thread_set_context",
+    "type": "void",
+    "params": "FuriThread*, void*"
+  },
+  {
+    "name": "furi_thread_set_current_priority",
+    "type": "void",
+    "params": "FuriThreadPriority"
+  },
+  {
+    "name": "furi_thread_set_name",
+    "type": "void",
+    "params": "FuriThread*, const char*"
+  },
+  {
+    "name": "furi_thread_set_priority",
+    "type": "void",
+    "params": "FuriThread*, FuriThreadPriority"
+  },
+  {
     "name": "furi_thread_set_signal_callback",
     "type": "void",
     "params": "FuriThread*, FuriThreadSignalCallback, void*"
+  },
+  {
+    "name": "furi_thread_set_stack_size",
+    "type": "void",
+    "params": "FuriThread*, size_t"
   },
   {
     "name": "furi_thread_set_state_callback",
@@ -740,6 +1975,11 @@
     "params": "const FuriThread*, uint32_t, void*"
   },
   {
+    "name": "furi_thread_start",
+    "type": "void",
+    "params": "FuriThread*"
+  },
+  {
     "name": "furi_thread_stdin_read",
     "type": "size_t",
     "params": "char*, size_t, FuriWait"
@@ -765,9 +2005,24 @@
     "params": "FuriThreadId"
   },
   {
+    "name": "furi_thread_yield",
+    "type": "void",
+    "params": ""
+  },
+  {
+    "name": "furi_timer_alloc",
+    "type": "FuriTimer*",
+    "params": "FuriTimerCallback, FuriTimerType, void*"
+  },
+  {
     "name": "furi_timer_flush",
     "type": "void",
     "params": ""
+  },
+  {
+    "name": "furi_timer_free",
+    "type": "void",
+    "params": "FuriTimer*"
   },
   {
     "name": "furi_timer_get_expire_time",
@@ -790,389 +2045,69 @@
     "params": "FuriTimer*, uint32_t"
   },
   {
-    "name": "view_dispatcher_alloc_ex",
-    "type": "ViewDispatcher*",
-    "params": "FuriEventLoop*"
-  },
-  {
-    "name": "view_dispatcher_get_event_loop",
-    "type": "FuriEventLoop*",
-    "params": "ViewDispatcher*"
-  },
-  {
-    "name": "view_dispatcher_send_to_back",
+    "name": "furi_timer_set_thread_priority",
     "type": "void",
-    "params": "ViewDispatcher*"
+    "params": "FuriTimerThreadPriority"
   },
   {
-    "name": "view_dispatcher_send_to_front",
+    "name": "furi_timer_start",
+    "type": "FuriStatus",
+    "params": "FuriTimer*, uint32_t"
+  },
+  {
+    "name": "furi_timer_stop",
+    "type": "FuriStatus",
+    "params": "FuriTimer*"
+  },
+  {
+    "name": "gui_add_framebuffer_callback",
     "type": "void",
-    "params": "ViewDispatcher*"
+    "params": "Gui*, GuiCanvasCommitCallback, void*"
   },
   {
-    "name": "view_free_model",
+    "name": "gui_add_view_port",
     "type": "void",
-    "params": "View*"
+    "params": "Gui*, ViewPort*, GuiLayer"
   },
   {
-    "name": "view_holder_alloc",
-    "type": "ViewHolder*",
-    "params": ""
+    "name": "gui_direct_draw_acquire",
+    "type": "Canvas*",
+    "params": "Gui*"
   },
   {
-    "name": "view_holder_attach_to_gui",
+    "name": "gui_direct_draw_release",
     "type": "void",
-    "params": "ViewHolder*, Gui*"
+    "params": "Gui*"
   },
   {
-    "name": "view_holder_free",
+    "name": "gui_get_framebuffer_size",
+    "type": "size_t",
+    "params": "const Gui*"
+  },
+  {
+    "name": "gui_remove_framebuffer_callback",
     "type": "void",
-    "params": "ViewHolder*"
+    "params": "Gui*, GuiCanvasCommitCallback, void*"
   },
   {
-    "name": "view_holder_get_free_context",
-    "type": "void*",
-    "params": "ViewHolder*"
-  },
-  {
-    "name": "view_holder_send_to_back",
+    "name": "gui_remove_view_port",
     "type": "void",
-    "params": "ViewHolder*"
+    "params": "Gui*, ViewPort*"
   },
   {
-    "name": "view_holder_send_to_front",
+    "name": "gui_set_lockdown",
     "type": "void",
-    "params": "ViewHolder*"
+    "params": "Gui*, _Bool"
   },
   {
-    "name": "view_holder_set_back_callback",
+    "name": "gui_view_port_send_to_back",
     "type": "void",
-    "params": "ViewHolder*, BackCallback, void*"
+    "params": "Gui*, ViewPort*"
   },
   {
-    "name": "view_holder_set_free_callback",
+    "name": "gui_view_port_send_to_front",
     "type": "void",
-    "params": "ViewHolder*, FreeCallback, void*"
-  },
-  {
-    "name": "view_holder_set_view",
-    "type": "void",
-    "params": "ViewHolder*, View*"
-  },
-  {
-    "name": "view_holder_update",
-    "type": "void",
-    "params": "View*, void*"
-  },
-  {
-    "name": "view_port_get_height",
-    "type": "uint8_t",
-    "params": "const ViewPort*"
-  },
-  {
-    "name": "view_port_get_orientation",
-    "type": "ViewPortOrientation",
-    "params": "const ViewPort*"
-  },
-  {
-    "name": "view_port_get_width",
-    "type": "uint8_t",
-    "params": "const ViewPort*"
-  },
-  {
-    "name": "view_port_is_enabled",
-    "type": "_Bool",
-    "params": "const ViewPort*"
-  },
-  {
-    "name": "view_port_set_height",
-    "type": "void",
-    "params": "ViewPort*, uint8_t"
-  },
-  {
-    "name": "view_port_set_width",
-    "type": "void",
-    "params": "ViewPort*, uint8_t"
-  },
-  {
-    "name": "view_set_custom_callback",
-    "type": "void",
-    "params": "View*, ViewCustomCallback"
-  },
-  {
-    "name": "view_set_update_callback",
-    "type": "void",
-    "params": "View*, ViewUpdateCallback"
-  },
-  {
-    "name": "view_set_update_callback_context",
-    "type": "void",
-    "params": "View*, void*"
-  },
-  {
-    "name": "view_stack_add_view",
-    "type": "void",
-    "params": "ViewStack*, View*"
-  },
-  {
-    "name": "view_stack_alloc",
-    "type": "ViewStack*",
-    "params": ""
-  },
-  {
-    "name": "view_stack_free",
-    "type": "void",
-    "params": "ViewStack*"
-  },
-  {
-    "name": "view_stack_get_view",
-    "type": "View*",
-    "params": "ViewStack*"
-  },
-  {
-    "name": "view_stack_remove_view",
-    "type": "void",
-    "params": "ViewStack*, View*"
-  },
-  {
-    "name": "view_tie_icon_animation",
-    "type": "void",
-    "params": "View*, IconAnimation*"
-  },
-  {
-    "name": "button_menu_add_item",
-    "type": "ButtonMenuItem*",
-    "params": "ButtonMenu*, const char*, int32_t, ButtonMenuItemCallback, ButtonMenuItemType, void*"
-  },
-  {
-    "name": "button_menu_alloc",
-    "type": "ButtonMenu*",
-    "params": ""
-  },
-  {
-    "name": "button_menu_free",
-    "type": "void",
-    "params": "ButtonMenu*"
-  },
-  {
-    "name": "button_menu_get_view",
-    "type": "View*",
-    "params": "ButtonMenu*"
-  },
-  {
-    "name": "button_menu_reset",
-    "type": "void",
-    "params": "ButtonMenu*"
-  },
-  {
-    "name": "button_menu_set_header",
-    "type": "void",
-    "params": "ButtonMenu*, const char*"
-  },
-  {
-    "name": "button_menu_set_selected_item",
-    "type": "void",
-    "params": "ButtonMenu*, uint32_t"
-  },
-  {
-    "name": "button_panel_add_icon",
-    "type": "void",
-    "params": "ButtonPanel*, uint16_t, uint16_t, const Icon*"
-  },
-  {
-    "name": "button_panel_add_item",
-    "type": "void",
-    "params": "ButtonPanel*, uint32_t, uint16_t, uint16_t, uint16_t, uint16_t, const Icon*, const Icon*, ButtonItemCallback, void*"
-  },
-  {
-    "name": "button_panel_add_label",
-    "type": "void",
-    "params": "ButtonPanel*, uint16_t, uint16_t, Font, const char*"
-  },
-  {
-    "name": "button_panel_alloc",
-    "type": "ButtonPanel*",
-    "params": ""
-  },
-  {
-    "name": "button_panel_free",
-    "type": "void",
-    "params": "ButtonPanel*"
-  },
-  {
-    "name": "button_panel_get_view",
-    "type": "View*",
-    "params": "ButtonPanel*"
-  },
-  {
-    "name": "button_panel_reserve",
-    "type": "void",
-    "params": "ButtonPanel*, size_t, size_t"
-  },
-  {
-    "name": "button_panel_reset",
-    "type": "void",
-    "params": "ButtonPanel*"
-  },
-  {
-    "name": "dialog_ex_disable_extended_events",
-    "type": "void",
-    "params": "DialogEx*"
-  },
-  {
-    "name": "dialog_ex_enable_extended_events",
-    "type": "void",
-    "params": "DialogEx*"
-  },
-  {
-    "name": "elements_bubble",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
-  },
-  {
-    "name": "elements_bubble_str",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, const char*, Align, Align"
-  },
-  {
-    "name": "elements_button_down",
-    "type": "void",
-    "params": "Canvas*, const char*"
-  },
-  {
-    "name": "elements_button_up",
-    "type": "void",
-    "params": "Canvas*, const char*"
-  },
-  {
-    "name": "elements_frame",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
-  },
-  {
-    "name": "elements_multiline_text_framed",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, const char*"
-  },
-  {
-    "name": "elements_progress_bar",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, float"
-  },
-  {
-    "name": "elements_scrollable_text_line",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, FuriString*, size_t, _Bool"
-  },
-  {
-    "name": "elements_scrollbar",
-    "type": "void",
-    "params": "Canvas*, size_t, size_t"
-  },
-  {
-    "name": "file_browser_alloc",
-    "type": "FileBrowser*",
-    "params": "FuriString*"
-  },
-  {
-    "name": "file_browser_configure",
-    "type": "void",
-    "params": "FileBrowser*, const char*, const char*, _Bool, _Bool, const Icon*, _Bool"
-  },
-  {
-    "name": "file_browser_free",
-    "type": "void",
-    "params": "FileBrowser*"
-  },
-  {
-    "name": "file_browser_get_view",
-    "type": "View*",
-    "params": "FileBrowser*"
-  },
-  {
-    "name": "file_browser_set_callback",
-    "type": "void",
-    "params": "FileBrowser*, FileBrowserCallback, void*"
-  },
-  {
-    "name": "file_browser_set_item_callback",
-    "type": "void",
-    "params": "FileBrowser*, FileBrowserLoadItemCallback, void*"
-  },
-  {
-    "name": "file_browser_start",
-    "type": "void",
-    "params": "FileBrowser*, FuriString*"
-  },
-  {
-    "name": "file_browser_stop",
-    "type": "void",
-    "params": "FileBrowser*"
-  },
-  {
-    "name": "file_browser_worker_alloc",
-    "type": "BrowserWorker*",
-    "params": "FuriString*, const char*, const char*, _Bool, _Bool"
-  },
-  {
-    "name": "file_browser_worker_folder_enter",
-    "type": "void",
-    "params": "BrowserWorker*, FuriString*, int32_t"
-  },
-  {
-    "name": "file_browser_worker_folder_exit",
-    "type": "void",
-    "params": "BrowserWorker*"
-  },
-  {
-    "name": "file_browser_worker_folder_refresh",
-    "type": "void",
-    "params": "BrowserWorker*, int32_t"
-  },
-  {
-    "name": "file_browser_worker_free",
-    "type": "void",
-    "params": "BrowserWorker*"
-  },
-  {
-    "name": "file_browser_worker_is_in_start_folder",
-    "type": "_Bool",
-    "params": "BrowserWorker*"
-  },
-  {
-    "name": "file_browser_worker_load",
-    "type": "void",
-    "params": "BrowserWorker*, uint32_t, uint32_t"
-  },
-  {
-    "name": "file_browser_worker_set_callback_context",
-    "type": "void",
-    "params": "BrowserWorker*, void*"
-  },
-  {
-    "name": "file_browser_worker_set_config",
-    "type": "void",
-    "params": "BrowserWorker*, FuriString*, const char*, _Bool, _Bool"
-  },
-  {
-    "name": "file_browser_worker_set_folder_callback",
-    "type": "void",
-    "params": "BrowserWorker*, BrowserWorkerFolderOpenCallback"
-  },
-  {
-    "name": "file_browser_worker_set_item_callback",
-    "type": "void",
-    "params": "BrowserWorker*, BrowserWorkerListItemCallback"
-  },
-  {
-    "name": "file_browser_worker_set_list_callback",
-    "type": "void",
-    "params": "BrowserWorker*, BrowserWorkerListLoadCallback"
-  },
-  {
-    "name": "file_browser_worker_set_long_load_callback",
-    "type": "void",
-    "params": "BrowserWorker*, BrowserWorkerLongLoadCallback"
+    "params": "Gui*, ViewPort*"
   },
   {
     "name": "icon_animation_alloc",
@@ -1240,796 +2175,6 @@
     "params": "const Icon*"
   },
   {
-    "name": "scene_manager_get_current_scene",
-    "type": "uint32_t",
-    "params": "SceneManager*"
-  },
-  {
-    "name": "submenu_add_item_ex",
-    "type": "void",
-    "params": "Submenu*, const char*, uint32_t, SubmenuItemCallbackEx, void*"
-  },
-  {
-    "name": "submenu_change_item_label",
-    "type": "void",
-    "params": "Submenu*, uint32_t, const char*"
-  },
-  {
-    "name": "text_input_get_validator_callback",
-    "type": "TextInputValidatorCallback",
-    "params": "TextInput*"
-  },
-  {
-    "name": "widget_add_circle_element",
-    "type": "void",
-    "params": "Widget*, uint8_t, uint8_t, uint8_t, _Bool"
-  },
-  {
-    "name": "widget_add_line_element",
-    "type": "void",
-    "params": "Widget*, uint8_t, uint8_t, uint8_t, uint8_t"
-  },
-  {
-    "name": "byte_input_alloc",
-    "type": "ByteInput*",
-    "params": ""
-  },
-  {
-    "name": "byte_input_free",
-    "type": "void",
-    "params": "ByteInput*"
-  },
-  {
-    "name": "byte_input_get_view",
-    "type": "View*",
-    "params": "ByteInput*"
-  },
-  {
-    "name": "byte_input_set_header_text",
-    "type": "void",
-    "params": "ByteInput*, const char*"
-  },
-  {
-    "name": "byte_input_set_result_callback",
-    "type": "void",
-    "params": "ByteInput*, ByteInputCallback, ByteChangedCallback, void*, uint8_t*, uint8_t"
-  },
-  {
-    "name": "canvas_clear",
-    "type": "void",
-    "params": "Canvas*"
-  },
-  {
-    "name": "canvas_current_font_height",
-    "type": "size_t",
-    "params": "const Canvas*"
-  },
-  {
-    "name": "canvas_draw_bitmap",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, size_t, const uint8_t*"
-  },
-  {
-    "name": "canvas_draw_box",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
-  },
-  {
-    "name": "canvas_draw_circle",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t"
-  },
-  {
-    "name": "canvas_draw_disc",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t"
-  },
-  {
-    "name": "canvas_draw_dot",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t"
-  },
-  {
-    "name": "canvas_draw_frame",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
-  },
-  {
-    "name": "canvas_draw_icon",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, const Icon*"
-  },
-  {
-    "name": "canvas_draw_icon_ex",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, const Icon*, IconRotation"
-  },
-  {
-    "name": "canvas_draw_line",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, int32_t, int32_t"
-  },
-  {
-    "name": "canvas_draw_rbox",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, size_t, size_t"
-  },
-  {
-    "name": "canvas_draw_rframe",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, size_t, size_t"
-  },
-  {
-    "name": "canvas_draw_str",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, const char*"
-  },
-  {
-    "name": "canvas_draw_str_aligned",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, Align, Align, const char*"
-  },
-  {
-    "name": "canvas_draw_triangle",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, size_t, CanvasDirection"
-  },
-  {
-    "name": "canvas_draw_xbm",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, size_t, const uint8_t*"
-  },
-  {
-    "name": "canvas_get_buffer",
-    "type": "uint8_t*",
-    "params": "Canvas*"
-  },
-  {
-    "name": "canvas_get_buffer_size",
-    "type": "size_t",
-    "params": "const Canvas*"
-  },
-  {
-    "name": "canvas_height",
-    "type": "size_t",
-    "params": "const Canvas*"
-  },
-  {
-    "name": "canvas_invert_color",
-    "type": "void",
-    "params": "Canvas*"
-  },
-  {
-    "name": "canvas_set_bitmap_mode",
-    "type": "void",
-    "params": "Canvas*, _Bool"
-  },
-  {
-    "name": "canvas_set_color",
-    "type": "void",
-    "params": "Canvas*, Color"
-  },
-  {
-    "name": "canvas_set_font",
-    "type": "void",
-    "params": "Canvas*, Font"
-  },
-  {
-    "name": "canvas_string_width",
-    "type": "uint16_t",
-    "params": "Canvas*, const char*"
-  },
-  {
-    "name": "canvas_width",
-    "type": "size_t",
-    "params": "const Canvas*"
-  },
-  {
-    "name": "date_time_input_alloc",
-    "type": "DateTimeInput*",
-    "params": ""
-  },
-  {
-    "name": "date_time_input_free",
-    "type": "void",
-    "params": "DateTimeInput*"
-  },
-  {
-    "name": "date_time_input_get_view",
-    "type": "View*",
-    "params": "DateTimeInput*"
-  },
-  {
-    "name": "date_time_input_set_editable_fields",
-    "type": "void",
-    "params": "DateTimeInput*, _Bool, _Bool, _Bool, _Bool, _Bool, _Bool"
-  },
-  {
-    "name": "date_time_input_set_result_callback",
-    "type": "void",
-    "params": "DateTimeInput*, DateTimeChangedCallback, DateTimeDoneCallback, void*, DateTime*"
-  },
-  {
-    "name": "dialog_ex_alloc",
-    "type": "DialogEx*",
-    "params": ""
-  },
-  {
-    "name": "dialog_ex_free",
-    "type": "void",
-    "params": "DialogEx*"
-  },
-  {
-    "name": "dialog_ex_get_view",
-    "type": "View*",
-    "params": "DialogEx*"
-  },
-  {
-    "name": "dialog_ex_reset",
-    "type": "void",
-    "params": "DialogEx*"
-  },
-  {
-    "name": "dialog_ex_set_center_button_text",
-    "type": "void",
-    "params": "DialogEx*, const char*"
-  },
-  {
-    "name": "dialog_ex_set_context",
-    "type": "void",
-    "params": "DialogEx*, void*"
-  },
-  {
-    "name": "dialog_ex_set_header",
-    "type": "void",
-    "params": "DialogEx*, const char*, uint8_t, uint8_t, Align, Align"
-  },
-  {
-    "name": "dialog_ex_set_icon",
-    "type": "void",
-    "params": "DialogEx*, uint8_t, uint8_t, const Icon*"
-  },
-  {
-    "name": "dialog_ex_set_left_button_text",
-    "type": "void",
-    "params": "DialogEx*, const char*"
-  },
-  {
-    "name": "dialog_ex_set_result_callback",
-    "type": "void",
-    "params": "DialogEx*, DialogExResultCallback"
-  },
-  {
-    "name": "dialog_ex_set_right_button_text",
-    "type": "void",
-    "params": "DialogEx*, const char*"
-  },
-  {
-    "name": "dialog_ex_set_text",
-    "type": "void",
-    "params": "DialogEx*, const char*, uint8_t, uint8_t, Align, Align"
-  },
-  {
-    "name": "elements_bold_rounded_frame",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
-  },
-  {
-    "name": "elements_button_center",
-    "type": "void",
-    "params": "Canvas*, const char*"
-  },
-  {
-    "name": "elements_button_left",
-    "type": "void",
-    "params": "Canvas*, const char*"
-  },
-  {
-    "name": "elements_button_right",
-    "type": "void",
-    "params": "Canvas*, const char*"
-  },
-  {
-    "name": "elements_multiline_text",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, const char*"
-  },
-  {
-    "name": "elements_multiline_text_aligned",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, Align, Align, const char*"
-  },
-  {
-    "name": "elements_progress_bar_with_text",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, float, const char*"
-  },
-  {
-    "name": "elements_scrollbar_pos",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, size_t, size_t"
-  },
-  {
-    "name": "elements_slightly_rounded_box",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
-  },
-  {
-    "name": "elements_slightly_rounded_frame",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
-  },
-  {
-    "name": "elements_string_fit_width",
-    "type": "void",
-    "params": "Canvas*, FuriString*, size_t"
-  },
-  {
-    "name": "elements_text_box",
-    "type": "void",
-    "params": "Canvas*, int32_t, int32_t, size_t, size_t, Align, Align, const char*, _Bool"
-  },
-  {
-    "name": "furi_delay_ms",
-    "type": "void",
-    "params": "uint32_t"
-  },
-  {
-    "name": "furi_delay_tick",
-    "type": "void",
-    "params": "uint32_t"
-  },
-  {
-    "name": "furi_delay_us",
-    "type": "void",
-    "params": "uint32_t"
-  },
-  {
-    "name": "furi_get_tick",
-    "type": "uint32_t",
-    "params": ""
-  },
-  {
-    "name": "furi_kernel_get_tick_frequency",
-    "type": "uint32_t",
-    "params": ""
-  },
-  {
-    "name": "furi_log_print_format",
-    "type": "void",
-    "params": "FuriLogLevel, const char*, const char*, ..."
-  },
-  {
-    "name": "furi_message_queue_alloc",
-    "type": "FuriMessageQueue*",
-    "params": "uint32_t, uint32_t"
-  },
-  {
-    "name": "furi_message_queue_free",
-    "type": "void",
-    "params": "FuriMessageQueue*"
-  },
-  {
-    "name": "furi_message_queue_get",
-    "type": "FuriStatus",
-    "params": "FuriMessageQueue*, void*, uint32_t"
-  },
-  {
-    "name": "furi_message_queue_put",
-    "type": "FuriStatus",
-    "params": "FuriMessageQueue*, const void*, uint32_t"
-  },
-  {
-    "name": "furi_message_queue_reset",
-    "type": "FuriStatus",
-    "params": "FuriMessageQueue*"
-  },
-  {
-    "name": "furi_ms_to_ticks",
-    "type": "uint32_t",
-    "params": "uint32_t"
-  },
-  {
-    "name": "furi_mutex_acquire",
-    "type": "FuriStatus",
-    "params": "FuriMutex*, uint32_t"
-  },
-  {
-    "name": "furi_mutex_alloc",
-    "type": "FuriMutex*",
-    "params": "FuriMutexType"
-  },
-  {
-    "name": "furi_mutex_free",
-    "type": "void",
-    "params": "FuriMutex*"
-  },
-  {
-    "name": "furi_mutex_release",
-    "type": "FuriStatus",
-    "params": "FuriMutex*"
-  },
-  {
-    "name": "furi_pubsub_subscribe",
-    "type": "FuriPubSubSubscription*",
-    "params": "FuriPubSub*, FuriPubSubCallback, void*"
-  },
-  {
-    "name": "furi_pubsub_unsubscribe",
-    "type": "void",
-    "params": "FuriPubSub*, FuriPubSubSubscription*"
-  },
-  {
-    "name": "furi_record_close",
-    "type": "void",
-    "params": "const char*"
-  },
-  {
-    "name": "furi_record_open",
-    "type": "void*",
-    "params": "const char*"
-  },
-  {
-    "name": "furi_semaphore_acquire",
-    "type": "FuriStatus",
-    "params": "FuriSemaphore*, uint32_t"
-  },
-  {
-    "name": "furi_semaphore_alloc",
-    "type": "FuriSemaphore*",
-    "params": "uint32_t, uint32_t"
-  },
-  {
-    "name": "furi_semaphore_free",
-    "type": "void",
-    "params": "FuriSemaphore*"
-  },
-  {
-    "name": "furi_semaphore_release",
-    "type": "FuriStatus",
-    "params": "FuriSemaphore*"
-  },
-  {
-    "name": "furi_stream_buffer_alloc",
-    "type": "FuriStreamBuffer*",
-    "params": "size_t, size_t"
-  },
-  {
-    "name": "furi_stream_buffer_free",
-    "type": "void",
-    "params": "FuriStreamBuffer*"
-  },
-  {
-    "name": "furi_stream_buffer_receive",
-    "type": "size_t",
-    "params": "FuriStreamBuffer*, void*, size_t, uint32_t"
-  },
-  {
-    "name": "furi_stream_buffer_send",
-    "type": "size_t",
-    "params": "FuriStreamBuffer*, const void*, size_t, uint32_t"
-  },
-  {
-    "name": "furi_string_alloc",
-    "type": "FuriString*",
-    "params": ""
-  },
-  {
-    "name": "furi_string_alloc_printf",
-    "type": "FuriString*",
-    "params": "const char[], ..."
-  },
-  {
-    "name": "furi_string_alloc_set",
-    "type": "FuriString*",
-    "params": "const FuriString*"
-  },
-  {
-    "name": "furi_string_alloc_set_str",
-    "type": "FuriString*",
-    "params": "const char[]"
-  },
-  {
-    "name": "furi_string_cat",
-    "type": "void",
-    "params": "FuriString*, const FuriString*"
-  },
-  {
-    "name": "furi_string_cat_printf",
-    "type": "int",
-    "params": "FuriString*, const char[], ..."
-  },
-  {
-    "name": "furi_string_cat_str",
-    "type": "void",
-    "params": "FuriString*, const char[]"
-  },
-  {
-    "name": "furi_string_cmp",
-    "type": "int",
-    "params": "const FuriString*, const FuriString*"
-  },
-  {
-    "name": "furi_string_cmp_str",
-    "type": "int",
-    "params": "const FuriString*, const char[]"
-  },
-  {
-    "name": "furi_string_cmpi_str",
-    "type": "int",
-    "params": "const FuriString*, const char[]"
-  },
-  {
-    "name": "furi_string_empty",
-    "type": "_Bool",
-    "params": "const FuriString*"
-  },
-  {
-    "name": "furi_string_equal",
-    "type": "_Bool",
-    "params": "const FuriString*, const FuriString*"
-  },
-  {
-    "name": "furi_string_equal_str",
-    "type": "_Bool",
-    "params": "const FuriString*, const char[]"
-  },
-  {
-    "name": "furi_string_free",
-    "type": "void",
-    "params": "FuriString*"
-  },
-  {
-    "name": "furi_string_get_char",
-    "type": "char",
-    "params": "const FuriString*, size_t"
-  },
-  {
-    "name": "furi_string_get_cstr",
-    "type": "const char*",
-    "params": "const FuriString*"
-  },
-  {
-    "name": "furi_string_left",
-    "type": "void",
-    "params": "FuriString*, size_t"
-  },
-  {
-    "name": "furi_string_move",
-    "type": "void",
-    "params": "FuriString*, FuriString*"
-  },
-  {
-    "name": "furi_string_printf",
-    "type": "int",
-    "params": "FuriString*, const char[], ..."
-  },
-  {
-    "name": "furi_string_push_back",
-    "type": "void",
-    "params": "FuriString*, char"
-  },
-  {
-    "name": "furi_string_replace_all_str",
-    "type": "void",
-    "params": "FuriString*, const char[], const char[]"
-  },
-  {
-    "name": "furi_string_replace_str",
-    "type": "size_t",
-    "params": "FuriString*, const char[], const char[], size_t"
-  },
-  {
-    "name": "furi_string_reserve",
-    "type": "void",
-    "params": "FuriString*, size_t"
-  },
-  {
-    "name": "furi_string_reset",
-    "type": "void",
-    "params": "FuriString*"
-  },
-  {
-    "name": "furi_string_right",
-    "type": "void",
-    "params": "FuriString*, size_t"
-  },
-  {
-    "name": "furi_string_search_char",
-    "type": "size_t",
-    "params": "const FuriString*, char, size_t"
-  },
-  {
-    "name": "furi_string_search_rchar",
-    "type": "size_t",
-    "params": "const FuriString*, char, size_t"
-  },
-  {
-    "name": "furi_string_search_str",
-    "type": "size_t",
-    "params": "const FuriString*, const char[], size_t"
-  },
-  {
-    "name": "furi_string_set",
-    "type": "void",
-    "params": "FuriString*, FuriString*"
-  },
-  {
-    "name": "furi_string_set_char",
-    "type": "void",
-    "params": "FuriString*, size_t, const char"
-  },
-  {
-    "name": "furi_string_set_n",
-    "type": "void",
-    "params": "FuriString*, const FuriString*, size_t, size_t"
-  },
-  {
-    "name": "furi_string_set_str",
-    "type": "void",
-    "params": "FuriString*, const char[]"
-  },
-  {
-    "name": "furi_string_set_strn",
-    "type": "void",
-    "params": "FuriString*, const char[], size_t"
-  },
-  {
-    "name": "furi_string_size",
-    "type": "size_t",
-    "params": "const FuriString*"
-  },
-  {
-    "name": "furi_string_start_with_str",
-    "type": "_Bool",
-    "params": "const FuriString*, const char[]"
-  },
-  {
-    "name": "furi_string_trim",
-    "type": "void",
-    "params": "FuriString*, const char[]"
-  },
-  {
-    "name": "furi_string_utf8_length",
-    "type": "size_t",
-    "params": "FuriString*"
-  },
-  {
-    "name": "furi_thread_alloc",
-    "type": "FuriThread*",
-    "params": ""
-  },
-  {
-    "name": "furi_thread_alloc_ex",
-    "type": "FuriThread*",
-    "params": "const char*, uint32_t, FuriThreadCallback, void*"
-  },
-  {
-    "name": "furi_thread_flags_clear",
-    "type": "uint32_t",
-    "params": "uint32_t"
-  },
-  {
-    "name": "furi_thread_flags_get",
-    "type": "uint32_t",
-    "params": ""
-  },
-  {
-    "name": "furi_thread_flags_set",
-    "type": "uint32_t",
-    "params": "FuriThreadId, uint32_t"
-  },
-  {
-    "name": "furi_thread_flags_wait",
-    "type": "uint32_t",
-    "params": "uint32_t, uint32_t, uint32_t"
-  },
-  {
-    "name": "furi_thread_free",
-    "type": "void",
-    "params": "FuriThread*"
-  },
-  {
-    "name": "furi_thread_get_id",
-    "type": "FuriThreadId",
-    "params": "FuriThread*"
-  },
-  {
-    "name": "furi_thread_join",
-    "type": "_Bool",
-    "params": "FuriThread*"
-  },
-  {
-    "name": "furi_thread_set_callback",
-    "type": "void",
-    "params": "FuriThread*, FuriThreadCallback"
-  },
-  {
-    "name": "furi_thread_set_context",
-    "type": "void",
-    "params": "FuriThread*, void*"
-  },
-  {
-    "name": "furi_thread_set_current_priority",
-    "type": "void",
-    "params": "FuriThreadPriority"
-  },
-  {
-    "name": "furi_thread_set_name",
-    "type": "void",
-    "params": "FuriThread*, const char*"
-  },
-  {
-    "name": "furi_thread_set_priority",
-    "type": "void",
-    "params": "FuriThread*, FuriThreadPriority"
-  },
-  {
-    "name": "furi_thread_set_stack_size",
-    "type": "void",
-    "params": "FuriThread*, size_t"
-  },
-  {
-    "name": "furi_thread_start",
-    "type": "void",
-    "params": "FuriThread*"
-  },
-  {
-    "name": "furi_thread_yield",
-    "type": "void",
-    "params": ""
-  },
-  {
-    "name": "furi_timer_alloc",
-    "type": "FuriTimer*",
-    "params": "FuriTimerCallback, FuriTimerType, void*"
-  },
-  {
-    "name": "furi_timer_free",
-    "type": "void",
-    "params": "FuriTimer*"
-  },
-  {
-    "name": "furi_timer_set_thread_priority",
-    "type": "void",
-    "params": "FuriTimerThreadPriority"
-  },
-  {
-    "name": "furi_timer_start",
-    "type": "FuriStatus",
-    "params": "FuriTimer*, uint32_t"
-  },
-  {
-    "name": "furi_timer_stop",
-    "type": "FuriStatus",
-    "params": "FuriTimer*"
-  },
-  {
-    "name": "gui_add_view_port",
-    "type": "void",
-    "params": "Gui*, ViewPort*, GuiLayer"
-  },
-  {
-    "name": "gui_direct_draw_acquire",
-    "type": "Canvas*",
-    "params": "Gui*"
-  },
-  {
-    "name": "gui_direct_draw_release",
-    "type": "void",
-    "params": "Gui*"
-  },
-  {
-    "name": "gui_remove_view_port",
-    "type": "void",
-    "params": "Gui*, ViewPort*"
-  },
-  {
-    "name": "gui_view_port_send_to_back",
-    "type": "void",
-    "params": "Gui*, ViewPort*"
-  },
-  {
     "name": "loading_alloc",
     "type": "Loading*",
     "params": ""
@@ -2043,6 +2188,56 @@
     "name": "loading_get_view",
     "type": "View*",
     "params": "Loading*"
+  },
+  {
+    "name": "locale_celsius_to_fahrenheit",
+    "type": "float",
+    "params": "float"
+  },
+  {
+    "name": "locale_fahrenheit_to_celsius",
+    "type": "float",
+    "params": "float"
+  },
+  {
+    "name": "locale_format_date",
+    "type": "void",
+    "params": "FuriString*, const DateTime*, const LocaleDateFormat, const char*"
+  },
+  {
+    "name": "locale_format_time",
+    "type": "void",
+    "params": "FuriString*, const DateTime*, const LocaleTimeFormat, const _Bool"
+  },
+  {
+    "name": "locale_get_date_format",
+    "type": "LocaleDateFormat",
+    "params": ""
+  },
+  {
+    "name": "locale_get_measurement_unit",
+    "type": "LocaleMeasurementUnits",
+    "params": ""
+  },
+  {
+    "name": "locale_get_time_format",
+    "type": "LocaleTimeFormat",
+    "params": ""
+  },
+  {
+    "name": "locale_set_date_format",
+    "type": "void",
+    "params": "LocaleDateFormat"
+  },
+  {
+    "name": "locale_set_measurement_unit",
+    "type": "void",
+    "params": "LocaleMeasurementUnits"
+  },
+  {
+    "name": "locale_set_time_format",
+    "type": "void",
+    "params": "LocaleTimeFormat"
   },
   {
     "name": "number_input_alloc",
@@ -2068,6 +2263,46 @@
     "name": "number_input_set_result_callback",
     "type": "void",
     "params": "NumberInput*, NumberInputCallback, void*, int32_t, int32_t, int32_t"
+  },
+  {
+    "name": "path_append",
+    "type": "void",
+    "params": "FuriString*, const char*"
+  },
+  {
+    "name": "path_concat",
+    "type": "void",
+    "params": "const char*, const char*, FuriString*"
+  },
+  {
+    "name": "path_contains_only_ascii",
+    "type": "_Bool",
+    "params": "const char*"
+  },
+  {
+    "name": "path_extract_basename",
+    "type": "void",
+    "params": "const char*, FuriString*"
+  },
+  {
+    "name": "path_extract_dirname",
+    "type": "void",
+    "params": "const char*, FuriString*"
+  },
+  {
+    "name": "path_extract_extension",
+    "type": "void",
+    "params": "FuriString*, char*, size_t"
+  },
+  {
+    "name": "path_extract_filename",
+    "type": "void",
+    "params": "FuriString*, FuriString*, _Bool"
+  },
+  {
+    "name": "path_extract_filename_no_ext",
+    "type": "void",
+    "params": "const char*, FuriString*"
   },
   {
     "name": "popup_alloc",
@@ -2130,6 +2365,21 @@
     "params": "Popup*, uint32_t"
   },
   {
+    "name": "saved_struct_get_metadata",
+    "type": "_Bool",
+    "params": "const char*, uint8_t*, uint8_t*, size_t*"
+  },
+  {
+    "name": "saved_struct_load",
+    "type": "_Bool",
+    "params": "const char*, void*, size_t, uint8_t, uint8_t"
+  },
+  {
+    "name": "saved_struct_save",
+    "type": "_Bool",
+    "params": "const char*, const void*, size_t, uint8_t, uint8_t"
+  },
+  {
     "name": "scene_manager_alloc",
     "type": "SceneManager*",
     "params": "const SceneManagerHandlers*, void*"
@@ -2137,6 +2387,11 @@
   {
     "name": "scene_manager_free",
     "type": "void",
+    "params": "SceneManager*"
+  },
+  {
+    "name": "scene_manager_get_current_scene",
+    "type": "uint32_t",
     "params": "SceneManager*"
   },
   {
@@ -2205,9 +2460,29 @@
     "params": "Storage*, const char*, const char*"
   },
   {
+    "name": "storage_common_equivalent_path",
+    "type": "_Bool",
+    "params": "Storage*, const char*, const char*"
+  },
+  {
     "name": "storage_common_exists",
     "type": "_Bool",
     "params": "Storage*, const char*"
+  },
+  {
+    "name": "storage_common_fs_info",
+    "type": "FS_Error",
+    "params": "Storage*, const char*, uint64_t*, uint64_t*"
+  },
+  {
+    "name": "storage_common_is_subdir",
+    "type": "_Bool",
+    "params": "Storage*, const char*, const char*"
+  },
+  {
+    "name": "storage_common_merge",
+    "type": "FS_Error",
+    "params": "Storage*, const char*, const char*"
   },
   {
     "name": "storage_common_migrate",
@@ -2230,9 +2505,19 @@
     "params": "Storage*, const char*, const char*"
   },
   {
+    "name": "storage_common_resolve_path_and_ensure_app_directory",
+    "type": "void",
+    "params": "Storage*, FuriString*"
+  },
+  {
     "name": "storage_common_stat",
     "type": "FS_Error",
     "params": "Storage*, const char*, FileInfo*"
+  },
+  {
+    "name": "storage_common_timestamp",
+    "type": "FS_Error",
+    "params": "Storage*, const char*, uint32_t*"
   },
   {
     "name": "storage_dir_close",
@@ -2255,6 +2540,11 @@
     "params": "File*, FileInfo*, char*, uint16_t"
   },
   {
+    "name": "storage_error_get_desc",
+    "type": "const char*",
+    "params": "FS_Error"
+  },
+  {
     "name": "storage_file_alloc",
     "type": "File*",
     "params": "Storage*"
@@ -2263,6 +2553,11 @@
     "name": "storage_file_close",
     "type": "_Bool",
     "params": "File*"
+  },
+  {
+    "name": "storage_file_copy_to_file",
+    "type": "_Bool",
+    "params": "File*, File*, size_t"
   },
   {
     "name": "storage_file_eof",
@@ -2282,6 +2577,16 @@
   {
     "name": "storage_file_get_error",
     "type": "FS_Error",
+    "params": "File*"
+  },
+  {
+    "name": "storage_file_get_error_desc",
+    "type": "const char*",
+    "params": "File*"
+  },
+  {
+    "name": "storage_file_is_dir",
+    "type": "_Bool",
     "params": "File*"
   },
   {
@@ -2320,9 +2625,59 @@
     "params": "File*"
   },
   {
+    "name": "storage_file_truncate",
+    "type": "_Bool",
+    "params": "File*"
+  },
+  {
     "name": "storage_file_write",
     "type": "size_t",
     "params": "File*, const void*, size_t"
+  },
+  {
+    "name": "storage_get_next_filename",
+    "type": "void",
+    "params": "Storage*, const char*, const char*, const char*, FuriString*, uint8_t"
+  },
+  {
+    "name": "storage_get_pubsub",
+    "type": "FuriPubSub*",
+    "params": "Storage*"
+  },
+  {
+    "name": "storage_int_backup",
+    "type": "FS_Error",
+    "params": "Storage*, const char*"
+  },
+  {
+    "name": "storage_int_restore",
+    "type": "FS_Error",
+    "params": "Storage*, const char*, StorageNameConverter"
+  },
+  {
+    "name": "storage_sd_format",
+    "type": "FS_Error",
+    "params": "Storage*"
+  },
+  {
+    "name": "storage_sd_info",
+    "type": "FS_Error",
+    "params": "Storage*, SDInfo*"
+  },
+  {
+    "name": "storage_sd_mount",
+    "type": "FS_Error",
+    "params": "Storage*"
+  },
+  {
+    "name": "storage_sd_status",
+    "type": "FS_Error",
+    "params": "Storage*"
+  },
+  {
+    "name": "storage_sd_unmount",
+    "type": "FS_Error",
+    "params": "Storage*"
   },
   {
     "name": "storage_simply_mkdir",
@@ -2340,14 +2695,234 @@
     "params": "Storage*, const char*"
   },
   {
+    "name": "stream_clean",
+    "type": "void",
+    "params": "Stream*"
+  },
+  {
+    "name": "stream_copy",
+    "type": "size_t",
+    "params": "Stream*, Stream*, size_t"
+  },
+  {
+    "name": "stream_copy_full",
+    "type": "size_t",
+    "params": "Stream*, Stream*"
+  },
+  {
+    "name": "stream_delete",
+    "type": "_Bool",
+    "params": "Stream*, size_t"
+  },
+  {
+    "name": "stream_delete_and_insert",
+    "type": "_Bool",
+    "params": "Stream*, size_t, StreamWriteCB, const void*"
+  },
+  {
+    "name": "stream_delete_and_insert_char",
+    "type": "_Bool",
+    "params": "Stream*, size_t, char"
+  },
+  {
+    "name": "stream_delete_and_insert_cstring",
+    "type": "_Bool",
+    "params": "Stream*, size_t, const char*"
+  },
+  {
+    "name": "stream_delete_and_insert_format",
+    "type": "_Bool",
+    "params": "Stream*, size_t, const char*, ..."
+  },
+  {
+    "name": "stream_delete_and_insert_string",
+    "type": "_Bool",
+    "params": "Stream*, size_t, FuriString*"
+  },
+  {
+    "name": "stream_delete_and_insert_vaformat",
+    "type": "_Bool",
+    "params": "Stream*, size_t, const char*, va_list"
+  },
+  {
+    "name": "stream_dump_data",
+    "type": "void",
+    "params": "Stream*"
+  },
+  {
+    "name": "stream_eof",
+    "type": "_Bool",
+    "params": "Stream*"
+  },
+  {
+    "name": "stream_free",
+    "type": "void",
+    "params": "Stream*"
+  },
+  {
+    "name": "stream_insert",
+    "type": "_Bool",
+    "params": "Stream*, const uint8_t*, size_t"
+  },
+  {
+    "name": "stream_insert_char",
+    "type": "_Bool",
+    "params": "Stream*, char"
+  },
+  {
+    "name": "stream_insert_cstring",
+    "type": "_Bool",
+    "params": "Stream*, const char*"
+  },
+  {
+    "name": "stream_insert_format",
+    "type": "_Bool",
+    "params": "Stream*, const char*, ..."
+  },
+  {
+    "name": "stream_insert_string",
+    "type": "_Bool",
+    "params": "Stream*, FuriString*"
+  },
+  {
+    "name": "stream_insert_vaformat",
+    "type": "_Bool",
+    "params": "Stream*, const char*, va_list"
+  },
+  {
+    "name": "stream_load_from_file",
+    "type": "size_t",
+    "params": "Stream*, Storage*, const char*"
+  },
+  {
+    "name": "stream_read",
+    "type": "size_t",
+    "params": "Stream*, uint8_t*, size_t"
+  },
+  {
+    "name": "stream_read_line",
+    "type": "_Bool",
+    "params": "Stream*, FuriString*"
+  },
+  {
+    "name": "stream_rewind",
+    "type": "_Bool",
+    "params": "Stream*"
+  },
+  {
+    "name": "stream_save_to_file",
+    "type": "size_t",
+    "params": "Stream*, Storage*, const char*, FS_OpenMode"
+  },
+  {
+    "name": "stream_seek",
+    "type": "_Bool",
+    "params": "Stream*, int32_t, StreamOffset"
+  },
+  {
+    "name": "stream_seek_to_char",
+    "type": "_Bool",
+    "params": "Stream*, char, StreamDirection"
+  },
+  {
+    "name": "stream_size",
+    "type": "size_t",
+    "params": "Stream*"
+  },
+  {
+    "name": "stream_split",
+    "type": "_Bool",
+    "params": "Stream*, Stream*, Stream*"
+  },
+  {
+    "name": "stream_tell",
+    "type": "size_t",
+    "params": "Stream*"
+  },
+  {
+    "name": "stream_write",
+    "type": "size_t",
+    "params": "Stream*, const uint8_t*, size_t"
+  },
+  {
+    "name": "stream_write_char",
+    "type": "size_t",
+    "params": "Stream*, char"
+  },
+  {
+    "name": "stream_write_cstring",
+    "type": "size_t",
+    "params": "Stream*, const char*"
+  },
+  {
+    "name": "stream_write_format",
+    "type": "size_t",
+    "params": "Stream*, const char*, ..."
+  },
+  {
+    "name": "stream_write_string",
+    "type": "size_t",
+    "params": "Stream*, FuriString*"
+  },
+  {
+    "name": "stream_write_vaformat",
+    "type": "size_t",
+    "params": "Stream*, const char*, va_list"
+  },
+  {
+    "name": "string_stream_alloc",
+    "type": "Stream*",
+    "params": ""
+  },
+  {
+    "name": "strint_to_int16",
+    "type": "StrintParseError",
+    "params": "const char*, char**, int16_t*, uint8_t"
+  },
+  {
+    "name": "strint_to_int32",
+    "type": "StrintParseError",
+    "params": "const char*, char**, int32_t*, uint8_t"
+  },
+  {
+    "name": "strint_to_int64",
+    "type": "StrintParseError",
+    "params": "const char*, char**, int64_t*, uint8_t"
+  },
+  {
+    "name": "strint_to_uint16",
+    "type": "StrintParseError",
+    "params": "const char*, char**, uint16_t*, uint8_t"
+  },
+  {
+    "name": "strint_to_uint32",
+    "type": "StrintParseError",
+    "params": "const char*, char**, uint32_t*, uint8_t"
+  },
+  {
+    "name": "strint_to_uint64",
+    "type": "StrintParseError",
+    "params": "const char*, char**, uint64_t*, uint8_t"
+  },
+  {
     "name": "submenu_add_item",
     "type": "void",
     "params": "Submenu*, const char*, uint32_t, SubmenuItemCallback, void*"
   },
   {
+    "name": "submenu_add_item_ex",
+    "type": "void",
+    "params": "Submenu*, const char*, uint32_t, SubmenuItemCallbackEx, void*"
+  },
+  {
     "name": "submenu_alloc",
     "type": "Submenu*",
     "params": ""
+  },
+  {
+    "name": "submenu_change_item_label",
+    "type": "void",
+    "params": "Submenu*, uint32_t, const char*"
   },
   {
     "name": "submenu_free",
@@ -2422,6 +2997,11 @@
   {
     "name": "text_input_free",
     "type": "void",
+    "params": "TextInput*"
+  },
+  {
+    "name": "text_input_get_validator_callback",
+    "type": "TextInputValidatorCallback",
     "params": "TextInput*"
   },
   {
@@ -2555,6 +3135,11 @@
     "params": ""
   },
   {
+    "name": "view_dispatcher_alloc_ex",
+    "type": "ViewDispatcher*",
+    "params": "FuriEventLoop*"
+  },
+  {
     "name": "view_dispatcher_attach_to_gui",
     "type": "void",
     "params": "ViewDispatcher*, Gui*, ViewDispatcherType"
@@ -2575,6 +3160,11 @@
     "params": "ViewDispatcher*"
   },
   {
+    "name": "view_dispatcher_get_event_loop",
+    "type": "FuriEventLoop*",
+    "params": "ViewDispatcher*"
+  },
+  {
     "name": "view_dispatcher_remove_view",
     "type": "void",
     "params": "ViewDispatcher*, uint32_t"
@@ -2588,6 +3178,16 @@
     "name": "view_dispatcher_send_custom_event",
     "type": "void",
     "params": "ViewDispatcher*, uint32_t"
+  },
+  {
+    "name": "view_dispatcher_send_to_back",
+    "type": "void",
+    "params": "ViewDispatcher*"
+  },
+  {
+    "name": "view_dispatcher_send_to_front",
+    "type": "void",
+    "params": "ViewDispatcher*"
   },
   {
     "name": "view_dispatcher_set_custom_event_callback",
@@ -2625,9 +3225,64 @@
     "params": "View*"
   },
   {
+    "name": "view_free_model",
+    "type": "void",
+    "params": "View*"
+  },
+  {
     "name": "view_get_model",
     "type": "void*",
     "params": "View*"
+  },
+  {
+    "name": "view_holder_alloc",
+    "type": "ViewHolder*",
+    "params": ""
+  },
+  {
+    "name": "view_holder_attach_to_gui",
+    "type": "void",
+    "params": "ViewHolder*, Gui*"
+  },
+  {
+    "name": "view_holder_free",
+    "type": "void",
+    "params": "ViewHolder*"
+  },
+  {
+    "name": "view_holder_get_free_context",
+    "type": "void*",
+    "params": "ViewHolder*"
+  },
+  {
+    "name": "view_holder_send_to_back",
+    "type": "void",
+    "params": "ViewHolder*"
+  },
+  {
+    "name": "view_holder_send_to_front",
+    "type": "void",
+    "params": "ViewHolder*"
+  },
+  {
+    "name": "view_holder_set_back_callback",
+    "type": "void",
+    "params": "ViewHolder*, BackCallback, void*"
+  },
+  {
+    "name": "view_holder_set_free_callback",
+    "type": "void",
+    "params": "ViewHolder*, FreeCallback, void*"
+  },
+  {
+    "name": "view_holder_set_view",
+    "type": "void",
+    "params": "ViewHolder*, View*"
+  },
+  {
+    "name": "view_holder_update",
+    "type": "void",
+    "params": "View*, void*"
   },
   {
     "name": "view_port_alloc",
@@ -2650,14 +3305,44 @@
     "params": "ViewPort*"
   },
   {
+    "name": "view_port_get_height",
+    "type": "uint8_t",
+    "params": "const ViewPort*"
+  },
+  {
+    "name": "view_port_get_orientation",
+    "type": "ViewPortOrientation",
+    "params": "const ViewPort*"
+  },
+  {
+    "name": "view_port_get_width",
+    "type": "uint8_t",
+    "params": "const ViewPort*"
+  },
+  {
     "name": "view_port_input_callback_set",
     "type": "void",
     "params": "ViewPort*, ViewPortInputCallback, void*"
   },
   {
+    "name": "view_port_is_enabled",
+    "type": "_Bool",
+    "params": "const ViewPort*"
+  },
+  {
+    "name": "view_port_set_height",
+    "type": "void",
+    "params": "ViewPort*, uint8_t"
+  },
+  {
     "name": "view_port_set_orientation",
     "type": "void",
     "params": "ViewPort*, ViewPortOrientation"
+  },
+  {
+    "name": "view_port_set_width",
+    "type": "void",
+    "params": "ViewPort*, uint8_t"
   },
   {
     "name": "view_port_update",
@@ -2668,6 +3353,11 @@
     "name": "view_set_context",
     "type": "void",
     "params": "View*, void*"
+  },
+  {
+    "name": "view_set_custom_callback",
+    "type": "void",
+    "params": "View*, ViewCustomCallback"
   },
   {
     "name": "view_set_draw_callback",
@@ -2700,14 +3390,64 @@
     "params": "View*, ViewNavigationCallback"
   },
   {
+    "name": "view_set_update_callback",
+    "type": "void",
+    "params": "View*, ViewUpdateCallback"
+  },
+  {
+    "name": "view_set_update_callback_context",
+    "type": "void",
+    "params": "View*, void*"
+  },
+  {
+    "name": "view_stack_add_view",
+    "type": "void",
+    "params": "ViewStack*, View*"
+  },
+  {
+    "name": "view_stack_alloc",
+    "type": "ViewStack*",
+    "params": ""
+  },
+  {
+    "name": "view_stack_free",
+    "type": "void",
+    "params": "ViewStack*"
+  },
+  {
+    "name": "view_stack_get_view",
+    "type": "View*",
+    "params": "ViewStack*"
+  },
+  {
+    "name": "view_stack_remove_view",
+    "type": "void",
+    "params": "ViewStack*, View*"
+  },
+  {
+    "name": "view_tie_icon_animation",
+    "type": "void",
+    "params": "View*, IconAnimation*"
+  },
+  {
     "name": "widget_add_button_element",
     "type": "void",
     "params": "Widget*, GuiButtonType, const char*, ButtonCallback, void*"
   },
   {
+    "name": "widget_add_circle_element",
+    "type": "void",
+    "params": "Widget*, uint8_t, uint8_t, uint8_t, _Bool"
+  },
+  {
     "name": "widget_add_icon_element",
     "type": "void",
     "params": "Widget*, uint8_t, uint8_t, const Icon*"
+  },
+  {
+    "name": "widget_add_line_element",
+    "type": "void",
+    "params": "Widget*, uint8_t, uint8_t, uint8_t, uint8_t"
   },
   {
     "name": "widget_add_rect_element",
