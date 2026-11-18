@@ -10,6 +10,8 @@ int32_t loader_api_probe(void* context) {
     available |= loader_get_application_launch_path(loader, path);
     if(context) {
         available |= loader_signal(loader, 0, context);
+        loader_enqueue_launch(loader, "test", NULL, LoaderDeferredLaunchFlagNone);
+        loader_clear_launch_queue(loader);
     }
     furi_string_free(name);
     furi_string_free(path);

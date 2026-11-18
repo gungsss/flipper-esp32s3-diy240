@@ -1,7 +1,18 @@
+diff --git a/components/loader/CMakeLists.txt b/components/loader/CMakeLists.txt
+--- a/components/loader/CMakeLists.txt
++++ b/components/loader/CMakeLists.txt
+@@ -1,6 +1,7 @@
+ idf_component_register(
+     SRCS
+         "loader.c"
++        "loader_queue.c"
+         "loader_menu.c"
+         "loader_applications.c"
+         "menu_custom.c"
 diff --git a/components/loader/loader.c b/components/loader/loader.c
 --- a/components/loader/loader.c
 +++ b/components/loader/loader.c
-@@ -137,6 +137,30 @@
+@@ -137,21 +137,63 @@
      return loader->pubsub;
  }
  
@@ -32,7 +43,27 @@ diff --git a/components/loader/loader.c b/components/loader/loader.c
  void loader_enqueue_launch(
      Loader* instance,
      const char* name,
-@@ -148,10 +172,15 @@
+     const char* args,
+     LoaderDeferredLaunchFlag flags) {
+-    UNUSED(flags);
+-    /* ESP32 port: no deferred launch queue, just start directly */
+-    loader_start_detached_with_gui_error(instance, name, args);
++    furi_check(name);
++    LoaderMessage message = {
++        .type = LoaderMessageTypeEnqueueLaunch,
++        .defer_start = {
++            .name_or_path = strdup(name),
++            .args = args ? strdup(args) : NULL,
++            .flags = flags,
++        },
++    };
++    furi_check(message.defer_start.name_or_path && (!args || message.defer_start.args));
++    loader_generic_synchronous_request(instance, &message);
++}
++
++void loader_clear_launch_queue(Loader* instance) {
++    LoaderMessage message = {.type = LoaderMessageTypeClearLaunchQueue};
++    loader_generic_synchronous_request(instance, &message);
  }
  
  bool loader_get_application_launch_path(Loader* instance, FuriString* path) {
@@ -52,7 +83,7 @@ diff --git a/components/loader/loader.c b/components/loader/loader.c
  }
  
  // callbacks
-@@ -458,6 +487,12 @@
+@@ -458,6 +500,12 @@
          FURI_LOG_E(TAG, "Application \"%s\" not found", name);
      } while(false);
  
@@ -65,7 +96,40 @@ diff --git a/components/loader/loader.c b/components/loader/loader.c
      /* BeforeLoad was announced but nothing started (unknown app, FAP preload/map failure):
       * close the announcement, or every subscriber keeps believing an app runs - the desktop
       * kept its animation frozen and ignored animation reloads (asset pack / anim speed),
-@@ -507,6 +542,11 @@
+@@ -466,9 +514,11 @@
+         LoaderEvent failed_event;
+         failed_event.type = LoaderEventTypeApplicationLoadFailed;
+         furi_pubsub_publish(loader->pubsub, &failed_event);
+-        LoaderEvent empty_event;
+-        empty_event.type = LoaderEventTypeNoMoreAppsInQueue;
+-        furi_pubsub_publish(loader->pubsub, &empty_event);
++        if(!loader->pending_name && !loader->launch_queue.item_cnt) {
++            LoaderEvent empty_event;
++            empty_event.type = LoaderEventTypeNoMoreAppsInQueue;
++            furi_pubsub_publish(loader->pubsub, &empty_event);
++        }
+     }
+ 
+     return status;
+@@ -485,6 +535,17 @@
+ static void loader_do_unlock(Loader* loader) {
+     furi_check(loader->app.thread == (FuriThread*)LOADER_MAGIC_THREAD_VALUE);
+     loader->app.thread = NULL;
++}
++
++static bool loader_start_deferred_item(Loader* loader, const char* name, const char* args) {
++    FuriString* error_message = furi_string_alloc();
++    LoaderMessageLoaderStatusResult status =
++        loader_do_start_by_name(loader, name, args, error_message);
++    if(status.value != LoaderStatusOk) {
++        FURI_LOG_E(TAG, "Deferred start error: %s", furi_string_get_cstr(error_message));
++    }
++    furi_string_free(error_message);
++    return status.value == LoaderStatusOk;
+ }
+ 
+ static void loader_do_app_closed(Loader* loader) {
+@@ -507,6 +568,11 @@
      }
      loader->app.thread = NULL;
  
@@ -77,9 +141,11 @@ diff --git a/components/loader/loader.c b/components/loader/loader.c
      FURI_LOG_I(
          TAG, "Application stopped. Free heap: %zu", memmgr_get_free_heap());
  
-@@ -515,20 +555,49 @@
+@@ -514,21 +580,56 @@
+     event.type = LoaderEventTypeApplicationStopped;
      furi_pubsub_publish(loader->pubsub, &event);
  
++    bool attempted = false;
      if(loader->pending_name) {
 -        LoaderMessage relaunch;
 -        memset(&relaunch, 0, sizeof(relaunch));
@@ -94,17 +160,24 @@ diff --git a/components/loader/loader.c b/components/loader/loader.c
          loader->pending_name = NULL;
          loader->pending_args = NULL;
 -        furi_message_queue_put(loader->queue, &relaunch, FuriWaitForever);
-+        FuriString* error_message = furi_string_alloc();
-+        LoaderMessageLoaderStatusResult status =
-+            loader_do_start_by_name(loader, pending_name, pending_args, error_message);
-+        if(status.value != LoaderStatusOk) {
-+            FURI_LOG_E(TAG, "Deferred start error: %s", furi_string_get_cstr(error_message));
-+        }
-+        furi_string_free(error_message);
+-    } else {
+-        // Emit queue empty since we don't have a deferred launch queue
++        attempted = true;
++        bool started = loader_start_deferred_item(loader, pending_name, pending_args);
 +        free(pending_name);
 +        free(pending_args);
-     } else {
-         // Emit queue empty since we don't have a deferred launch queue
++        if(started) return;
++    }
++
++    LoaderDeferredLaunchRecord next;
++    while(loader_queue_pop(&loader->launch_queue, &next)) {
++        attempted = true;
++        bool started = loader_start_deferred_item(loader, next.name_or_path, next.args);
++        loader_queue_item_clear(&next);
++        if(started) return;
++    }
++
++    if(!attempted) {
          LoaderEvent empty_event;
          empty_event.type = LoaderEventTypeNoMoreAppsInQueue;
          furi_pubsub_publish(loader->pubsub, &empty_event);
@@ -133,7 +206,7 @@ diff --git a/components/loader/loader.c b/components/loader/loader.c
  }
  
  // app
-@@ -610,6 +679,21 @@
+@@ -610,6 +711,29 @@
              case LoaderMessageTypeUnlock:
                  loader_do_unlock(loader);
                  break;
@@ -152,13 +225,21 @@ diff --git a/components/loader/loader.c b/components/loader/loader.c
 +                    loader_do_get_application_launch_path(loader, message.application_name);
 +                api_lock_unlock(message.api_lock);
 +                break;
++            case LoaderMessageTypeEnqueueLaunch:
++                furi_check(loader_queue_push(&loader->launch_queue, &message.defer_start));
++                api_lock_unlock(message.api_lock);
++                break;
++            case LoaderMessageTypeClearLaunchQueue:
++                loader_queue_clear(&loader->launch_queue);
++                api_lock_unlock(message.api_lock);
++                break;
              }
          }
      }
 diff --git a/components/loader/loader.h b/components/loader/loader.h
 --- a/components/loader/loader.h
 +++ b/components/loader/loader.h
-@@ -46,9 +46,12 @@
+@@ -46,19 +46,23 @@
  /** Open the loader menu directly on the Settings submenu. */
  void loader_show_settings(Loader* instance);
  FuriPubSub* loader_get_pubsub(Loader* instance);
@@ -171,10 +252,14 @@ diff --git a/components/loader/loader.h b/components/loader/loader.h
 +    LoaderDeferredLaunchFlagGui = (1 << 1),
  } LoaderDeferredLaunchFlag;
  
- /** Enqueue an app launch (stub on ESP32 — no FAP support) */
-@@ -58,7 +61,7 @@
+-/** Enqueue an app launch (stub on ESP32 — no FAP support) */
++/** Enqueue an app launch after the current application exits. */
+ void loader_enqueue_launch(
+     Loader* instance,
+     const char* name,
      const char* args,
      LoaderDeferredLaunchFlag flags);
++void loader_clear_launch_queue(Loader* instance);
  
 -/** Get the path of the currently running application (stub on ESP32) */
 +/** Get the launch name or path of the currently running application. */
@@ -184,7 +269,14 @@ diff --git a/components/loader/loader.h b/components/loader/loader.h
 diff --git a/components/loader/loader_i.h b/components/loader/loader_i.h
 --- a/components/loader/loader_i.h
 +++ b/components/loader/loader_i.h
-@@ -13,6 +13,7 @@
+@@ -7,12 +7,14 @@
+ #include <loading.h>
+ 
+ #include "loader.h"
++#include "loader_queue.h"
+ #include "loader_menu.h"
+ #include "loader_applications.h"
+ 
  typedef struct FlipperApplication FlipperApplication;
  
  typedef struct {
@@ -192,17 +284,27 @@ diff --git a/components/loader/loader_i.h b/components/loader/loader_i.h
      char* args;
      FuriThread* thread;
      FlipperApplication* fap;
-@@ -45,6 +46,9 @@
+@@ -25,6 +27,7 @@
+     LoaderMenu* loader_menu;
+     LoaderApplications* loader_applications;
+     LoaderAppData app;
++    LoaderLaunchQueue launch_queue;
+ 
+     Gui* gui;
+     ViewHolder* view_holder;
+@@ -45,6 +48,11 @@
      LoaderMessageTypeUnlock,
      LoaderMessageTypeIsLocked,
      LoaderMessageTypeStartByNameDetachedWithGuiError,
 +    LoaderMessageTypeSignal,
 +    LoaderMessageTypeGetApplicationName,
 +    LoaderMessageTypeGetApplicationLaunchPath,
++    LoaderMessageTypeEnqueueLaunch,
++    LoaderMessageTypeClearLaunchQueue,
  } LoaderMessageType;
  
  typedef struct {
-@@ -67,6 +71,11 @@
+@@ -67,6 +75,12 @@
  
      union {
          LoaderMessageStartByName start;
@@ -211,9 +313,105 @@ diff --git a/components/loader/loader_i.h b/components/loader/loader_i.h
 +            void* arg;
 +        } signal;
 +        FuriString* application_name;
++        LoaderDeferredLaunchRecord defer_start;
      };
  
      union {
+diff --git a/components/loader/loader_queue.c b/components/loader/loader_queue.c
+new file mode 100644
+--- /dev/null
++++ b/components/loader/loader_queue.c
+@@ -0,0 +1,32 @@
++#include "loader_queue.h"
++
++void loader_queue_item_clear(LoaderDeferredLaunchRecord* item) {
++    free(item->args);
++    free(item->name_or_path);
++}
++
++bool loader_queue_pop(LoaderLaunchQueue* queue, LoaderDeferredLaunchRecord* item) {
++    if(!queue->item_cnt) return false;
++
++    *item = queue->items[0];
++    queue->item_cnt--;
++    memmove(
++        &queue->items[0], &queue->items[1], queue->item_cnt * sizeof(LoaderDeferredLaunchRecord));
++
++    return true;
++}
++
++bool loader_queue_push(LoaderLaunchQueue* queue, LoaderDeferredLaunchRecord* item) {
++    if(queue->item_cnt == LOADER_QUEUE_MAX_SIZE) return false;
++
++    queue->items[queue->item_cnt] = *item;
++    queue->item_cnt++;
++
++    return true;
++}
++
++void loader_queue_clear(LoaderLaunchQueue* queue) {
++    for(size_t i = 0; i < queue->item_cnt; i++)
++        loader_queue_item_clear(&queue->items[i]);
++    queue->item_cnt = 0;
++}
+diff --git a/components/loader/loader_queue.h b/components/loader/loader_queue.h
+new file mode 100644
+--- /dev/null
++++ b/components/loader/loader_queue.h
+@@ -0,0 +1,53 @@
++#pragma once
++
++#include <furi.h>
++
++#include "loader.h"
++
++#define LOADER_QUEUE_MAX_SIZE 4
++
++typedef struct {
++    char* name_or_path;
++    char* args;
++    LoaderDeferredLaunchFlag flags;
++} LoaderDeferredLaunchRecord;
++
++typedef struct {
++    LoaderDeferredLaunchRecord items[LOADER_QUEUE_MAX_SIZE];
++    size_t item_cnt;
++} LoaderLaunchQueue;
++
++/**
++ * @brief Frees internal data in a `DeferredLaunchRecord`
++ *
++ * @param[out] item Record to clear
++ */
++void loader_queue_item_clear(LoaderDeferredLaunchRecord* item);
++
++/**
++ * @brief Fetches the next item from the launch queue
++ *
++ * @param[inout] queue Queue instance
++ * @param[out]   item  Item output
++ *
++ * @return `true` if `item` was populated, `false` if queue is empty
++ */
++bool loader_queue_pop(LoaderLaunchQueue* queue, LoaderDeferredLaunchRecord* item);
++
++/**
++ * @brief Puts an item into the launch queue
++ *
++ * @param[inout] queue Queue instance
++ * @param[in]    item  Item to put in the queue
++ *
++ * @return `true` if the item was put into the queue, `false` if there's no more
++ * space left
++ */
++bool loader_queue_push(LoaderLaunchQueue* queue, LoaderDeferredLaunchRecord* item);
++
++/**
++ * @brief Clears the launch queue
++ *
++ * @param[inout] queue Queue instance
++ */
++void loader_queue_clear(LoaderLaunchQueue* queue);
 diff --git a/components/flipper_application/flipper_application/firmware_api.c b/components/flipper_application/flipper_application/firmware_api.c
 --- a/components/flipper_application/flipper_application/firmware_api.c
 +++ b/components/flipper_application/flipper_application/firmware_api.c
@@ -225,7 +423,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
  #include <gui/view_port.h>
  #include <gui/canvas.h>
  #include <gui/elements.h>
-@@ -339,6 +340,16 @@
+@@ -339,6 +340,18 @@
  #include "official_core_151_abi_checks.h"
  #include "official_storage_151_abi_checks.h"
  
@@ -238,11 +436,13 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
 +_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_lock), bool (*)(Loader*)), "official 1.5.1 signature: loader_lock");
 +_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_unlock), void (*)(Loader*)), "official 1.5.1 signature: loader_unlock");
 +_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_show_menu), void (*)(Loader*)), "official 1.5.1 signature: loader_show_menu");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_enqueue_launch), void (*)(Loader*, const char*, const char*, LoaderDeferredLaunchFlag)), "official 1.5.1 signature: loader_enqueue_launch");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_clear_launch_queue), void (*)(Loader*)), "official 1.5.1 signature: loader_clear_launch_queue");
 +
  /* clang-format off */
  static const struct sym_entry firmware_api_table[] = {
      { .hash = 0x0020e7b6, .address = (uint32_t)flipper_format_update_float }, /* flipper_format_update_float */
-@@ -452,6 +463,7 @@
+@@ -452,6 +465,7 @@
      { .hash = 0x0ddfc2b8, .address = (uint32_t)plugin_manager_alloc }, /* plugin_manager_alloc */
      { .hash = 0x0de49867, .address = (uint32_t)&message_vibro_on }, /* message_vibro_on */
      { .hash = 0x0e060515, .address = (uint32_t)&message_green_255 }, /* message_green_255 */
@@ -250,7 +450,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0x0e4dce53, .address = (uint32_t)view_set_previous_callback }, /* view_set_previous_callback */
      { .hash = 0x0eab4808, .address = (uint32_t)furi_string_cat }, /* furi_string_cat */
      { .hash = 0x0eab4990, .address = (uint32_t)furi_string_cmp }, /* furi_string_cmp */
-@@ -497,6 +509,7 @@
+@@ -497,6 +511,7 @@
      { .hash = 0x1214ffce, .address = (uint32_t)__bswapsi2 }, /* __bswapsi2 */
      { .hash = 0x124a8565, .address = (uint32_t)bit_lib_copy_bits }, /* bit_lib_copy_bits */
      { .hash = 0x12c73778, .address = (uint32_t)locale_get_measurement_unit }, /* locale_get_measurement_unit */
@@ -258,7 +458,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0x1335ce34, .address = (uint32_t)tar_archive_add_file }, /* tar_archive_add_file */
      { .hash = 0x135baa10, .address = (uint32_t)notification_message }, /* notification_message */
      { .hash = 0x13a0031a, .address = (uint32_t)popup_free }, /* popup_free */
-@@ -605,6 +618,7 @@
+@@ -605,6 +620,7 @@
      { .hash = 0x234101f6, .address = (uint32_t)submenu_add_item_ex }, /* submenu_add_item_ex */
      { .hash = 0x238a17a2, .address = (uint32_t)file_browser_worker_free }, /* file_browser_worker_free */
      { .hash = 0x238d54a0, .address = (uint32_t)file_browser_worker_load }, /* file_browser_worker_load */
@@ -266,7 +466,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0x23b27c27, .address = (uint32_t)bit_buffer_append_byte }, /* bit_buffer_append_byte */
      { .hash = 0x23d393d7, .address = (uint32_t)storage_dir_exists }, /* storage_dir_exists */
      { .hash = 0x245caa0e, .address = (uint32_t)subghz_block_generic_deserialize }, /* subghz_block_generic_deserialize */
-@@ -688,6 +702,7 @@
+@@ -688,6 +704,7 @@
      { .hash = 0x3253dbbf, .address = (uint32_t)infrared_worker_rx_start }, /* infrared_worker_rx_start */
      { .hash = 0x325b5bb6, .address = (uint32_t)&sequence_blink_start_magenta }, /* sequence_blink_start_magenta */
      { .hash = 0x327f1966, .address = (uint32_t)uart_param_config }, /* uart_param_config */
@@ -274,7 +474,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0x32e39619, .address = (uint32_t)mf_classic_get_uid }, /* mf_classic_get_uid */
      { .hash = 0x32e52c9e, .address = (uint32_t)furi_thread_set_priority }, /* furi_thread_set_priority */
      { .hash = 0x33164e2f, .address = (uint32_t)furi_message_queue_get_capacity }, /* furi_message_queue_get_capacity */
-@@ -760,6 +775,7 @@
+@@ -760,6 +777,7 @@
      { .hash = 0x3e1255ee, .address = (uint32_t)__furi_crash_implementation }, /* __furi_crash_implementation */
      { .hash = 0x3e574980, .address = (uint32_t)mjs_mk_array_buf }, /* mjs_mk_array_buf */
      { .hash = 0x3e789d89, .address = (uint32_t)&sequence_blink_magenta_10 }, /* sequence_blink_magenta_10 */
@@ -282,7 +482,15 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0x3ee13040, .address = (uint32_t)heap_caps_malloc }, /* heap_caps_malloc */
      { .hash = 0x3f1c02c8, .address = (uint32_t)esp_wifi_start }, /* esp_wifi_start */
      { .hash = 0x3fae2750, .address = (uint32_t)subghz_environment_set_nice_flor_s_rainbow_table_file_name }, /* subghz_environment_set_nice_flor_s_rainbow_table_file_name */
-@@ -1298,6 +1314,7 @@
+@@ -1048,6 +1066,7 @@
+     { .hash = 0x6c14fe13, .address = (uint32_t)menu_get_view }, /* menu_get_view */
+     { .hash = 0x6c418904, .address = (uint32_t)subghz_protocol_blocks_parity_bytes }, /* subghz_protocol_blocks_parity_bytes */
+     { .hash = 0x6c831a1c, .address = (uint32_t)furi_string_replace_all_str }, /* furi_string_replace_all_str */
++    { .hash = 0x6c898520, .address = (uint32_t)loader_clear_launch_queue }, /* loader_clear_launch_queue */
+     { .hash = 0x6c8c16b9, .address = (uint32_t)file_browser_worker_folder_enter }, /* file_browser_worker_folder_enter */
+     { .hash = 0x6c93a048, .address = (uint32_t)view_dispatcher_set_tick_event_callback }, /* view_dispatcher_set_tick_event_callback */
+     { .hash = 0x6cbb124e, .address = (uint32_t)furi_hal_spi_bus_unlock }, /* furi_hal_spi_bus_unlock */
+@@ -1298,6 +1317,7 @@
      { .hash = 0x953605e4, .address = (uint32_t)view_holder_set_back_callback }, /* view_holder_set_back_callback */
      { .hash = 0x954769fa, .address = (uint32_t)bit_lib_add_parity }, /* bit_lib_add_parity */
      { .hash = 0x955f7eb1, .address = (uint32_t)flipper_format_write_header }, /* flipper_format_write_header */
@@ -290,7 +498,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0x956c4da5, .address = (uint32_t)elements_bubble_str }, /* elements_bubble_str */
      { .hash = 0x957212cb, .address = (uint32_t)widget_add_circle_element }, /* widget_add_circle_element */
      { .hash = 0x95cbc77c, .address = (uint32_t)view_stack_remove_view }, /* view_stack_remove_view */
-@@ -1454,6 +1471,7 @@
+@@ -1454,6 +1474,7 @@
      { .hash = 0xac31e266, .address = (uint32_t)stream_delete_and_insert_char }, /* stream_delete_and_insert_char */
      { .hash = 0xac46f417, .address = (uint32_t)&sequence_display_backlight_on }, /* sequence_display_backlight_on */
      { .hash = 0xac513fd0, .address = (uint32_t)view_holder_send_to_front }, /* view_holder_send_to_front */
@@ -298,7 +506,15 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0xac94b72e, .address = (uint32_t)subghz_setting_get_preset_count }, /* subghz_setting_get_preset_count */
      { .hash = 0xacc5bb29, .address = (uint32_t)i2c_master_write_to_device }, /* i2c_master_write_to_device */
      { .hash = 0xacfb6233, .address = (uint32_t)&I_DolphinMafia_119x62 }, /* I_DolphinMafia_119x62 */
-@@ -1668,6 +1686,7 @@
+@@ -1541,6 +1562,7 @@
+     { .hash = 0xb8ea6245, .address = (uint32_t)furi_hal_nfc_field_detect_stop }, /* furi_hal_nfc_field_detect_stop */
+     { .hash = 0xb8fef056, .address = (uint32_t)variable_item_list_reset }, /* variable_item_list_reset */
+     { .hash = 0xb8ff9f17, .address = (uint32_t)view_stack_add_view }, /* view_stack_add_view */
++    { .hash = 0xb95f11ed, .address = (uint32_t)loader_enqueue_launch }, /* loader_enqueue_launch */
+     { .hash = 0xb9986c58, .address = (uint32_t)&gpio_ibutton }, /* gpio_ibutton */
+     { .hash = 0xb9a2ae7d, .address = (uint32_t)bt_start_stack }, /* bt_start_stack */
+     { .hash = 0xb9d4ae5e, .address = (uint32_t)mbedtls_sha1_update }, /* mbedtls_sha1_update */
+@@ -1668,6 +1690,7 @@
      { .hash = 0xcb57017f, .address = (uint32_t)&IP_EVENT }, /* IP_EVENT */
      { .hash = 0xcb5a4f62, .address = (uint32_t)mjs_create }, /* mjs_create */
      { .hash = 0xcb8aa2fe, .address = (uint32_t)nfc_device_copy_data }, /* nfc_device_copy_data */
@@ -306,7 +522,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0xcbb21513, .address = (uint32_t)furi_hal_rfid_field_detect_stop }, /* furi_hal_rfid_field_detect_stop */
      { .hash = 0xcbb8d3d7, .address = (uint32_t)dialog_file_browser_show }, /* dialog_file_browser_show */
      { .hash = 0xcbfeb206, .address = (uint32_t)furi_string_alloc_set }, /* furi_string_alloc_set */
-@@ -1723,6 +1742,7 @@
+@@ -1723,6 +1746,7 @@
      { .hash = 0xd51ac80e, .address = (uint32_t)bit_buffer_set_byte_with_parity }, /* bit_buffer_set_byte_with_parity */
      { .hash = 0xd51eed4c, .address = (uint32_t)datetime_get_days_per_month }, /* datetime_get_days_per_month */
      { .hash = 0xd551b8be, .address = (uint32_t)i2s_channel_disable }, /* i2s_channel_disable */
