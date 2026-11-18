@@ -41,6 +41,9 @@ review.
 
 ## Completed in this development branch
 
+- Added the exact 1.5.1 CRC32 implementation and its two SDK exports. Host
+  tests exercise buffer, incremental and file checksums against an independent
+  reference; actual SD card access remains untested.
 - Retained selected previously ported 1.5.1 source changes and compared the
   whole source tree against the pinned official commit.
 - Matched the release's view-ID lookup behavior, including the discrepancy
