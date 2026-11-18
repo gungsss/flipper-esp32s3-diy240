@@ -211,6 +211,42 @@ jobs:
           grep -E 'StorageExt.*card mounted' "$RUNNER_TEMP/esp-emu-sd.log"
           grep -F 'All services started, entering background' "$RUNNER_TEMP/esp-emu-sd.log"
           echo "Virtual FAT16 card mounted and startup completed (emulator exit $status). Real SD hardware remains untested."
+      - name: Exercise the OK button in the ESP32 simulator
+        if: matrix.orientation == 'landscape'
+        continue-on-error: true
+        timeout-minutes: 4
+        run: |
+          source /opt/esp/idf/export.sh
+          curl -fsSL 'https://github.com/espressif/esp-emulator/releases/download/v1.1.0/esp-emu-1.1.0-examples.tar.gz' -o "$RUNNER_TEMP/esp-emu-examples.tar.gz"
+          printf '%s  %s\n' '1a8a51100242802dbe025f3fbee795ccebde56dedaa8740b76772ca51dcc5ac9' "$RUNNER_TEMP/esp-emu-examples.tar.gz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/esp-emu-examples" "$RUNNER_TEMP/esp-button"
+          tar -xzf "$RUNNER_TEMP/esp-emu-examples.tar.gz" -C "$RUNNER_TEMP/esp-emu-examples"
+          part=$(find "$RUNNER_TEMP/esp-emu-examples" -type f -name pushbutton.wasm -print -quit)
+          emulator=$(find "$RUNNER_TEMP/esp-emu" -type f -name esp-emu -print -quit)
+          test -n "$part" && test -n "$emulator" && test -s "$RUNNER_TEMP/card.img"
+          cp "$part" "$RUNNER_TEMP/esp-button/pushbutton.wasm"
+          printf '%s\n' '{"parts":{"button":{"module":"pushbutton.wasm","pins":{"A":8}}}}' > "$RUNNER_TEMP/esp-button/board.json"
+          cd .work/upstream/build_diy
+          timeout 80s "$emulator" --chip esp32s3 --psram-size 8M \
+            --sd "$RUNNER_TEMP/card.img,cs=14" \
+            --firmware "$RUNNER_TEMP/esp-emu-flash.bin" --elf "$PWD/furi_esp32.elf" \
+            --cosim-board "$RUNNER_TEMP/esp-button/board.json" \
+            --control-tcp 127.0.0.1:17765 --timeout 70s \
+            --exit-on '[DMAIN] key=4 type=2' > "$RUNNER_TEMP/esp-emu-button.log" 2>&1 &
+          emu_pid=$!
+          set +e
+          python3 "$GITHUB_WORKSPACE/tests/compat151/drive_emu_button.py" --port 17765
+          control_status=$?
+          if [[ "$control_status" -ne 0 ]]; then kill "$emu_pid" 2>/dev/null || true; fi
+          wait "$emu_pid"
+          emu_status=$?
+          set -e
+          cat "$RUNNER_TEMP/esp-emu-button.log"
+          test "$control_status" -eq 0
+          test "$emu_status" -eq 0
+          grep -F 'All services started, entering background' "$RUNNER_TEMP/esp-emu-button.log"
+          grep -F '[DMAIN] key=4 type=2' "$RUNNER_TEMP/esp-emu-button.log"
+          echo 'Virtual OK button reached the desktop; the physical controller remains untested.'
       - name: Try an ESP32-S3 simulated boot
         if: matrix.orientation == 'landscape'
         continue-on-error: true
