@@ -66,7 +66,7 @@ index 19fa9ad..2d1566c 100644
 +    }
 +
 diff --git a/components/flipper_application/flipper_application/firmware_api.c b/components/flipper_application/flipper_application/firmware_api.c
-index 17259ed..298252b 100644
+index 17259ed..1795ec6 100644
 --- a/components/flipper_application/flipper_application/firmware_api.c
 +++ b/components/flipper_application/flipper_application/firmware_api.c
 @@ -46,0 +47,5 @@
@@ -89,7 +89,13 @@ index 17259ed..298252b 100644
 +#include <flipper_format/flipper_format_stream.h>
 @@ -83,0 +97 @@
 +#include <toolbox/stream/string_stream.h>
-@@ -313,0 +328,724 @@ extern const ElfApiInterface* const firmware_api_interface;
+@@ -138,0 +153,5 @@
++#include <toolbox/tar/tar_archive.h>
++#include <toolbox/compress.h>
++#include <toolbox/version.h>
++#include <toolbox/cli/cli_ansi.h>
++#include <toolbox/cli/shell/cli_shell.h>
+@@ -313,0 +333,853 @@ extern const ElfApiInterface* const firmware_api_interface;
 +_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_start), LoaderStatus (*)(Loader*, const char*, const char*, FuriString*)), "official 1.5.1 signature: loader_start");
 +_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_signal), bool (*)(Loader*, uint32_t, void*)), "official 1.5.1 signature: loader_signal");
 +_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_get_application_name), bool (*)(Loader*, FuriString*)), "official 1.5.1 signature: loader_get_application_name");
@@ -814,608 +820,882 @@ index 17259ed..298252b 100644
 +_Static_assert(__builtin_types_compatible_p(__typeof__(&strint_to_uint32), StrintParseError (*)(const char*, char**, uint32_t*, uint8_t)), "1.5.1 SDK signature: strint_to_uint32");
 +_Static_assert(__builtin_types_compatible_p(__typeof__(&strint_to_uint64), StrintParseError (*)(const char*, char**, uint64_t*, uint8_t)), "1.5.1 SDK signature: strint_to_uint64");
 +
-@@ -315,0 +1054 @@ static const struct sym_entry firmware_api_table[] = {
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_add_parity), size_t (*)(const uint8_t*, size_t, uint8_t*, size_t, uint8_t, uint8_t, BitLibParity)), "1.5.1 SDK signature: bit_lib_add_parity");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_bytes_to_num_bcd), uint64_t (*)(const uint8_t*, uint8_t, _Bool*)), "1.5.1 SDK signature: bit_lib_bytes_to_num_bcd");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_bytes_to_num_be), uint64_t (*)(const uint8_t*, uint8_t)), "1.5.1 SDK signature: bit_lib_bytes_to_num_be");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_bytes_to_num_le), uint64_t (*)(const uint8_t*, uint8_t)), "1.5.1 SDK signature: bit_lib_bytes_to_num_le");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_copy_bits), void (*)(uint8_t*, size_t, size_t, const uint8_t*, size_t)), "1.5.1 SDK signature: bit_lib_copy_bits");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_crc16), uint16_t (*)(const uint8_t*, size_t, uint16_t, uint16_t, _Bool, _Bool, uint16_t)), "1.5.1 SDK signature: bit_lib_crc16");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_crc8), uint16_t (*)(const uint8_t*, size_t, uint8_t, uint8_t, _Bool, _Bool, uint8_t)), "1.5.1 SDK signature: bit_lib_crc8");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_get_bit), _Bool (*)(const uint8_t*, size_t)), "1.5.1 SDK signature: bit_lib_get_bit");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_get_bit_count), uint8_t (*)(uint32_t)), "1.5.1 SDK signature: bit_lib_get_bit_count");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_get_bits), uint8_t (*)(const uint8_t*, size_t, uint8_t)), "1.5.1 SDK signature: bit_lib_get_bits");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_get_bits_16), uint16_t (*)(const uint8_t*, size_t, uint8_t)), "1.5.1 SDK signature: bit_lib_get_bits_16");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_get_bits_32), uint32_t (*)(const uint8_t*, size_t, uint8_t)), "1.5.1 SDK signature: bit_lib_get_bits_32");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_get_bits_64), uint64_t (*)(const uint8_t*, size_t, uint8_t)), "1.5.1 SDK signature: bit_lib_get_bits_64");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_num_to_bytes_be), void (*)(uint64_t, uint8_t, uint8_t*)), "1.5.1 SDK signature: bit_lib_num_to_bytes_be");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_num_to_bytes_le), void (*)(uint64_t, uint8_t, uint8_t*)), "1.5.1 SDK signature: bit_lib_num_to_bytes_le");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_print_bits), void (*)(const uint8_t*, size_t)), "1.5.1 SDK signature: bit_lib_print_bits");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_print_regions), void (*)(const BitLibRegion*, size_t, const uint8_t*, size_t)), "1.5.1 SDK signature: bit_lib_print_regions");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_push_bit), void (*)(uint8_t*, size_t, _Bool)), "1.5.1 SDK signature: bit_lib_push_bit");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_remove_bit_every_nth), size_t (*)(uint8_t*, size_t, uint8_t, uint8_t)), "1.5.1 SDK signature: bit_lib_remove_bit_every_nth");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_reverse_16_fast), uint16_t (*)(uint16_t)), "1.5.1 SDK signature: bit_lib_reverse_16_fast");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_reverse_8_fast), uint8_t (*)(uint8_t)), "1.5.1 SDK signature: bit_lib_reverse_8_fast");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_reverse_bits), void (*)(uint8_t*, size_t, uint8_t)), "1.5.1 SDK signature: bit_lib_reverse_bits");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_set_bit), void (*)(uint8_t*, size_t, _Bool)), "1.5.1 SDK signature: bit_lib_set_bit");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_set_bits), void (*)(uint8_t*, size_t, uint8_t, uint8_t)), "1.5.1 SDK signature: bit_lib_set_bits");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_test_parity), _Bool (*)(const uint8_t*, size_t, uint8_t, BitLibParity, uint8_t)), "1.5.1 SDK signature: bit_lib_test_parity");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&bit_lib_test_parity_32), _Bool (*)(uint32_t, BitLibParity)), "1.5.1 SDK signature: bit_lib_test_parity_32");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_ansi_parser_alloc), CliAnsiParser* (*)(void)), "1.5.1 SDK signature: cli_ansi_parser_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_ansi_parser_feed), CliAnsiParserResult (*)(CliAnsiParser*, char)), "1.5.1 SDK signature: cli_ansi_parser_feed");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_ansi_parser_feed_timeout), CliAnsiParserResult (*)(CliAnsiParser*)), "1.5.1 SDK signature: cli_ansi_parser_feed_timeout");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_ansi_parser_free), void (*)(CliAnsiParser*)), "1.5.1 SDK signature: cli_ansi_parser_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_is_pipe_broken_or_is_etx_next_char), _Bool (*)(PipeSide*)), "1.5.1 SDK signature: cli_is_pipe_broken_or_is_etx_next_char");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_print_usage), void (*)(const char*, const char*, const char*)), "1.5.1 SDK signature: cli_print_usage");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_registry_add_command), void (*)(CliRegistry*, const char*, CliCommandFlag, CliCommandExecuteCallback, void*)), "1.5.1 SDK signature: cli_registry_add_command");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_registry_add_command_ex), void (*)(CliRegistry*, const char*, CliCommandFlag, CliCommandExecuteCallback, void*, size_t)), "1.5.1 SDK signature: cli_registry_add_command_ex");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_registry_alloc), CliRegistry* (*)(void)), "1.5.1 SDK signature: cli_registry_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_registry_delete_command), void (*)(CliRegistry*, const char*)), "1.5.1 SDK signature: cli_registry_delete_command");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_registry_free), void (*)(CliRegistry*)), "1.5.1 SDK signature: cli_registry_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_registry_reload_external_commands), void (*)(CliRegistry*, const CliCommandExternalConfig*)), "1.5.1 SDK signature: cli_registry_reload_external_commands");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_registry_remove_external_commands), void (*)(CliRegistry*)), "1.5.1 SDK signature: cli_registry_remove_external_commands");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_shell_alloc), CliShell* (*)(CliShellMotd, void*, PipeSide*, CliRegistry*, const CliCommandExternalConfig*)), "1.5.1 SDK signature: cli_shell_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_shell_free), void (*)(CliShell*)), "1.5.1 SDK signature: cli_shell_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_shell_join), void (*)(CliShell*)), "1.5.1 SDK signature: cli_shell_join");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_shell_set_prompt), void (*)(CliShell*, const char*)), "1.5.1 SDK signature: cli_shell_set_prompt");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_shell_start), void (*)(CliShell*)), "1.5.1 SDK signature: cli_shell_start");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_sleep), _Bool (*)(PipeSide*, uint32_t)), "1.5.1 SDK signature: cli_sleep");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_vcp_disable), void (*)(CliVcp*)), "1.5.1 SDK signature: cli_vcp_disable");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&cli_vcp_enable), void (*)(CliVcp*)), "1.5.1 SDK signature: cli_vcp_enable");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&compress_alloc), Compress* (*)(CompressType, const void*)), "1.5.1 SDK signature: compress_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&compress_decode), _Bool (*)(Compress*, uint8_t*, size_t, uint8_t*, size_t, size_t*)), "1.5.1 SDK signature: compress_decode");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&compress_decode_streamed), _Bool (*)(Compress*, CompressIoCallback, void*, CompressIoCallback, void*)), "1.5.1 SDK signature: compress_decode_streamed");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&compress_encode), _Bool (*)(Compress*, uint8_t*, size_t, uint8_t*, size_t, size_t*)), "1.5.1 SDK signature: compress_encode");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&compress_free), void (*)(Compress*)), "1.5.1 SDK signature: compress_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&compress_icon_alloc), CompressIcon* (*)(size_t)), "1.5.1 SDK signature: compress_icon_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&compress_icon_decode), void (*)(CompressIcon*, const uint8_t*, uint8_t**)), "1.5.1 SDK signature: compress_icon_decode");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&compress_icon_free), void (*)(CompressIcon*)), "1.5.1 SDK signature: compress_icon_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&compress_stream_decoder_alloc), CompressStreamDecoder* (*)(CompressType, const void*, CompressIoCallback, void*)), "1.5.1 SDK signature: compress_stream_decoder_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&compress_stream_decoder_free), void (*)(CompressStreamDecoder*)), "1.5.1 SDK signature: compress_stream_decoder_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&compress_stream_decoder_read), _Bool (*)(CompressStreamDecoder*, uint8_t*, size_t)), "1.5.1 SDK signature: compress_stream_decoder_read");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&compress_stream_decoder_rewind), _Bool (*)(CompressStreamDecoder*)), "1.5.1 SDK signature: compress_stream_decoder_rewind");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&compress_stream_decoder_seek), _Bool (*)(CompressStreamDecoder*, size_t)), "1.5.1 SDK signature: compress_stream_decoder_seek");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&compress_stream_decoder_tell), size_t (*)(CompressStreamDecoder*)), "1.5.1 SDK signature: compress_stream_decoder_tell");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&dir_walk_alloc), DirWalk* (*)(Storage*)), "1.5.1 SDK signature: dir_walk_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&dir_walk_close), void (*)(DirWalk*)), "1.5.1 SDK signature: dir_walk_close");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&dir_walk_free), void (*)(DirWalk*)), "1.5.1 SDK signature: dir_walk_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&dir_walk_get_error), FS_Error (*)(DirWalk*)), "1.5.1 SDK signature: dir_walk_get_error");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&dir_walk_open), _Bool (*)(DirWalk*, const char*)), "1.5.1 SDK signature: dir_walk_open");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&dir_walk_read), DirWalkResult (*)(DirWalk*, FuriString*, FileInfo*)), "1.5.1 SDK signature: dir_walk_read");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&dir_walk_set_filter_cb), void (*)(DirWalk*, DirWalkFilterCb, void*)), "1.5.1 SDK signature: dir_walk_set_filter_cb");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&dir_walk_set_recursive), void (*)(DirWalk*, _Bool)), "1.5.1 SDK signature: dir_walk_set_recursive");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&notification_internal_message), void (*)(NotificationApp*, const NotificationSequence*)), "1.5.1 SDK signature: notification_internal_message");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&notification_internal_message_block), void (*)(NotificationApp*, const NotificationSequence*)), "1.5.1 SDK signature: notification_internal_message_block");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&notification_message), void (*)(NotificationApp*, const NotificationSequence*)), "1.5.1 SDK signature: notification_message");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&notification_message_block), void (*)(NotificationApp*, const NotificationSequence*)), "1.5.1 SDK signature: notification_message_block");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_alloc), PipeSideBundle (*)(size_t, size_t)), "1.5.1 SDK signature: pipe_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_alloc_ex), PipeSideBundle (*)(PipeSideReceiveSettings, PipeSideReceiveSettings)), "1.5.1 SDK signature: pipe_alloc_ex");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_attach_to_event_loop), void (*)(PipeSide*, FuriEventLoop*)), "1.5.1 SDK signature: pipe_attach_to_event_loop");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_bytes_available), size_t (*)(PipeSide*)), "1.5.1 SDK signature: pipe_bytes_available");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_detach_from_event_loop), void (*)(PipeSide*)), "1.5.1 SDK signature: pipe_detach_from_event_loop");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_free), void (*)(PipeSide*)), "1.5.1 SDK signature: pipe_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_install_as_stdio), void (*)(PipeSide*)), "1.5.1 SDK signature: pipe_install_as_stdio");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_receive), size_t (*)(PipeSide*, void*, size_t)), "1.5.1 SDK signature: pipe_receive");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_role), PipeRole (*)(PipeSide*)), "1.5.1 SDK signature: pipe_role");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_send), size_t (*)(PipeSide*, const void*, size_t)), "1.5.1 SDK signature: pipe_send");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_set_broken_callback), void (*)(PipeSide*, PipeSideBrokenCallback, FuriEventLoopEvent)), "1.5.1 SDK signature: pipe_set_broken_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_set_callback_context), void (*)(PipeSide*, void*)), "1.5.1 SDK signature: pipe_set_callback_context");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_set_data_arrived_callback), void (*)(PipeSide*, PipeSideDataArrivedCallback, FuriEventLoopEvent)), "1.5.1 SDK signature: pipe_set_data_arrived_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_set_space_freed_callback), void (*)(PipeSide*, PipeSideSpaceFreedCallback, FuriEventLoopEvent)), "1.5.1 SDK signature: pipe_set_space_freed_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_set_state_check_period), void (*)(PipeSide*, FuriWait)), "1.5.1 SDK signature: pipe_set_state_check_period");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_spaces_available), size_t (*)(PipeSide*)), "1.5.1 SDK signature: pipe_spaces_available");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&pipe_state), PipeState (*)(PipeSide*)), "1.5.1 SDK signature: pipe_state");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&simple_array_alloc), SimpleArray* (*)(const SimpleArrayConfig*)), "1.5.1 SDK signature: simple_array_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&simple_array_cget), const SimpleArrayElement* (*)(const SimpleArray*, uint32_t)), "1.5.1 SDK signature: simple_array_cget");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&simple_array_cget_data), const SimpleArrayData* (*)(const SimpleArray*)), "1.5.1 SDK signature: simple_array_cget_data");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&simple_array_copy), void (*)(SimpleArray*, const SimpleArray*)), "1.5.1 SDK signature: simple_array_copy");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&simple_array_free), void (*)(SimpleArray*)), "1.5.1 SDK signature: simple_array_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&simple_array_get), SimpleArrayElement* (*)(SimpleArray*, uint32_t)), "1.5.1 SDK signature: simple_array_get");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&simple_array_get_count), uint32_t (*)(const SimpleArray*)), "1.5.1 SDK signature: simple_array_get_count");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&simple_array_get_data), SimpleArrayData* (*)(SimpleArray*)), "1.5.1 SDK signature: simple_array_get_data");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&simple_array_init), void (*)(SimpleArray*, uint32_t)), "1.5.1 SDK signature: simple_array_init");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&simple_array_is_equal), _Bool (*)(const SimpleArray*, const SimpleArray*)), "1.5.1 SDK signature: simple_array_is_equal");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&simple_array_reset), void (*)(SimpleArray*)), "1.5.1 SDK signature: simple_array_reset");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_add_dir), _Bool (*)(TarArchive*, const char*, const char*)), "1.5.1 SDK signature: tar_archive_add_dir");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_add_file), _Bool (*)(TarArchive*, const char*, const char*, const int32_t)), "1.5.1 SDK signature: tar_archive_add_file");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_alloc), TarArchive* (*)(Storage*)), "1.5.1 SDK signature: tar_archive_alloc");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_dir_add_element), _Bool (*)(TarArchive*, const char*)), "1.5.1 SDK signature: tar_archive_dir_add_element");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_file_add_data_block), _Bool (*)(TarArchive*, const uint8_t*, const int32_t)), "1.5.1 SDK signature: tar_archive_file_add_data_block");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_file_add_header), _Bool (*)(TarArchive*, const char*, const int32_t)), "1.5.1 SDK signature: tar_archive_file_add_header");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_file_finalize), _Bool (*)(TarArchive*)), "1.5.1 SDK signature: tar_archive_file_finalize");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_finalize), _Bool (*)(TarArchive*)), "1.5.1 SDK signature: tar_archive_finalize");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_free), void (*)(TarArchive*)), "1.5.1 SDK signature: tar_archive_free");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_get_entries_count), int32_t (*)(TarArchive*)), "1.5.1 SDK signature: tar_archive_get_entries_count");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_get_mode_for_path), TarOpenMode (*)(const char*)), "1.5.1 SDK signature: tar_archive_get_mode_for_path");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_get_read_progress), _Bool (*)(TarArchive*, int32_t*, int32_t*)), "1.5.1 SDK signature: tar_archive_get_read_progress");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_open), _Bool (*)(TarArchive*, const char*, TarOpenMode)), "1.5.1 SDK signature: tar_archive_open");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_set_file_callback), void (*)(TarArchive*, tar_unpack_file_cb, void*)), "1.5.1 SDK signature: tar_archive_set_file_callback");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_store_data), _Bool (*)(TarArchive*, const char*, const uint8_t*, const int32_t)), "1.5.1 SDK signature: tar_archive_store_data");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_unpack_file), _Bool (*)(TarArchive*, const char*, const char*)), "1.5.1 SDK signature: tar_archive_unpack_file");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&tar_archive_unpack_to), _Bool (*)(TarArchive*, const char*, TarArchiveNameConverter)), "1.5.1 SDK signature: tar_archive_unpack_to");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&version_get), const Version* (*)(void)), "1.5.1 SDK signature: version_get");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&version_get_builddate), const char* (*)(const Version*)), "1.5.1 SDK signature: version_get_builddate");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&version_get_dirty_flag), _Bool (*)(const Version*)), "1.5.1 SDK signature: version_get_dirty_flag");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&version_get_firmware_origin), const char* (*)(const Version*)), "1.5.1 SDK signature: version_get_firmware_origin");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&version_get_git_origin), const char* (*)(const Version*)), "1.5.1 SDK signature: version_get_git_origin");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&version_get_gitbranch), const char* (*)(const Version*)), "1.5.1 SDK signature: version_get_gitbranch");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&version_get_gitbranchnum), const char* (*)(const Version*)), "1.5.1 SDK signature: version_get_gitbranchnum");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&version_get_githash), const char* (*)(const Version*)), "1.5.1 SDK signature: version_get_githash");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&version_get_target), uint8_t (*)(const Version*)), "1.5.1 SDK signature: version_get_target");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&version_get_version), const char* (*)(const Version*)), "1.5.1 SDK signature: version_get_version");
++
+@@ -315,0 +1188 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x0020e7b6, .address = (uint32_t)flipper_format_update_float }, /* flipper_format_update_float */
-@@ -317,0 +1057 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -317,0 +1191 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x00585910, .address = (uint32_t)flipper_format_update_int32 }, /* flipper_format_update_int32 */
-@@ -319,0 +1060 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -319,0 +1194 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x00dce784, .address = (uint32_t)furi_string_replace_all }, /* furi_string_replace_all */
-@@ -321,0 +1063 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -321,0 +1197,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x01093d84, .address = (uint32_t)storage_common_resolve_path_and_ensure_app_directory }, /* storage_common_resolve_path_and_ensure_app_directory */
-@@ -324,0 +1067 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x013a57de, .address = (uint32_t)cli_shell_alloc }, /* cli_shell_alloc */
+@@ -322,0 +1200 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x01bc28a9, .address = (uint32_t)bit_lib_crc8 }, /* bit_lib_crc8 */
+@@ -324,0 +1203 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x02472671, .address = (uint32_t)loader_start_with_gui_error }, /* loader_start_with_gui_error */
-@@ -336,0 +1080 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -325,0 +1205 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x028445a1, .address = (uint32_t)cli_shell_start }, /* cli_shell_start */
+@@ -336,0 +1217 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x05364878, .address = (uint32_t)view_holder_send_to_back }, /* view_holder_send_to_back */
-@@ -338,0 +1083 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -338,0 +1220 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x05556315, .address = (uint32_t)view_holder_set_free_callback }, /* view_holder_set_free_callback */
-@@ -347,0 +1093,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -347,0 +1230,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x07003702, .address = (uint32_t)loader_start_detached_with_gui_error }, /* loader_start_detached_with_gui_error */
 +    { .hash = 0x070f1ab9, .address = (uint32_t)furi_event_loop_unsubscribe }, /* furi_event_loop_unsubscribe */
-@@ -359,0 +1107 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -350,0 +1235 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x07702a63, .address = (uint32_t)compress_icon_alloc }, /* compress_icon_alloc */
+@@ -359,0 +1245 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x08cc12d9, .address = (uint32_t)canvas_get_buffer }, /* canvas_get_buffer */
-@@ -360,0 +1109,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -360,0 +1247,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x0911e126, .address = (uint32_t)furi_thread_set_signal_callback }, /* furi_thread_set_signal_callback */
 +    { .hash = 0x0913e1dd, .address = (uint32_t)stream_copy_full }, /* stream_copy_full */
-@@ -374,0 +1125 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -374,0 +1263 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x0a669169, .address = (uint32_t)path_append }, /* path_append */
-@@ -376,0 +1128 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -376,0 +1266 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x0b2cbf5f, .address = (uint32_t)stream_dump_data }, /* stream_dump_data */
-@@ -383,0 +1136 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -383,0 +1274 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x0b9a71c7, .address = (uint32_t)gui_remove_framebuffer_callback }, /* gui_remove_framebuffer_callback */
-@@ -385,0 +1139 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -385,0 +1277 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x0bfc4843, .address = (uint32_t)furi_string_end_withi_str }, /* furi_string_end_withi_str */
-@@ -386,0 +1141 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -386,0 +1279 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x0c3bc234, .address = (uint32_t)elements_button_down }, /* elements_button_down */
-@@ -405,0 +1161 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -405,0 +1299 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x0e07c979, .address = (uint32_t)loader_signal }, /* loader_signal */
-@@ -408,0 +1165 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -408,0 +1303 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x0eab738a, .address = (uint32_t)furi_string_mid }, /* furi_string_mid */
-@@ -410,0 +1168 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -410,0 +1306 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x0efda749, .address = (uint32_t)path_concat }, /* path_concat */
-@@ -419,0 +1178 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -419,0 +1316 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x0f92be8c, .address = (uint32_t)furi_string_replace }, /* furi_string_replace */
-@@ -444,0 +1204,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -431,0 +1329 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x1022b32e, .address = (uint32_t)version_get_dirty_flag }, /* version_get_dirty_flag */
+@@ -444,0 +1343,4 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x124a8565, .address = (uint32_t)bit_lib_copy_bits }, /* bit_lib_copy_bits */
 +    { .hash = 0x12c73778, .address = (uint32_t)locale_get_measurement_unit }, /* locale_get_measurement_unit */
 +    { .hash = 0x130f57a7, .address = (uint32_t)loader_unlock }, /* loader_unlock */
-@@ -450,0 +1212,2 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x1335ce34, .address = (uint32_t)tar_archive_add_file }, /* tar_archive_add_file */
+@@ -447,0 +1350,4 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x14aaf82f, .address = (uint32_t)simple_array_cget }, /* simple_array_cget */
++    { .hash = 0x14ab1ba7, .address = (uint32_t)simple_array_copy }, /* simple_array_copy */
++    { .hash = 0x14accc0e, .address = (uint32_t)simple_array_free }, /* simple_array_free */
++    { .hash = 0x14ae60c0, .address = (uint32_t)simple_array_init }, /* simple_array_init */
+@@ -450,0 +1357,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x15af897a, .address = (uint32_t)date_time_input_set_editable_fields }, /* date_time_input_set_editable_fields */
 +    { .hash = 0x15bfef3f, .address = (uint32_t)view_stack_alloc }, /* view_stack_alloc */
-@@ -454,0 +1218 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -454,0 +1363 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x164d8c44, .address = (uint32_t)icon_animation_get_height }, /* icon_animation_get_height */
-@@ -455,0 +1220,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -455,0 +1365,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x16ba1f63, .address = (uint32_t)furi_thread_enable_heap_trace }, /* furi_thread_enable_heap_trace */
 +    { .hash = 0x16e8bd94, .address = (uint32_t)storage_file_copy_to_file }, /* storage_file_copy_to_file */
-@@ -460,0 +1227 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -460,0 +1372 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x1826f3af, .address = (uint32_t)view_dispatcher_check_id }, /* view_dispatcher_check_id */
-@@ -465,0 +1233 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -465,0 +1378 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x18b0bc19, .address = (uint32_t)furi_event_loop_subscribe_semaphore }, /* furi_event_loop_subscribe_semaphore */
-@@ -466,0 +1235,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -466,0 +1380,3 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x190082ff, .address = (uint32_t)furi_thread_get_stdout_callback }, /* furi_thread_get_stdout_callback */
 +    { .hash = 0x19043ee7, .address = (uint32_t)furi_event_loop_pend_callback }, /* furi_event_loop_pend_callback */
-@@ -505,0 +1276 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x190c1b3d, .address = (uint32_t)pipe_set_state_check_period }, /* pipe_set_state_check_period */
+@@ -503,0 +1420 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x1d863265, .address = (uint32_t)simple_array_get_data }, /* simple_array_get_data */
+@@ -505,0 +1423 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x1fba7776, .address = (uint32_t)submenu_change_item_label }, /* submenu_change_item_label */
-@@ -507,0 +1279 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -507,0 +1426,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x203b3559, .address = (uint32_t)furi_string_start_with }, /* furi_string_start_with */
-@@ -509,0 +1282 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x205f2296, .address = (uint32_t)cli_registry_free }, /* cli_registry_free */
+@@ -509,0 +1430 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x209b1679, .address = (uint32_t)canvas_get_font_params }, /* canvas_get_font_params */
-@@ -510,0 +1284,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -510,0 +1432,3 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x20fb1cbe, .address = (uint32_t)furi_thread_get_stdin_callback }, /* furi_thread_get_stdin_callback */
++    { .hash = 0x217d2851, .address = (uint32_t)version_get_githash }, /* version_get_githash */
 +    { .hash = 0x218d5b0a, .address = (uint32_t)furi_event_loop_tick_set }, /* furi_event_loop_tick_set */
-@@ -511,0 +1287 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -511,0 +1436,3 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x21d4e22e, .address = (uint32_t)tar_archive_free }, /* tar_archive_free */
++    { .hash = 0x21d9c91e, .address = (uint32_t)tar_archive_open }, /* tar_archive_open */
 +    { .hash = 0x2211b18d, .address = (uint32_t)stream_insert_format }, /* stream_insert_format */
-@@ -519,0 +1296 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -516,0 +1444 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x229d01d5, .address = (uint32_t)cli_sleep }, /* cli_sleep */
+@@ -517,0 +1446 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x22bf9532, .address = (uint32_t)tar_archive_store_data }, /* tar_archive_store_data */
+@@ -519,0 +1449 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x23237977, .address = (uint32_t)flipper_format_update_string }, /* flipper_format_update_string */
-@@ -520,0 +1298,4 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -520,0 +1451,4 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x234101f6, .address = (uint32_t)submenu_add_item_ex }, /* submenu_add_item_ex */
 +    { .hash = 0x238a17a2, .address = (uint32_t)file_browser_worker_free }, /* file_browser_worker_free */
 +    { .hash = 0x238d54a0, .address = (uint32_t)file_browser_worker_load }, /* file_browser_worker_load */
 +    { .hash = 0x238e1950, .address = (uint32_t)loader_show_menu }, /* loader_show_menu */
-@@ -524,0 +1306 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -524,0 +1459 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x2499ee3a, .address = (uint32_t)buffered_file_stream_get_error }, /* buffered_file_stream_get_error */
-@@ -526,0 +1309 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -526,0 +1462 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x25138de8, .address = (uint32_t)dialog_ex_disable_extended_events }, /* dialog_ex_disable_extended_events */
-@@ -533,0 +1317,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -533,0 +1470,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x26c9c382, .address = (uint32_t)gui_add_framebuffer_callback }, /* gui_add_framebuffer_callback */
 +    { .hash = 0x26d06420, .address = (uint32_t)furi_string_replace_at }, /* furi_string_replace_at */
-@@ -536,0 +1322 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -536,0 +1475 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x272aec39, .address = (uint32_t)path_contains_only_ascii }, /* path_contains_only_ascii */
-@@ -541,0 +1328 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -541,0 +1481 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x27df2f4e, .address = (uint32_t)buffered_file_stream_sync }, /* buffered_file_stream_sync */
-@@ -550,0 +1338 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -550,0 +1491 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x29b5e115, .address = (uint32_t)furi_thread_stdout_flush }, /* furi_thread_stdout_flush */
-@@ -551,0 +1340 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -551,0 +1493 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x2a294531, .address = (uint32_t)furi_thread_get_name }, /* furi_thread_get_name */
-@@ -554,0 +1344 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -554,0 +1497 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x2abe3c57, .address = (uint32_t)view_holder_attach_to_gui }, /* view_holder_attach_to_gui */
-@@ -555,0 +1346 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -555,0 +1499 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x2aec98fe, .address = (uint32_t)furi_thread_stdout_write }, /* furi_thread_stdout_write */
-@@ -559,0 +1351,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -559,0 +1504,4 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x2be5cfff, .address = (uint32_t)cli_registry_alloc }, /* cli_registry_alloc */
 +    { .hash = 0x2be6a01e, .address = (uint32_t)storage_file_truncate }, /* storage_file_truncate */
++    { .hash = 0x2bfc1783, .address = (uint32_t)tar_archive_set_file_callback }, /* tar_archive_set_file_callback */
 +    { .hash = 0x2c72cdbc, .address = (uint32_t)furi_event_loop_unsubscribe_thread_flags }, /* furi_event_loop_unsubscribe_thread_flags */
-@@ -560,0 +1354,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -560,0 +1509,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x2cb18118, .address = (uint32_t)storage_sd_format }, /* storage_sd_format */
 +    { .hash = 0x2ce466b9, .address = (uint32_t)flipper_format_delete_key }, /* flipper_format_delete_key */
-@@ -561,0 +1357 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -561,0 +1512 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x2dc676a1, .address = (uint32_t)canvas_set_custom_u8g2_font }, /* canvas_set_custom_u8g2_font */
-@@ -564,0 +1361 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -564,0 +1516 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x2e43532c, .address = (uint32_t)elements_frame }, /* elements_frame */
-@@ -569,0 +1367 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -567,0 +1520 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x2f3a7d1d, .address = (uint32_t)cli_ansi_parser_alloc }, /* cli_ansi_parser_alloc */
+@@ -569,0 +1523 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x2fed55ff, .address = (uint32_t)view_holder_update }, /* view_holder_update */
-@@ -572,0 +1371 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -571,0 +1526 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x30faee7b, .address = (uint32_t)compress_stream_decoder_alloc }, /* compress_stream_decoder_alloc */
+@@ -572,0 +1528 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x31230043, .address = (uint32_t)furi_string_alloc_vprintf }, /* furi_string_alloc_vprintf */
-@@ -577,0 +1377 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -577,0 +1534 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x32bdd9ce, .address = (uint32_t)loader_get_application_name }, /* loader_get_application_name */
-@@ -579,0 +1380 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -579,0 +1537,2 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x33001276, .address = (uint32_t)notification_internal_message_block }, /* notification_internal_message_block */
 +    { .hash = 0x33164e2f, .address = (uint32_t)furi_message_queue_get_capacity }, /* furi_message_queue_get_capacity */
-@@ -581,0 +1383,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -581,0 +1541,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x33532f09, .address = (uint32_t)furi_event_loop_run }, /* furi_event_loop_run */
 +    { .hash = 0x337e4ce1, .address = (uint32_t)elements_button_up }, /* elements_button_up */
-@@ -584,0 +1388 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -584,0 +1546 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x33d6fa21, .address = (uint32_t)furi_pubsub_publish }, /* furi_pubsub_publish */
-@@ -585,0 +1390 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -585,0 +1548 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x34373d66, .address = (uint32_t)file_browser_worker_set_item_callback }, /* file_browser_worker_set_item_callback */
-@@ -592,0 +1398 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -592,0 +1556 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x35badba6, .address = (uint32_t)icon_get_data }, /* icon_get_data */
-@@ -594,0 +1401,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -594,0 +1559,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x362665b7, .address = (uint32_t)button_panel_add_label }, /* button_panel_add_label */
 +    { .hash = 0x3654c449, .address = (uint32_t)view_port_is_enabled }, /* view_port_is_enabled */
-@@ -601,0 +1410 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -601,0 +1568,5 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x37cc6192, .address = (uint32_t)compress_stream_decoder_free }, /* compress_stream_decoder_free */
++    { .hash = 0x37d2be4c, .address = (uint32_t)compress_stream_decoder_read }, /* compress_stream_decoder_read */
++    { .hash = 0x37d34b38, .address = (uint32_t)compress_stream_decoder_seek }, /* compress_stream_decoder_seek */
++    { .hash = 0x37d3d881, .address = (uint32_t)compress_stream_decoder_tell }, /* compress_stream_decoder_tell */
 +    { .hash = 0x37de5bf4, .address = (uint32_t)furi_thread_get_current_priority }, /* furi_thread_get_current_priority */
-@@ -605,0 +1415 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -605,0 +1577,2 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x39413d18, .address = (uint32_t)bit_lib_crc16 }, /* bit_lib_crc16 */
 +    { .hash = 0x397b92e0, .address = (uint32_t)stream_save_to_file }, /* stream_save_to_file */
-@@ -617,0 +1428 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -615,0 +1589 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x3b5fe363, .address = (uint32_t)pipe_attach_to_event_loop }, /* pipe_attach_to_event_loop */
+@@ -617,0 +1592 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x3c044b63, .address = (uint32_t)canvas_reset }, /* canvas_reset */
-@@ -621,0 +1433 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -621,0 +1597 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x3ce1e7ed, .address = (uint32_t)file_browser_set_item_callback }, /* file_browser_set_item_callback */
-@@ -623,0 +1436,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -623,0 +1600,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x3d6756ba, .address = (uint32_t)file_browser_worker_is_in_start_folder }, /* file_browser_worker_is_in_start_folder */
 +    { .hash = 0x3d880a9f, .address = (uint32_t)furi_event_flag_alloc }, /* furi_event_flag_alloc */
-@@ -624,0 +1439 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -624,0 +1603 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x3dac1c1b, .address = (uint32_t)furi_event_flag_clear }, /* furi_event_flag_clear */
-@@ -625,0 +1441 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -625,0 +1605 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x3dc9f1f6, .address = (uint32_t)furi_timer_is_running }, /* furi_timer_is_running */
-@@ -629,0 +1446 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -629,0 +1610 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x3e824aa9, .address = (uint32_t)loader_start }, /* loader_start */
-@@ -634,0 +1452 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -630,0 +1612 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x3ef73dca, .address = (uint32_t)pipe_set_broken_callback }, /* pipe_set_broken_callback */
+@@ -634,0 +1617 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x40bf2cdb, .address = (uint32_t)stream_insert_string }, /* stream_insert_string */
-@@ -637,0 +1456,3 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -635,0 +1619 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x41234223, .address = (uint32_t)bit_lib_set_bit }, /* bit_lib_set_bit */
+@@ -637,0 +1622,3 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x41b23ff7, .address = (uint32_t)furi_thread_enumerate }, /* furi_thread_enumerate */
 +    { .hash = 0x41cafc30, .address = (uint32_t)furi_event_loop_subscribe_event_flag }, /* furi_event_loop_subscribe_event_flag */
 +    { .hash = 0x41db7f3d, .address = (uint32_t)furi_stream_buffer_spaces_available }, /* furi_stream_buffer_spaces_available */
-@@ -646,0 +1468 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -646,0 +1634 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x427564a7, .address = (uint32_t)furi_log_tx }, /* furi_log_tx */
-@@ -650,0 +1473 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -650,0 +1639 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x42dcfdc5, .address = (uint32_t)storage_sd_unmount }, /* storage_sd_unmount */
-@@ -654,0 +1478,3 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -654,0 +1644,4 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x43fd92cb, .address = (uint32_t)version_get_gitbranchnum }, /* version_get_gitbranchnum */
 +    { .hash = 0x44671f77, .address = (uint32_t)storage_get_next_filename }, /* storage_get_next_filename */
 +    { .hash = 0x44dfe27b, .address = (uint32_t)furi_stream_set_trigger_level }, /* furi_stream_set_trigger_level */
 +    { .hash = 0x44e30f66, .address = (uint32_t)flipper_format_set_strict_mode }, /* flipper_format_set_strict_mode */
-@@ -670,0 +1497 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -670,0 +1664,2 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x48dd39be, .address = (uint32_t)tar_archive_finalize }, /* tar_archive_finalize */
 +    { .hash = 0x48f2aba2, .address = (uint32_t)canvas_set_font_direction }, /* canvas_set_font_direction */
-@@ -675,0 +1503,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -675,0 +1671,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x49bcf04e, .address = (uint32_t)furi_thread_list_free }, /* furi_thread_list_free */
 +    { .hash = 0x49c3eda7, .address = (uint32_t)furi_thread_list_size }, /* furi_thread_list_size */
-@@ -677,0 +1507,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -677,0 +1675,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x4a04b64a, .address = (uint32_t)furi_thread_set_stdin_callback }, /* furi_thread_set_stdin_callback */
 +    { .hash = 0x4a3584e3, .address = (uint32_t)gui_view_port_send_to_back }, /* gui_view_port_send_to_back */
-@@ -680,0 +1512,3 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -680,0 +1680,3 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x4a9f1ac9, .address = (uint32_t)file_browser_free }, /* file_browser_free */
 +    { .hash = 0x4aa6458d, .address = (uint32_t)file_browser_stop }, /* file_browser_stop */
 +    { .hash = 0x4ad1bc18, .address = (uint32_t)file_stream_get_error }, /* file_stream_get_error */
-@@ -682,0 +1517 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -682,0 +1685 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x4aef5354, .address = (uint32_t)stream_write_cstring }, /* stream_write_cstring */
-@@ -684,0 +1520 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -684,0 +1688 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x4b55d9b3, .address = (uint32_t)storage_sd_status }, /* storage_sd_status */
-@@ -685,0 +1522,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -685,0 +1690,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x4bd1d3b1, .address = (uint32_t)furi_string_alloc_move }, /* furi_string_alloc_move */
 +    { .hash = 0x4be562be, .address = (uint32_t)furi_delay_until_tick }, /* furi_delay_until_tick */
-@@ -690,0 +1529 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -690,0 +1697 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x4d869aff, .address = (uint32_t)button_menu_alloc }, /* button_menu_alloc */
-@@ -691,0 +1531 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -691,0 +1699 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x4dc74dc9, .address = (uint32_t)furi_thread_set_state_callback }, /* furi_thread_set_state_callback */
-@@ -693,0 +1534 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -693,0 +1702 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x4e572e99, .address = (uint32_t)storage_int_backup }, /* storage_int_backup */
-@@ -694,0 +1536 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -694,0 +1704 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x4eb68177, .address = (uint32_t)button_menu_reset }, /* button_menu_reset */
-@@ -698,0 +1541,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -698,0 +1709,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x4faa46ea, .address = (uint32_t)date_time_input_alloc }, /* date_time_input_alloc */
 +    { .hash = 0x4ff3cbc9, .address = (uint32_t)storage_get_pubsub }, /* storage_get_pubsub */
-@@ -699,0 +1544 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -699,0 +1712 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x5071aebb, .address = (uint32_t)storage_sd_info }, /* storage_sd_info */
-@@ -704,0 +1550 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -704,0 +1718 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x51288d7b, .address = (uint32_t)dialog_ex_enable_extended_events }, /* dialog_ex_enable_extended_events */
-@@ -710,0 +1557,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -710,0 +1725,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x51edd4f6, .address = (uint32_t)furi_event_loop_timer_free }, /* furi_event_loop_timer_free */
 +    { .hash = 0x51f4ffba, .address = (uint32_t)furi_event_loop_timer_stop }, /* furi_event_loop_timer_stop */
-@@ -712,0 +1561 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -712,0 +1729 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x52d6ca49, .address = (uint32_t)button_panel_get_view }, /* button_panel_get_view */
-@@ -714,0 +1564 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -714,0 +1732 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x5330a077, .address = (uint32_t)furi_thread_is_suspended }, /* furi_thread_is_suspended */
-@@ -717,0 +1568 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -717,0 +1736 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x53a28b7f, .address = (uint32_t)furi_event_loop_alloc }, /* furi_event_loop_alloc */
-@@ -723,0 +1575 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -723,0 +1743 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x5547adfb, .address = (uint32_t)view_port_get_height }, /* view_port_get_height */
-@@ -726,0 +1579,3 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -726,0 +1747,3 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x56f7cd00, .address = (uint32_t)button_panel_add_icon }, /* button_panel_add_icon */
 +    { .hash = 0x56f81406, .address = (uint32_t)button_panel_add_item }, /* button_panel_add_item */
 +    { .hash = 0x573571bf, .address = (uint32_t)file_browser_set_callback }, /* file_browser_set_callback */
-@@ -729,0 +1585 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -729,0 +1753 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x580f5621, .address = (uint32_t)view_dispatcher_send_to_back }, /* view_dispatcher_send_to_back */
-@@ -732,0 +1589 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -730,0 +1755 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x5841daf1, .address = (uint32_t)pipe_spaces_available }, /* pipe_spaces_available */
+@@ -732,0 +1758 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x59897e76, .address = (uint32_t)furi_mutex_get_owner }, /* furi_mutex_get_owner */
-@@ -738,0 +1596,3 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -736,0 +1763 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x59ce7c17, .address = (uint32_t)bit_lib_print_bits }, /* bit_lib_print_bits */
+@@ -738,0 +1766,3 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x59f99921, .address = (uint32_t)widget_add_line_element }, /* widget_add_line_element */
 +    { .hash = 0x5a03c52c, .address = (uint32_t)furi_pubsub_free }, /* furi_pubsub_free */
 +    { .hash = 0x5a217e2f, .address = (uint32_t)args_read_float_and_trim }, /* args_read_float_and_trim */
-@@ -739,0 +1600 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -739,0 +1770 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x5a4c0299, .address = (uint32_t)view_dispatcher_send_to_front }, /* view_dispatcher_send_to_front */
-@@ -743,0 +1605 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -743,0 +1775 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x5a997bb1, .address = (uint32_t)view_set_custom_callback }, /* view_set_custom_callback */
-@@ -747,0 +1610,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -747,0 +1780,6 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x5bc53575, .address = (uint32_t)bit_lib_test_parity_32 }, /* bit_lib_test_parity_32 */
++    { .hash = 0x5be97446, .address = (uint32_t)dir_walk_set_filter_cb }, /* dir_walk_set_filter_cb */
++    { .hash = 0x5c138297, .address = (uint32_t)tar_archive_alloc }, /* tar_archive_alloc */
++    { .hash = 0x5c5b842f, .address = (uint32_t)pipe_set_data_arrived_callback }, /* pipe_set_data_arrived_callback */
 +    { .hash = 0x5c69acee, .address = (uint32_t)icon_animation_free }, /* icon_animation_free */
 +    { .hash = 0x5c70d7b2, .address = (uint32_t)icon_animation_stop }, /* icon_animation_stop */
-@@ -752,0 +1617 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -750,0 +1789 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x5cd47e70, .address = (uint32_t)version_get_target }, /* version_get_target */
+@@ -752,0 +1792 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x5d4735d9, .address = (uint32_t)furi_string_vprintf }, /* furi_string_vprintf */
-@@ -754,0 +1620 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -754,0 +1795 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x5d7253b3, .address = (uint32_t)furi_thread_suspend }, /* furi_thread_suspend */
-@@ -756,0 +1623 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -756,0 +1798 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x5eb0751f, .address = (uint32_t)storage_file_get_error_desc }, /* storage_file_get_error_desc */
-@@ -757,0 +1625 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -757,0 +1800 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x5ef0b4a2, .address = (uint32_t)storage_sd_mount }, /* storage_sd_mount */
-@@ -760,0 +1629,3 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -760,0 +1804,3 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x5fbe6b48, .address = (uint32_t)furi_stream_buffer_is_empty }, /* furi_stream_buffer_is_empty */
 +    { .hash = 0x5fdd1e06, .address = (uint32_t)furi_string_search }, /* furi_string_search */
 +    { .hash = 0x5fe1cf64, .address = (uint32_t)stream_insert_vaformat }, /* stream_insert_vaformat */
-@@ -762,0 +1634 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -762,0 +1809 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x611aacaa, .address = (uint32_t)furi_thread_get_return_code }, /* furi_thread_get_return_code */
-@@ -767,0 +1640,4 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -764,0 +1812,4 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x6191415d, .address = (uint32_t)pipe_alloc }, /* pipe_alloc */
++    { .hash = 0x61d29917, .address = (uint32_t)cli_registry_add_command_ex }, /* cli_registry_add_command_ex */
++    { .hash = 0x62023c31, .address = (uint32_t)bit_lib_test_parity }, /* bit_lib_test_parity */
++    { .hash = 0x620f543d, .address = (uint32_t)tar_archive_file_finalize }, /* tar_archive_file_finalize */
+@@ -767,0 +1819,5 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x62a8f770, .address = (uint32_t)furi_string_cat_vprintf }, /* furi_string_cat_vprintf */
 +    { .hash = 0x62a94a6f, .address = (uint32_t)furi_stream_get_trigger_level }, /* furi_stream_get_trigger_level */
 +    { .hash = 0x62d3490c, .address = (uint32_t)furi_record_create }, /* furi_record_create */
++    { .hash = 0x62db2f53, .address = (uint32_t)pipe_state }, /* pipe_state */
 +    { .hash = 0x633d4e0b, .address = (uint32_t)furi_thread_set_stdout_callback }, /* furi_thread_set_stdout_callback */
-@@ -770,0 +1647 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -770,0 +1827 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x64394a45, .address = (uint32_t)icon_animation_is_last_frame }, /* icon_animation_is_last_frame */
-@@ -778,0 +1656 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -775,0 +1833 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x6515c07a, .address = (uint32_t)compress_icon_free }, /* compress_icon_free */
+@@ -776,0 +1835 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x658b86f6, .address = (uint32_t)bit_lib_set_bits }, /* bit_lib_set_bits */
+@@ -778,0 +1838 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x66236b4e, .address = (uint32_t)view_port_get_orientation }, /* view_port_get_orientation */
-@@ -779,0 +1658 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -779,0 +1840 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x664eb8b3, .address = (uint32_t)canvas_get_buffer_size }, /* canvas_get_buffer_size */
-@@ -789,0 +1669 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -789,0 +1851 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x674ad79c, .address = (uint32_t)furi_timer_flush }, /* furi_timer_flush */
-@@ -790,0 +1671 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -790,0 +1853 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x677d5c70, .address = (uint32_t)canvas_draw_xbm_ex }, /* canvas_draw_xbm_ex */
-@@ -796,0 +1678 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -796,0 +1860,2 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x67ca41d9, .address = (uint32_t)pipe_alloc_ex }, /* pipe_alloc_ex */
 +    { .hash = 0x67ecab78, .address = (uint32_t)furi_record_exists }, /* furi_record_exists */
-@@ -802,0 +1685 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -802,0 +1868,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x686f2b06, .address = (uint32_t)furi_kernel_restore_lock }, /* furi_kernel_restore_lock */
-@@ -803,0 +1687 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x6893753b, .address = (uint32_t)version_get_gitbranch }, /* version_get_gitbranch */
+@@ -803,0 +1871 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x68f88c80, .address = (uint32_t)storage_error_get_desc }, /* storage_error_get_desc */
-@@ -808,0 +1693 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -808,0 +1877 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x69b329f5, .address = (uint32_t)flipper_format_buffered_file_close }, /* flipper_format_buffered_file_close */
-@@ -817,0 +1703 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -817,0 +1887 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x6bc3eb93, .address = (uint32_t)furi_thread_get_current }, /* furi_thread_get_current */
-@@ -821,0 +1708,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -821,0 +1892,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x6c898520, .address = (uint32_t)loader_clear_launch_queue }, /* loader_clear_launch_queue */
 +    { .hash = 0x6c8c16b9, .address = (uint32_t)file_browser_worker_folder_enter }, /* file_browser_worker_folder_enter */
-@@ -826,0 +1715 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -826,0 +1899,2 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x6e6a7e30, .address = (uint32_t)tar_archive_unpack_to }, /* tar_archive_unpack_to */
 +    { .hash = 0x6e6ef41e, .address = (uint32_t)furi_thread_get_appid }, /* furi_thread_get_appid */
-@@ -827,0 +1717 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -827,0 +1902,2 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x6eb5c3f7, .address = (uint32_t)bit_lib_push_bit }, /* bit_lib_push_bit */
 +    { .hash = 0x6eca7ff3, .address = (uint32_t)file_browser_worker_set_folder_callback }, /* file_browser_worker_set_folder_callback */
-@@ -829,0 +1720 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -829,0 +1906 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x6f3b3833, .address = (uint32_t)file_browser_worker_set_list_callback }, /* file_browser_worker_set_list_callback */
-@@ -832,0 +1724 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -831,0 +1909,3 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x6f92e034, .address = (uint32_t)pipe_free }, /* pipe_free */
++    { .hash = 0x6f98cfc8, .address = (uint32_t)bit_lib_reverse_16_fast }, /* bit_lib_reverse_16_fast */
++    { .hash = 0x6f9968e4, .address = (uint32_t)pipe_role }, /* pipe_role */
+@@ -832,0 +1913 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x6fb6a051, .address = (uint32_t)furi_thread_get_state }, /* furi_thread_get_state */
-@@ -837,0 +1730 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -834,0 +1916 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x70abfb15, .address = (uint32_t)cli_registry_remove_external_commands }, /* cli_registry_remove_external_commands */
+@@ -837,0 +1920 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x70bc1803, .address = (uint32_t)furi_kernel_lock }, /* furi_kernel_lock */
-@@ -840,0 +1734 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -840,0 +1924 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x712a4c7c, .address = (uint32_t)file_browser_worker_set_callback_context }, /* file_browser_worker_set_callback_context */
-@@ -843,0 +1738,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -843,0 +1928,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x72642115, .address = (uint32_t)furi_event_loop_is_subscribed }, /* furi_event_loop_is_subscribed */
 +    { .hash = 0x72e153c0, .address = (uint32_t)flipper_format_stream_delete_key_and_write }, /* flipper_format_stream_delete_key_and_write */
-@@ -850,0 +1747 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -850,0 +1937 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x7461930a, .address = (uint32_t)furi_message_queue_get_count }, /* furi_message_queue_get_count */
-@@ -851,0 +1749 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -851,0 +1939 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x74b4eb1a, .address = (uint32_t)furi_string_end_with_str }, /* furi_string_end_with_str */
-@@ -855,0 +1754 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -852,0 +1941 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x74fd7d2c, .address = (uint32_t)simple_array_get }, /* simple_array_get */
+@@ -855,0 +1945 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x758350ed, .address = (uint32_t)furi_message_queue_get_space }, /* furi_message_queue_get_space */
-@@ -856,0 +1756 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -856,0 +1947 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x76939052, .address = (uint32_t)furi_log_get_level }, /* furi_log_get_level */
-@@ -857,0 +1758 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -857,0 +1949 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x771a6cf9, .address = (uint32_t)furi_event_loop_subscribe_thread_flags }, /* furi_event_loop_subscribe_thread_flags */
-@@ -859,0 +1761,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -859,0 +1952,4 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x77853788, .address = (uint32_t)flipper_format_stream_read_value_line }, /* flipper_format_stream_read_value_line */
++    { .hash = 0x7787b579, .address = (uint32_t)compress_stream_decoder_rewind }, /* compress_stream_decoder_rewind */
 +    { .hash = 0x77add982, .address = (uint32_t)stream_insert_char }, /* stream_insert_char */
-@@ -876,0 +1780,2 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x77bd7e22, .address = (uint32_t)tar_archive_get_mode_for_path }, /* tar_archive_get_mode_for_path */
+@@ -876,0 +1973,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x7b29aa50, .address = (uint32_t)furi_event_loop_timer_is_running }, /* furi_event_loop_timer_is_running */
 +    { .hash = 0x7b87946d, .address = (uint32_t)flipper_format_stream_get_value_count }, /* flipper_format_stream_get_value_count */
-@@ -878,0 +1784 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -878,0 +1977 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x7c1de24c, .address = (uint32_t)flipper_format_update_bool }, /* flipper_format_update_bool */
-@@ -891,0 +1798,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -891,0 +1991,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x7ce3ab85, .address = (uint32_t)furi_stream_buffer_bytes_available }, /* furi_stream_buffer_bytes_available */
 +    { .hash = 0x7d0b76ee, .address = (uint32_t)button_menu_get_view }, /* button_menu_get_view */
-@@ -893,0 +1802 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -893,0 +1995 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x7db819a6, .address = (uint32_t)elements_multiline_text_framed }, /* elements_multiline_text_framed */
-@@ -899,0 +1809 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -899,0 +2002 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x7f3f8c86, .address = (uint32_t)furi_log_remove_handler }, /* furi_log_remove_handler */
-@@ -900,0 +1811 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -900,0 +2004 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x7fc62622, .address = (uint32_t)view_port_get_width }, /* view_port_get_width */
-@@ -901,0 +1813,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -901,0 +2006,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x80fd54b7, .address = (uint32_t)furi_thread_list_alloc }, /* furi_thread_list_alloc */
 +    { .hash = 0x812cc0ab, .address = (uint32_t)button_menu_add_item }, /* button_menu_add_item */
-@@ -913,0 +1827 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -902,0 +2009 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x817434ba, .address = (uint32_t)pipe_set_space_freed_callback }, /* pipe_set_space_freed_callback */
+@@ -913,0 +2021 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x83ddf00b, .address = (uint32_t)storage_common_equivalent_path }, /* storage_common_equivalent_path */
-@@ -918,0 +1833 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -918,0 +2027 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x84b51bec, .address = (uint32_t)view_dispatcher_alloc_ex }, /* view_dispatcher_alloc_ex */
-@@ -921,0 +1837 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -921,0 +2031,3 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x85422c38, .address = (uint32_t)bit_lib_remove_bit_every_nth }, /* bit_lib_remove_bit_every_nth */
++    { .hash = 0x855360b9, .address = (uint32_t)pipe_bytes_available }, /* pipe_bytes_available */
 +    { .hash = 0x8569699c, .address = (uint32_t)furi_log_level_from_string }, /* furi_log_level_from_string */
-@@ -924,0 +1841 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -922,0 +2035 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x85a70a5f, .address = (uint32_t)bit_lib_get_bit_count }, /* bit_lib_get_bit_count */
+@@ -924,0 +2038 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x85c67b87, .address = (uint32_t)view_port_set_height }, /* view_port_set_height */
-@@ -927,0 +1845 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -927,0 +2042 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x86914487, .address = (uint32_t)gui_get_framebuffer_size }, /* gui_get_framebuffer_size */
-@@ -928,0 +1847 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -928,0 +2044 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x86d4dffe, .address = (uint32_t)stream_insert_cstring }, /* stream_insert_cstring */
-@@ -938,0 +1858,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -938,0 +2055,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x876ebb12, .address = (uint32_t)storage_file_is_dir }, /* storage_file_is_dir */
 +    { .hash = 0x8774c424, .address = (uint32_t)flipper_format_insert_or_update_int32 }, /* flipper_format_insert_or_update_int32 */
-@@ -939,0 +1861 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -939,0 +2058 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x87bb8371, .address = (uint32_t)stream_delete_and_insert_format }, /* stream_delete_and_insert_format */
-@@ -965,0 +1888 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -965,0 +2085 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x8d3165a1, .address = (uint32_t)file_browser_get_view }, /* file_browser_get_view */
-@@ -966,0 +1890 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -966,0 +2087 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x8d97cd71, .address = (uint32_t)canvas_draw_glyph }, /* canvas_draw_glyph */
-@@ -967,0 +1892 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -967,0 +2089,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x8dcd470b, .address = (uint32_t)flipper_format_insert_or_update_string }, /* flipper_format_insert_or_update_string */
-@@ -968,0 +1894 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x8dee7c3e, .address = (uint32_t)cli_registry_reload_external_commands }, /* cli_registry_reload_external_commands */
+@@ -968,0 +2092,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x8e40ea3e, .address = (uint32_t)flipper_format_write_empty_line }, /* flipper_format_write_empty_line */
-@@ -973,0 +1900 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x8e44e0b4, .address = (uint32_t)version_get_git_origin }, /* version_get_git_origin */
+@@ -973,0 +2099 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x8ed343a1, .address = (uint32_t)furi_stream_buffer_reset }, /* furi_stream_buffer_reset */
-@@ -974,0 +1902,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -974,0 +2101,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x8f1f37a6, .address = (uint32_t)icon_animation_set_update_callback }, /* icon_animation_set_update_callback */
 +    { .hash = 0x8f4ace5f, .address = (uint32_t)furi_event_loop_timer_alloc }, /* furi_event_loop_timer_alloc */
-@@ -978,0 +1908 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -978,0 +2107 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x9094bc22, .address = (uint32_t)furi_event_loop_timer_start }, /* furi_event_loop_timer_start */
-@@ -980,0 +1911 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -980,0 +2110 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x9138099b, .address = (uint32_t)gui_view_port_send_to_front }, /* gui_view_port_send_to_front */
-@@ -988,0 +1920 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -988,0 +2119 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x9277341e, .address = (uint32_t)view_holder_free }, /* view_holder_free */
-@@ -991,0 +1924 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -991,0 +2123 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x92acf2ea, .address = (uint32_t)file_browser_worker_folder_refresh }, /* file_browser_worker_folder_refresh */
-@@ -997,0 +1931 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -997,0 +2130 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x946f668b, .address = (uint32_t)file_browser_worker_alloc }, /* file_browser_worker_alloc */
-@@ -1000,0 +1935,7 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1000,0 +2134,8 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x953605e4, .address = (uint32_t)view_holder_set_back_callback }, /* view_holder_set_back_callback */
++    { .hash = 0x954769fa, .address = (uint32_t)bit_lib_add_parity }, /* bit_lib_add_parity */
 +    { .hash = 0x955f7eb1, .address = (uint32_t)flipper_format_write_header }, /* flipper_format_write_header */
 +    { .hash = 0x9567804b, .address = (uint32_t)loader_get_pubsub }, /* loader_get_pubsub */
 +    { .hash = 0x956c4da5, .address = (uint32_t)elements_bubble_str }, /* elements_bubble_str */
 +    { .hash = 0x957212cb, .address = (uint32_t)widget_add_circle_element }, /* widget_add_circle_element */
 +    { .hash = 0x95cbc77c, .address = (uint32_t)view_stack_remove_view }, /* view_stack_remove_view */
 +    { .hash = 0x95d7b2e5, .address = (uint32_t)furi_semaphore_get_count }, /* furi_semaphore_get_count */
-@@ -1002,0 +1944 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1002,0 +2144 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x9634c355, .address = (uint32_t)furi_kernel_is_irq_or_masked }, /* furi_kernel_is_irq_or_masked */
-@@ -1004,0 +1947,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1004,0 +2147,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x96633ebb, .address = (uint32_t)saved_struct_get_metadata }, /* saved_struct_get_metadata */
 +    { .hash = 0x96af1295, .address = (uint32_t)file_browser_worker_folder_exit }, /* file_browser_worker_folder_exit */
-@@ -1006,0 +1951 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1006,0 +2151,2 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x96f72914, .address = (uint32_t)compress_decode }, /* compress_decode */
 +    { .hash = 0x96f970c8, .address = (uint32_t)furi_semaphore_get_space }, /* furi_semaphore_get_space */
-@@ -1010,0 +1956 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1010,0 +2157 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x9814df21, .address = (uint32_t)file_browser_worker_set_config }, /* file_browser_worker_set_config */
-@@ -1017,0 +1964 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1017,0 +2165 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x997780e5, .address = (uint32_t)icon_get_height }, /* icon_get_height */
-@@ -1021,0 +1969,4 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1018,0 +2167 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x99ef2e3e, .address = (uint32_t)compress_encode }, /* compress_encode */
+@@ -1021,0 +2171,4 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x9a033e99, .address = (uint32_t)furi_event_loop_timer_restart }, /* furi_event_loop_timer_restart */
 +    { .hash = 0x9a1ec555, .address = (uint32_t)furi_pubsub_alloc }, /* furi_pubsub_alloc */
 +    { .hash = 0x9a422229, .address = (uint32_t)canvas_commit }, /* canvas_commit */
 +    { .hash = 0x9a81e982, .address = (uint32_t)furi_string_end_with }, /* furi_string_end_with */
-@@ -1022,0 +1974 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1022,0 +2176,4 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x9ab40dcf, .address = (uint32_t)version_get_version }, /* version_get_version */
++    { .hash = 0x9ad9756a, .address = (uint32_t)version_get }, /* version_get */
 +    { .hash = 0x9ae06d4e, .address = (uint32_t)furi_thread_stdin_read }, /* furi_thread_stdin_read */
-@@ -1024,0 +1977 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x9bbbc773, .address = (uint32_t)tar_archive_add_dir }, /* tar_archive_add_dir */
+@@ -1024,0 +2182 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x9bd259d6, .address = (uint32_t)view_stack_free }, /* view_stack_free */
-@@ -1026,0 +1980 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1026,0 +2185 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x9c12d15a, .address = (uint32_t)furi_event_loop_subscribe_stream_buffer }, /* furi_event_loop_subscribe_stream_buffer */
-@@ -1027,0 +1982,4 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1027,0 +2187,4 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x9c1a5506, .address = (uint32_t)flipper_format_seek }, /* flipper_format_seek */
 +    { .hash = 0x9c1ae24f, .address = (uint32_t)flipper_format_tell }, /* flipper_format_tell */
 +    { .hash = 0x9c601223, .address = (uint32_t)stream_write_format }, /* stream_write_format */
 +    { .hash = 0x9cb259ab, .address = (uint32_t)path_extract_dirname }, /* path_extract_dirname */
-@@ -1028,0 +1987,5 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1028,0 +2192,5 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x9d56a06f, .address = (uint32_t)elements_scrollable_text_line }, /* elements_scrollable_text_line */
 +    { .hash = 0x9d580b4b, .address = (uint32_t)furi_log_level_to_string }, /* furi_log_level_to_string */
 +    { .hash = 0x9d6c343a, .address = (uint32_t)button_panel_alloc }, /* button_panel_alloc */
 +    { .hash = 0x9db26e16, .address = (uint32_t)furi_event_loop_free }, /* furi_event_loop_free */
 +    { .hash = 0x9db998da, .address = (uint32_t)furi_event_loop_stop }, /* furi_event_loop_stop */
-@@ -1029,0 +1993,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1029,0 +2198,4 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x9e24ce92, .address = (uint32_t)file_browser_alloc }, /* file_browser_alloc */
++    { .hash = 0x9e84a120, .address = (uint32_t)cli_shell_set_prompt }, /* cli_shell_set_prompt */
 +    { .hash = 0x9e9c1ab2, .address = (uint32_t)button_panel_reset }, /* button_panel_reset */
-@@ -1031,0 +1997 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0x9ea00017, .address = (uint32_t)tar_archive_file_add_data_block }, /* tar_archive_file_add_data_block */
+@@ -1031,0 +2204 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0x9f6ebc55, .address = (uint32_t)file_browser_start }, /* file_browser_start */
-@@ -1041,0 +2008,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1041,0 +2215,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xa18e3554, .address = (uint32_t)furi_event_flag_get }, /* furi_event_flag_get */
 +    { .hash = 0xa18e6860, .address = (uint32_t)furi_event_flag_set }, /* furi_event_flag_set */
-@@ -1042,0 +2011 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1042,0 +2218 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xa1b8ee62, .address = (uint32_t)stream_delete_and_insert_cstring }, /* stream_delete_and_insert_cstring */
-@@ -1050,0 +2020 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1044,0 +2221 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xa209d1db, .address = (uint32_t)tar_archive_get_read_progress }, /* tar_archive_get_read_progress */
+@@ -1050,0 +2228,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xa2470b02, .address = (uint32_t)furi_thread_resume }, /* furi_thread_resume */
-@@ -1062,0 +2033 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xa258fd52, .address = (uint32_t)compress_free }, /* compress_free */
+@@ -1062,0 +2242 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xa49d6404, .address = (uint32_t)locale_set_measurement_unit }, /* locale_set_measurement_unit */
-@@ -1063,0 +2035,3 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1063,0 +2244,3 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xa4d44c91, .address = (uint32_t)furi_thread_get_stack_space }, /* furi_thread_get_stack_space */
 +    { .hash = 0xa4dde1cf, .address = (uint32_t)furi_thread_signal }, /* furi_thread_signal */
 +    { .hash = 0xa5138786, .address = (uint32_t)furi_kernel_unlock }, /* furi_kernel_unlock */
-@@ -1067,0 +2042 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1064,0 +2248 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xa5686917, .address = (uint32_t)bit_lib_get_bit }, /* bit_lib_get_bit */
+@@ -1067,0 +2252 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xa5d37b81, .address = (uint32_t)flipper_format_buffered_file_open_always }, /* flipper_format_buffered_file_open_always */
-@@ -1068,0 +2044 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1068,0 +2254 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xa668febf, .address = (uint32_t)stream_delete_and_insert_string }, /* stream_delete_and_insert_string */
-@@ -1069,0 +2046,3 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1069,0 +2256,3 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xa74aad7a, .address = (uint32_t)stream_write_vaformat }, /* stream_write_vaformat */
 +    { .hash = 0xa7661d7d, .address = (uint32_t)view_set_update_callback_context }, /* view_set_update_callback_context */
 +    { .hash = 0xa7aff4f4, .address = (uint32_t)args_get_first_word_length }, /* args_get_first_word_length */
-@@ -1094,0 +2074 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1078,0 +2268 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xa9e8a877, .address = (uint32_t)simple_array_alloc }, /* simple_array_alloc */
+@@ -1090,0 +2281 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xab188eef, .address = (uint32_t)simple_array_reset }, /* simple_array_reset */
+@@ -1091,0 +2283 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xab209d7c, .address = (uint32_t)tar_archive_dir_add_element }, /* tar_archive_dir_add_element */
+@@ -1094,0 +2287 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xabb8fb9a, .address = (uint32_t)furi_string_utf8_decode }, /* furi_string_utf8_decode */
-@@ -1097,0 +2078 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1097,0 +2291 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xac31e266, .address = (uint32_t)stream_delete_and_insert_char }, /* stream_delete_and_insert_char */
-@@ -1098,0 +2080,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1098,0 +2293,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xac513fd0, .address = (uint32_t)view_holder_send_to_front }, /* view_holder_send_to_front */
 +    { .hash = 0xac57cdd4, .address = (uint32_t)loader_get_application_launch_path }, /* loader_get_application_launch_path */
-@@ -1101,0 +2085,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1101,0 +2298,4 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xad42c81d, .address = (uint32_t)cli_print_usage }, /* cli_print_usage */
 +    { .hash = 0xad4b0fd5, .address = (uint32_t)gui_set_lockdown }, /* gui_set_lockdown */
 +    { .hash = 0xad4b3965, .address = (uint32_t)elements_scrollbar }, /* elements_scrollbar */
-@@ -1103,0 +2089 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xad5387e8, .address = (uint32_t)compress_decode_streamed }, /* compress_decode_streamed */
+@@ -1103,0 +2304 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xae2c5300, .address = (uint32_t)furi_thread_list_get_at }, /* furi_thread_list_get_at */
-@@ -1104,0 +2091 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1104,0 +2306 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xae500991, .address = (uint32_t)view_free_model }, /* view_free_model */
-@@ -1105,0 +2093 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1105,0 +2308 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xae604099, .address = (uint32_t)furi_log_print_raw_format }, /* furi_log_print_raw_format */
-@@ -1132,0 +2121 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1132,0 +2336 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xb2ef6c96, .address = (uint32_t)furi_kernel_is_running }, /* furi_kernel_is_running */
-@@ -1134,0 +2124 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1133,0 +2338 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xb2fb11ad, .address = (uint32_t)tar_archive_unpack_file }, /* tar_archive_unpack_file */
+@@ -1134,0 +2340 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xb3940ce5, .address = (uint32_t)locale_set_date_format }, /* locale_set_date_format */
-@@ -1136,0 +2127,3 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1136,0 +2343,3 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xb478f5fb, .address = (uint32_t)scene_manager_get_current_scene }, /* scene_manager_get_current_scene */
 +    { .hash = 0xb4a4faa5, .address = (uint32_t)storage_common_fs_info }, /* storage_common_fs_info */
 +    { .hash = 0xb4d7632e, .address = (uint32_t)view_stack_get_view }, /* view_stack_get_view */
-@@ -1137,0 +2131 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1137,0 +2347 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xb5052d26, .address = (uint32_t)file_browser_worker_set_long_load_callback }, /* file_browser_worker_set_long_load_callback */
-@@ -1139,0 +2134,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1139,0 +2350,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xb55efb87, .address = (uint32_t)furi_log_puts }, /* furi_log_puts */
 +    { .hash = 0xb564cc09, .address = (uint32_t)stream_delete_and_insert }, /* stream_delete_and_insert */
-@@ -1141,0 +2138 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1141,0 +2354 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xb60d964b, .address = (uint32_t)button_panel_reserve }, /* button_panel_reserve */
-@@ -1145,0 +2143,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1145,0 +2359,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xb686d029, .address = (uint32_t)text_input_get_validator_callback }, /* text_input_get_validator_callback */
 +    { .hash = 0xb73cef9c, .address = (uint32_t)stream_split }, /* stream_split */
-@@ -1162,0 +2162,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1152,0 +2368 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xb879eebc, .address = (uint32_t)bit_lib_print_regions }, /* bit_lib_print_regions */
+@@ -1162,0 +2379,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xb8ff9f17, .address = (uint32_t)view_stack_add_view }, /* view_stack_add_view */
 +    { .hash = 0xb95f11ed, .address = (uint32_t)loader_enqueue_launch }, /* loader_enqueue_launch */
-@@ -1170,0 +2172 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1170,0 +2389 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xbb0d8d71, .address = (uint32_t)stream_write_string }, /* stream_write_string */
-@@ -1191,0 +2194 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1191,0 +2411 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xbed5161a, .address = (uint32_t)furi_thread_get_signal_callback }, /* furi_thread_get_signal_callback */
-@@ -1195,0 +2199 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1195,0 +2416 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xbf4a18d7, .address = (uint32_t)args_read_hex_bytes }, /* args_read_hex_bytes */
-@@ -1197,0 +2202 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1197,0 +2419 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xbfa79191, .address = (uint32_t)string_stream_alloc }, /* string_stream_alloc */
-@@ -1200,0 +2206 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1200,0 +2423 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xbfec33a1, .address = (uint32_t)furi_log_add_handler }, /* furi_log_add_handler */
-@@ -1208,0 +2215,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1208,0 +2432,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xc141ebd2, .address = (uint32_t)args_read_duration }, /* args_read_duration */
 +    { .hash = 0xc1ddb7d1, .address = (uint32_t)storage_common_merge }, /* storage_common_merge */
-@@ -1212,0 +2221 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1212,0 +2438 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xc2c6bff5, .address = (uint32_t)storage_common_timestamp }, /* storage_common_timestamp */
-@@ -1228,0 +2238 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1228,0 +2455 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xc51f8e3f, .address = (uint32_t)icon_get_frame_count }, /* icon_get_frame_count */
-@@ -1234,0 +2245 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1234,0 +2462,2 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xc605f90e, .address = (uint32_t)pipe_set_callback_context }, /* pipe_set_callback_context */
 +    { .hash = 0xc614f641, .address = (uint32_t)furi_thread_set_state_context }, /* furi_thread_set_state_context */
-@@ -1243,0 +2255 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1243,0 +2473 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xc7b192c7, .address = (uint32_t)datetime_validate_datetime }, /* datetime_validate_datetime */
-@@ -1248,0 +2261,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1248,0 +2479,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xc9149901, .address = (uint32_t)flipper_format_stream_write_comment_cstr }, /* flipper_format_stream_write_comment_cstr */
 +    { .hash = 0xc9262148, .address = (uint32_t)furi_event_loop_subscribe_mutex }, /* furi_event_loop_subscribe_mutex */
-@@ -1268,0 +2283 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1260,0 +2493 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xca826427, .address = (uint32_t)dir_walk_close }, /* dir_walk_close */
+@@ -1264,0 +2498,2 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xcb236ca6, .address = (uint32_t)cli_ansi_parser_feed }, /* cli_ansi_parser_feed */
++    { .hash = 0xcb23a3f4, .address = (uint32_t)cli_ansi_parser_free }, /* cli_ansi_parser_free */
+@@ -1268,0 +2504 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xcb936be4, .address = (uint32_t)loader_lock }, /* loader_lock */
-@@ -1271,0 +2287 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1271,0 +2508 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xcc1668b7, .address = (uint32_t)flipper_format_stream_write_value_line }, /* flipper_format_stream_write_value_line */
-@@ -1275,0 +2292 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1275,0 +2513 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xcd0bb568, .address = (uint32_t)furi_thread_get_heap_size }, /* furi_thread_get_heap_size */
-@@ -1286,0 +2304,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1286,0 +2525,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xce508498, .address = (uint32_t)flipper_format_write_int32 }, /* flipper_format_write_int32 */
 +    { .hash = 0xce941ef9, .address = (uint32_t)date_time_input_get_view }, /* date_time_input_get_view */
-@@ -1287,0 +2307 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1287,0 +2528 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xcf468c55, .address = (uint32_t)date_time_input_set_result_callback }, /* date_time_input_set_result_callback */
-@@ -1289,0 +2310 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1289,0 +2531 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xcfc37a68, .address = (uint32_t)view_tie_icon_animation }, /* view_tie_icon_animation */
-@@ -1292,0 +2314 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1292,0 +2535 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xd04c959f, .address = (uint32_t)view_dispatcher_get_event_loop }, /* view_dispatcher_get_event_loop */
-@@ -1295,0 +2318,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1295,0 +2539,4 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xd112cc9b, .address = (uint32_t)furi_event_loop_timer_get_remaining_time }, /* furi_event_loop_timer_get_remaining_time */
 +    { .hash = 0xd126eea3, .address = (uint32_t)canvas_glyph_width }, /* canvas_glyph_width */
-@@ -1298,0 +2323,3 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xd12d9c8c, .address = (uint32_t)cli_ansi_parser_feed_timeout }, /* cli_ansi_parser_feed_timeout */
++    { .hash = 0xd1702188, .address = (uint32_t)pipe_detach_from_event_loop }, /* pipe_detach_from_event_loop */
+@@ -1298,0 +2546,3 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xd33d4ba7, .address = (uint32_t)flipper_format_read_hex_uint64 }, /* flipper_format_read_hex_uint64 */
 +    { .hash = 0xd3548936, .address = (uint32_t)furi_event_flag_free }, /* furi_event_flag_free */
 +    { .hash = 0xd35d93e9, .address = (uint32_t)furi_event_flag_wait }, /* furi_event_flag_wait */
-@@ -1301,0 +2329 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1301,0 +2552 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xd40ea053, .address = (uint32_t)args_length }, /* args_length */
-@@ -1305,0 +2334 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1305,0 +2557 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xd5556e88, .address = (uint32_t)loader_is_locked }, /* loader_is_locked */
-@@ -1308,0 +2338 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1308,0 +2561 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xd63c6b71, .address = (uint32_t)button_panel_free }, /* button_panel_free */
-@@ -1311,0 +2342 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1311,0 +2565 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xd747aa48, .address = (uint32_t)stream_delete_and_insert_vaformat }, /* stream_delete_and_insert_vaformat */
-@@ -1319,0 +2351 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1319,0 +2574,2 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xd8900199, .address = (uint32_t)bit_lib_reverse_8_fast }, /* bit_lib_reverse_8_fast */
 +    { .hash = 0xd89dd0bb, .address = (uint32_t)flipper_format_write_comment }, /* flipper_format_write_comment */
-@@ -1324,0 +2357 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1324,0 +2581,3 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xd942aa95, .address = (uint32_t)cli_shell_free }, /* cli_shell_free */
++    { .hash = 0xd944cfe3, .address = (uint32_t)cli_shell_join }, /* cli_shell_join */
 +    { .hash = 0xd959a3d5, .address = (uint32_t)canvas_draw_icon_animation }, /* canvas_draw_icon_animation */
-@@ -1329,0 +2363 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1327,0 +2587 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xda626c4d, .address = (uint32_t)version_get_firmware_origin }, /* version_get_firmware_origin */
+@@ -1329,0 +2590 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xdaf4df4b, .address = (uint32_t)icon_animation_get_width }, /* icon_animation_get_width */
-@@ -1331,0 +2366 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1331,0 +2593,2 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xdb149d9e, .address = (uint32_t)pipe_install_as_stdio }, /* pipe_install_as_stdio */
 +    { .hash = 0xdb928d96, .address = (uint32_t)button_menu_free }, /* button_menu_free */
-@@ -1333,0 +2369,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1333,0 +2597,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xdbd55fd1, .address = (uint32_t)variable_item_set_item_label }, /* variable_item_set_item_label */
 +    { .hash = 0xdbe8fe93, .address = (uint32_t)flipper_format_key_exist }, /* flipper_format_key_exist */
-@@ -1339,0 +2377 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1339,0 +2605 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xdc5cb2d1, .address = (uint32_t)furi_thread_stdin_unread }, /* furi_thread_stdin_unread */
-@@ -1341,0 +2380 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1341,0 +2608 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xdc998f7e, .address = (uint32_t)furi_event_loop_subscribe_message_queue }, /* furi_event_loop_subscribe_message_queue */
-@@ -1347,0 +2387 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1347,0 +2615 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xdd8942e9, .address = (uint32_t)file_browser_configure }, /* file_browser_configure */
-@@ -1349,0 +2390 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1349,0 +2618 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xddda10ef, .address = (uint32_t)furi_run }, /* furi_run */
-@@ -1350,0 +2392 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1350,0 +2620 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xde861c02, .address = (uint32_t)view_holder_set_view }, /* view_holder_set_view */
-@@ -1351,0 +2394,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1351,0 +2622,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xdf2fd110, .address = (uint32_t)icon_get_frame_data }, /* icon_get_frame_data */
 +    { .hash = 0xdf379799, .address = (uint32_t)view_set_update_callback }, /* view_set_update_callback */
-@@ -1354,0 +2399 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1354,0 +2627 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xdfd4830b, .address = (uint32_t)furi_timer_pending_callback }, /* furi_timer_pending_callback */
-@@ -1355,0 +2401 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1355,0 +2629 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xe1001287, .address = (uint32_t)view_holder_alloc }, /* view_holder_alloc */
-@@ -1374,0 +2421 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1362,0 +2637 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xe251c361, .address = (uint32_t)bit_lib_num_to_bytes_le }, /* bit_lib_num_to_bytes_le */
+@@ -1374,0 +2650 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xe3d1cb81, .address = (uint32_t)view_holder_get_free_context }, /* view_holder_get_free_context */
-@@ -1375,0 +2423 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1375,0 +2652 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xe4147bf9, .address = (uint32_t)furi_string_cmpi }, /* furi_string_cmpi */
-@@ -1377,0 +2426 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1377,0 +2655 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xe4170734, .address = (uint32_t)furi_string_hash }, /* furi_string_hash */
-@@ -1380,0 +2430 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1380,0 +2659 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xe41d6aab, .address = (uint32_t)furi_string_swap }, /* furi_string_swap */
-@@ -1385,0 +2436 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1385,0 +2665 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xe444402a, .address = (uint32_t)furi_thread_set_appid }, /* furi_thread_set_appid */
-@@ -1396,0 +2448,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1396,0 +2677,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xe6d795e7, .address = (uint32_t)furi_thread_list_get_isr_time }, /* furi_thread_list_get_isr_time */
 +    { .hash = 0xe7137a65, .address = (uint32_t)storage_common_is_subdir }, /* storage_common_is_subdir */
-@@ -1397,0 +2451 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1397,0 +2680 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xe77ccc12, .address = (uint32_t)furi_thread_get_priority }, /* furi_thread_get_priority */
-@@ -1400,0 +2455,3 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1400,0 +2684,3 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xe7dfed7c, .address = (uint32_t)strint_to_int16 }, /* strint_to_int16 */
 +    { .hash = 0xe7dfedba, .address = (uint32_t)strint_to_int32 }, /* strint_to_int32 */
 +    { .hash = 0xe7dfee1f, .address = (uint32_t)strint_to_int64 }, /* strint_to_int64 */
-@@ -1408,0 +2466 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1408,0 +2695 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xe941a557, .address = (uint32_t)icon_animation_alloc }, /* icon_animation_alloc */
-@@ -1409,0 +2468 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1409,0 +2697 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xe9897418, .address = (uint32_t)furi_event_loop_timer_get_interval }, /* furi_event_loop_timer_get_interval */
-@@ -1410,0 +2470 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1410,0 +2699,2 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xea60d1bc, .address = (uint32_t)tar_archive_file_add_header }, /* tar_archive_file_add_header */
 +    { .hash = 0xea8b931a, .address = (uint32_t)icon_animation_start }, /* icon_animation_start */
-@@ -1412,0 +2473 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1412,0 +2703 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xeabf1a2b, .address = (uint32_t)furi_string_end_withi }, /* furi_string_end_withi */
-@@ -1421,0 +2483,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1421,0 +2713,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xec68dc5e, .address = (uint32_t)furi_log_set_level }, /* furi_log_set_level */
 +    { .hash = 0xeceb52a2, .address = (uint32_t)furi_record_destroy }, /* furi_record_destroy */
-@@ -1426,0 +2490 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1422,0 +2716 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xed1b023b, .address = (uint32_t)compress_alloc }, /* compress_alloc */
+@@ -1426,0 +2721 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xed8fbe8d, .address = (uint32_t)elements_bubble }, /* elements_bubble */
-@@ -1427,0 +2492 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1427,0 +2723 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xedbc55d2, .address = (uint32_t)flipper_format_update_string_cstr }, /* flipper_format_update_string_cstr */
-@@ -1438,0 +2504 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1438,0 +2735 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xee7243cc, .address = (uint32_t)icon_get_width }, /* icon_get_width */
-@@ -1448,0 +2515 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1448,0 +2746 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xf01e9016, .address = (uint32_t)button_menu_set_selected_item }, /* button_menu_set_selected_item */
-@@ -1452,0 +2520,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1452,0 +2751,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xf0a237ff, .address = (uint32_t)furi_timer_restart }, /* furi_timer_restart */
 +    { .hash = 0xf0cd00c0, .address = (uint32_t)furi_thread_list_get_or_insert }, /* furi_thread_list_get_or_insert */
-@@ -1457,0 +2527 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1455,0 +2756 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xf1026a26, .address = (uint32_t)bit_lib_reverse_bits }, /* bit_lib_reverse_bits */
+@@ -1457,0 +2759 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xf20d48ea, .address = (uint32_t)elements_progress_bar }, /* elements_progress_bar */
-@@ -1461,0 +2532,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1461,0 +2764,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xf35bcee7, .address = (uint32_t)storage_int_restore }, /* storage_int_restore */
 +    { .hash = 0xf3b3f475, .address = (uint32_t)args_char_to_hex }, /* args_char_to_hex */
-@@ -1463,0 +2536 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1463,0 +2768 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xf4613aa7, .address = (uint32_t)path_extract_basename }, /* path_extract_basename */
-@@ -1471,0 +2545 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1471,0 +2777 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xf59b722e, .address = (uint32_t)view_port_set_width }, /* view_port_set_width */
-@@ -1484,0 +2559 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1484,0 +2791 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xf95e00b6, .address = (uint32_t)furi_string_utf8_push }, /* furi_string_utf8_push */
-@@ -1486,0 +2562,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1486,0 +2794,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xf9a8ca80, .address = (uint32_t)furi_message_queue_get_message_size }, /* furi_message_queue_get_message_size */
 +    { .hash = 0xfa1248bf, .address = (uint32_t)furi_thread_get_current_id }, /* furi_thread_get_current_id */
-@@ -1487,0 +2565 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1487,0 +2797 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xfa4cd2f6, .address = (uint32_t)locale_set_time_format }, /* locale_set_time_format */
-@@ -1489,0 +2568 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1489,0 +2800 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xfaaae821, .address = (uint32_t)date_time_input_free }, /* date_time_input_free */
-@@ -1490,0 +2570,3 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1490,0 +2802,4 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xfaf5ceb4, .address = (uint32_t)furi_timer_get_expire_time }, /* furi_timer_get_expire_time */
 +    { .hash = 0xfb007762, .address = (uint32_t)stream_load_from_file }, /* stream_load_from_file */
 +    { .hash = 0xfb257acc, .address = (uint32_t)furi_stream_buffer_is_full }, /* furi_stream_buffer_is_full */
-@@ -1503,0 +2586 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xfb30e01f, .address = (uint32_t)simple_array_is_equal }, /* simple_array_is_equal */
+@@ -1495,0 +2811 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xfbf1563c, .address = (uint32_t)compress_icon_decode }, /* compress_icon_decode */
+@@ -1500,0 +2817 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xfcd24db7, .address = (uint32_t)version_get_builddate }, /* version_get_builddate */
+@@ -1503,0 +2821 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xfd50a848, .address = (uint32_t)button_menu_set_header }, /* button_menu_set_header */
-@@ -1513,0 +2597,2 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1509,0 +2828 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xfe778b9a, .address = (uint32_t)dir_walk_get_error }, /* dir_walk_get_error */
+@@ -1511,0 +2831 @@ static const struct sym_entry firmware_api_table[] = {
++    { .hash = 0xfea035ad, .address = (uint32_t)tar_archive_get_entries_count }, /* tar_archive_get_entries_count */
+@@ -1513,0 +2834,2 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xff665376, .address = (uint32_t)flipper_format_write_hex_uint64 }, /* flipper_format_write_hex_uint64 */
 +    { .hash = 0xff7edc51, .address = (uint32_t)strint_to_uint16 }, /* strint_to_uint16 */
-@@ -1514,0 +2600 @@ static const struct sym_entry firmware_api_table[] = {
+@@ -1514,0 +2837 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xff7edcf4, .address = (uint32_t)strint_to_uint64 }, /* strint_to_uint64 */
 diff --git a/components/furi_hal/furi_hal_usb_hid_tinyusb.c b/components/furi_hal/furi_hal_usb_hid_tinyusb.c
 index 872bf2e..6770f36 100644

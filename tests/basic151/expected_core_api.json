@@ -45,6 +45,136 @@
     "params": "FuriString*, FuriString*"
   },
   {
+    "name": "bit_lib_add_parity",
+    "type": "size_t",
+    "params": "const uint8_t*, size_t, uint8_t*, size_t, uint8_t, uint8_t, BitLibParity"
+  },
+  {
+    "name": "bit_lib_bytes_to_num_bcd",
+    "type": "uint64_t",
+    "params": "const uint8_t*, uint8_t, _Bool*"
+  },
+  {
+    "name": "bit_lib_bytes_to_num_be",
+    "type": "uint64_t",
+    "params": "const uint8_t*, uint8_t"
+  },
+  {
+    "name": "bit_lib_bytes_to_num_le",
+    "type": "uint64_t",
+    "params": "const uint8_t*, uint8_t"
+  },
+  {
+    "name": "bit_lib_copy_bits",
+    "type": "void",
+    "params": "uint8_t*, size_t, size_t, const uint8_t*, size_t"
+  },
+  {
+    "name": "bit_lib_crc16",
+    "type": "uint16_t",
+    "params": "const uint8_t*, size_t, uint16_t, uint16_t, _Bool, _Bool, uint16_t"
+  },
+  {
+    "name": "bit_lib_crc8",
+    "type": "uint16_t",
+    "params": "const uint8_t*, size_t, uint8_t, uint8_t, _Bool, _Bool, uint8_t"
+  },
+  {
+    "name": "bit_lib_get_bit",
+    "type": "_Bool",
+    "params": "const uint8_t*, size_t"
+  },
+  {
+    "name": "bit_lib_get_bit_count",
+    "type": "uint8_t",
+    "params": "uint32_t"
+  },
+  {
+    "name": "bit_lib_get_bits",
+    "type": "uint8_t",
+    "params": "const uint8_t*, size_t, uint8_t"
+  },
+  {
+    "name": "bit_lib_get_bits_16",
+    "type": "uint16_t",
+    "params": "const uint8_t*, size_t, uint8_t"
+  },
+  {
+    "name": "bit_lib_get_bits_32",
+    "type": "uint32_t",
+    "params": "const uint8_t*, size_t, uint8_t"
+  },
+  {
+    "name": "bit_lib_get_bits_64",
+    "type": "uint64_t",
+    "params": "const uint8_t*, size_t, uint8_t"
+  },
+  {
+    "name": "bit_lib_num_to_bytes_be",
+    "type": "void",
+    "params": "uint64_t, uint8_t, uint8_t*"
+  },
+  {
+    "name": "bit_lib_num_to_bytes_le",
+    "type": "void",
+    "params": "uint64_t, uint8_t, uint8_t*"
+  },
+  {
+    "name": "bit_lib_print_bits",
+    "type": "void",
+    "params": "const uint8_t*, size_t"
+  },
+  {
+    "name": "bit_lib_print_regions",
+    "type": "void",
+    "params": "const BitLibRegion*, size_t, const uint8_t*, size_t"
+  },
+  {
+    "name": "bit_lib_push_bit",
+    "type": "void",
+    "params": "uint8_t*, size_t, _Bool"
+  },
+  {
+    "name": "bit_lib_remove_bit_every_nth",
+    "type": "size_t",
+    "params": "uint8_t*, size_t, uint8_t, uint8_t"
+  },
+  {
+    "name": "bit_lib_reverse_16_fast",
+    "type": "uint16_t",
+    "params": "uint16_t"
+  },
+  {
+    "name": "bit_lib_reverse_8_fast",
+    "type": "uint8_t",
+    "params": "uint8_t"
+  },
+  {
+    "name": "bit_lib_reverse_bits",
+    "type": "void",
+    "params": "uint8_t*, size_t, uint8_t"
+  },
+  {
+    "name": "bit_lib_set_bit",
+    "type": "void",
+    "params": "uint8_t*, size_t, _Bool"
+  },
+  {
+    "name": "bit_lib_set_bits",
+    "type": "void",
+    "params": "uint8_t*, size_t, uint8_t, uint8_t"
+  },
+  {
+    "name": "bit_lib_test_parity",
+    "type": "_Bool",
+    "params": "const uint8_t*, size_t, uint8_t, BitLibParity, uint8_t"
+  },
+  {
+    "name": "bit_lib_test_parity_32",
+    "type": "_Bool",
+    "params": "uint32_t, BitLibParity"
+  },
+  {
     "name": "buffered_file_stream_alloc",
     "type": "Stream*",
     "params": "Storage*"
@@ -345,6 +475,181 @@
     "params": "const Canvas*"
   },
   {
+    "name": "cli_ansi_parser_alloc",
+    "type": "CliAnsiParser*",
+    "params": ""
+  },
+  {
+    "name": "cli_ansi_parser_feed",
+    "type": "CliAnsiParserResult",
+    "params": "CliAnsiParser*, char"
+  },
+  {
+    "name": "cli_ansi_parser_feed_timeout",
+    "type": "CliAnsiParserResult",
+    "params": "CliAnsiParser*"
+  },
+  {
+    "name": "cli_ansi_parser_free",
+    "type": "void",
+    "params": "CliAnsiParser*"
+  },
+  {
+    "name": "cli_is_pipe_broken_or_is_etx_next_char",
+    "type": "_Bool",
+    "params": "PipeSide*"
+  },
+  {
+    "name": "cli_print_usage",
+    "type": "void",
+    "params": "const char*, const char*, const char*"
+  },
+  {
+    "name": "cli_registry_add_command",
+    "type": "void",
+    "params": "CliRegistry*, const char*, CliCommandFlag, CliCommandExecuteCallback, void*"
+  },
+  {
+    "name": "cli_registry_add_command_ex",
+    "type": "void",
+    "params": "CliRegistry*, const char*, CliCommandFlag, CliCommandExecuteCallback, void*, size_t"
+  },
+  {
+    "name": "cli_registry_alloc",
+    "type": "CliRegistry*",
+    "params": ""
+  },
+  {
+    "name": "cli_registry_delete_command",
+    "type": "void",
+    "params": "CliRegistry*, const char*"
+  },
+  {
+    "name": "cli_registry_free",
+    "type": "void",
+    "params": "CliRegistry*"
+  },
+  {
+    "name": "cli_registry_reload_external_commands",
+    "type": "void",
+    "params": "CliRegistry*, const CliCommandExternalConfig*"
+  },
+  {
+    "name": "cli_registry_remove_external_commands",
+    "type": "void",
+    "params": "CliRegistry*"
+  },
+  {
+    "name": "cli_shell_alloc",
+    "type": "CliShell*",
+    "params": "CliShellMotd, void*, PipeSide*, CliRegistry*, const CliCommandExternalConfig*"
+  },
+  {
+    "name": "cli_shell_free",
+    "type": "void",
+    "params": "CliShell*"
+  },
+  {
+    "name": "cli_shell_join",
+    "type": "void",
+    "params": "CliShell*"
+  },
+  {
+    "name": "cli_shell_set_prompt",
+    "type": "void",
+    "params": "CliShell*, const char*"
+  },
+  {
+    "name": "cli_shell_start",
+    "type": "void",
+    "params": "CliShell*"
+  },
+  {
+    "name": "cli_sleep",
+    "type": "_Bool",
+    "params": "PipeSide*, uint32_t"
+  },
+  {
+    "name": "cli_vcp_disable",
+    "type": "void",
+    "params": "CliVcp*"
+  },
+  {
+    "name": "cli_vcp_enable",
+    "type": "void",
+    "params": "CliVcp*"
+  },
+  {
+    "name": "compress_alloc",
+    "type": "Compress*",
+    "params": "CompressType, const void*"
+  },
+  {
+    "name": "compress_decode",
+    "type": "_Bool",
+    "params": "Compress*, uint8_t*, size_t, uint8_t*, size_t, size_t*"
+  },
+  {
+    "name": "compress_decode_streamed",
+    "type": "_Bool",
+    "params": "Compress*, CompressIoCallback, void*, CompressIoCallback, void*"
+  },
+  {
+    "name": "compress_encode",
+    "type": "_Bool",
+    "params": "Compress*, uint8_t*, size_t, uint8_t*, size_t, size_t*"
+  },
+  {
+    "name": "compress_free",
+    "type": "void",
+    "params": "Compress*"
+  },
+  {
+    "name": "compress_icon_alloc",
+    "type": "CompressIcon*",
+    "params": "size_t"
+  },
+  {
+    "name": "compress_icon_decode",
+    "type": "void",
+    "params": "CompressIcon*, const uint8_t*, uint8_t**"
+  },
+  {
+    "name": "compress_icon_free",
+    "type": "void",
+    "params": "CompressIcon*"
+  },
+  {
+    "name": "compress_stream_decoder_alloc",
+    "type": "CompressStreamDecoder*",
+    "params": "CompressType, const void*, CompressIoCallback, void*"
+  },
+  {
+    "name": "compress_stream_decoder_free",
+    "type": "void",
+    "params": "CompressStreamDecoder*"
+  },
+  {
+    "name": "compress_stream_decoder_read",
+    "type": "_Bool",
+    "params": "CompressStreamDecoder*, uint8_t*, size_t"
+  },
+  {
+    "name": "compress_stream_decoder_rewind",
+    "type": "_Bool",
+    "params": "CompressStreamDecoder*"
+  },
+  {
+    "name": "compress_stream_decoder_seek",
+    "type": "_Bool",
+    "params": "CompressStreamDecoder*, size_t"
+  },
+  {
+    "name": "compress_stream_decoder_tell",
+    "type": "size_t",
+    "params": "CompressStreamDecoder*"
+  },
+  {
     "name": "date_time_input_alloc",
     "type": "DateTimeInput*",
     "params": ""
@@ -468,6 +773,46 @@
     "name": "dialog_ex_set_text",
     "type": "void",
     "params": "DialogEx*, const char*, uint8_t, uint8_t, Align, Align"
+  },
+  {
+    "name": "dir_walk_alloc",
+    "type": "DirWalk*",
+    "params": "Storage*"
+  },
+  {
+    "name": "dir_walk_close",
+    "type": "void",
+    "params": "DirWalk*"
+  },
+  {
+    "name": "dir_walk_free",
+    "type": "void",
+    "params": "DirWalk*"
+  },
+  {
+    "name": "dir_walk_get_error",
+    "type": "FS_Error",
+    "params": "DirWalk*"
+  },
+  {
+    "name": "dir_walk_open",
+    "type": "_Bool",
+    "params": "DirWalk*, const char*"
+  },
+  {
+    "name": "dir_walk_read",
+    "type": "DirWalkResult",
+    "params": "DirWalk*, FuriString*, FileInfo*"
+  },
+  {
+    "name": "dir_walk_set_filter_cb",
+    "type": "void",
+    "params": "DirWalk*, DirWalkFilterCb, void*"
+  },
+  {
+    "name": "dir_walk_set_recursive",
+    "type": "void",
+    "params": "DirWalk*, _Bool"
   },
   {
     "name": "elements_bold_rounded_frame",
@@ -2240,6 +2585,26 @@
     "params": "LocaleTimeFormat"
   },
   {
+    "name": "notification_internal_message",
+    "type": "void",
+    "params": "NotificationApp*, const NotificationSequence*"
+  },
+  {
+    "name": "notification_internal_message_block",
+    "type": "void",
+    "params": "NotificationApp*, const NotificationSequence*"
+  },
+  {
+    "name": "notification_message",
+    "type": "void",
+    "params": "NotificationApp*, const NotificationSequence*"
+  },
+  {
+    "name": "notification_message_block",
+    "type": "void",
+    "params": "NotificationApp*, const NotificationSequence*"
+  },
+  {
     "name": "number_input_alloc",
     "type": "NumberInput*",
     "params": ""
@@ -2303,6 +2668,91 @@
     "name": "path_extract_filename_no_ext",
     "type": "void",
     "params": "const char*, FuriString*"
+  },
+  {
+    "name": "pipe_alloc",
+    "type": "PipeSideBundle",
+    "params": "size_t, size_t"
+  },
+  {
+    "name": "pipe_alloc_ex",
+    "type": "PipeSideBundle",
+    "params": "PipeSideReceiveSettings, PipeSideReceiveSettings"
+  },
+  {
+    "name": "pipe_attach_to_event_loop",
+    "type": "void",
+    "params": "PipeSide*, FuriEventLoop*"
+  },
+  {
+    "name": "pipe_bytes_available",
+    "type": "size_t",
+    "params": "PipeSide*"
+  },
+  {
+    "name": "pipe_detach_from_event_loop",
+    "type": "void",
+    "params": "PipeSide*"
+  },
+  {
+    "name": "pipe_free",
+    "type": "void",
+    "params": "PipeSide*"
+  },
+  {
+    "name": "pipe_install_as_stdio",
+    "type": "void",
+    "params": "PipeSide*"
+  },
+  {
+    "name": "pipe_receive",
+    "type": "size_t",
+    "params": "PipeSide*, void*, size_t"
+  },
+  {
+    "name": "pipe_role",
+    "type": "PipeRole",
+    "params": "PipeSide*"
+  },
+  {
+    "name": "pipe_send",
+    "type": "size_t",
+    "params": "PipeSide*, const void*, size_t"
+  },
+  {
+    "name": "pipe_set_broken_callback",
+    "type": "void",
+    "params": "PipeSide*, PipeSideBrokenCallback, FuriEventLoopEvent"
+  },
+  {
+    "name": "pipe_set_callback_context",
+    "type": "void",
+    "params": "PipeSide*, void*"
+  },
+  {
+    "name": "pipe_set_data_arrived_callback",
+    "type": "void",
+    "params": "PipeSide*, PipeSideDataArrivedCallback, FuriEventLoopEvent"
+  },
+  {
+    "name": "pipe_set_space_freed_callback",
+    "type": "void",
+    "params": "PipeSide*, PipeSideSpaceFreedCallback, FuriEventLoopEvent"
+  },
+  {
+    "name": "pipe_set_state_check_period",
+    "type": "void",
+    "params": "PipeSide*, FuriWait"
+  },
+  {
+    "name": "pipe_spaces_available",
+    "type": "size_t",
+    "params": "PipeSide*"
+  },
+  {
+    "name": "pipe_state",
+    "type": "PipeState",
+    "params": "PipeSide*"
   },
   {
     "name": "popup_alloc",
@@ -2453,6 +2903,61 @@
     "name": "scene_manager_stop",
     "type": "void",
     "params": "SceneManager*"
+  },
+  {
+    "name": "simple_array_alloc",
+    "type": "SimpleArray*",
+    "params": "const SimpleArrayConfig*"
+  },
+  {
+    "name": "simple_array_cget",
+    "type": "const SimpleArrayElement*",
+    "params": "const SimpleArray*, uint32_t"
+  },
+  {
+    "name": "simple_array_cget_data",
+    "type": "const SimpleArrayData*",
+    "params": "const SimpleArray*"
+  },
+  {
+    "name": "simple_array_copy",
+    "type": "void",
+    "params": "SimpleArray*, const SimpleArray*"
+  },
+  {
+    "name": "simple_array_free",
+    "type": "void",
+    "params": "SimpleArray*"
+  },
+  {
+    "name": "simple_array_get",
+    "type": "SimpleArrayElement*",
+    "params": "SimpleArray*, uint32_t"
+  },
+  {
+    "name": "simple_array_get_count",
+    "type": "uint32_t",
+    "params": "const SimpleArray*"
+  },
+  {
+    "name": "simple_array_get_data",
+    "type": "SimpleArrayData*",
+    "params": "SimpleArray*"
+  },
+  {
+    "name": "simple_array_init",
+    "type": "void",
+    "params": "SimpleArray*, uint32_t"
+  },
+  {
+    "name": "simple_array_is_equal",
+    "type": "_Bool",
+    "params": "const SimpleArray*, const SimpleArray*"
+  },
+  {
+    "name": "simple_array_reset",
+    "type": "void",
+    "params": "SimpleArray*"
   },
   {
     "name": "storage_common_copy",
@@ -2955,6 +3460,91 @@
     "params": "Submenu*, uint32_t"
   },
   {
+    "name": "tar_archive_add_dir",
+    "type": "_Bool",
+    "params": "TarArchive*, const char*, const char*"
+  },
+  {
+    "name": "tar_archive_add_file",
+    "type": "_Bool",
+    "params": "TarArchive*, const char*, const char*, const int32_t"
+  },
+  {
+    "name": "tar_archive_alloc",
+    "type": "TarArchive*",
+    "params": "Storage*"
+  },
+  {
+    "name": "tar_archive_dir_add_element",
+    "type": "_Bool",
+    "params": "TarArchive*, const char*"
+  },
+  {
+    "name": "tar_archive_file_add_data_block",
+    "type": "_Bool",
+    "params": "TarArchive*, const uint8_t*, const int32_t"
+  },
+  {
+    "name": "tar_archive_file_add_header",
+    "type": "_Bool",
+    "params": "TarArchive*, const char*, const int32_t"
+  },
+  {
+    "name": "tar_archive_file_finalize",
+    "type": "_Bool",
+    "params": "TarArchive*"
+  },
+  {
+    "name": "tar_archive_finalize",
+    "type": "_Bool",
+    "params": "TarArchive*"
+  },
+  {
+    "name": "tar_archive_free",
+    "type": "void",
+    "params": "TarArchive*"
+  },
+  {
+    "name": "tar_archive_get_entries_count",
+    "type": "int32_t",
+    "params": "TarArchive*"
+  },
+  {
+    "name": "tar_archive_get_mode_for_path",
+    "type": "TarOpenMode",
+    "params": "const char*"
+  },
+  {
+    "name": "tar_archive_get_read_progress",
+    "type": "_Bool",
+    "params": "TarArchive*, int32_t*, int32_t*"
+  },
+  {
+    "name": "tar_archive_open",
+    "type": "_Bool",
+    "params": "TarArchive*, const char*, TarOpenMode"
+  },
+  {
+    "name": "tar_archive_set_file_callback",
+    "type": "void",
+    "params": "TarArchive*, tar_unpack_file_cb, void*"
+  },
+  {
+    "name": "tar_archive_store_data",
+    "type": "_Bool",
+    "params": "TarArchive*, const char*, const uint8_t*, const int32_t"
+  },
+  {
+    "name": "tar_archive_unpack_file",
+    "type": "_Bool",
+    "params": "TarArchive*, const char*, const char*"
+  },
+  {
+    "name": "tar_archive_unpack_to",
+    "type": "_Bool",
+    "params": "TarArchive*, const char*, TarArchiveNameConverter"
+  },
+  {
     "name": "text_box_alloc",
     "type": "TextBox*",
     "params": ""
@@ -3108,6 +3698,56 @@
     "name": "variable_item_set_values_count",
     "type": "void",
     "params": "VariableItem*, uint8_t"
+  },
+  {
+    "name": "version_get",
+    "type": "const Version*",
+    "params": ""
+  },
+  {
+    "name": "version_get_builddate",
+    "type": "const char*",
+    "params": "const Version*"
+  },
+  {
+    "name": "version_get_dirty_flag",
+    "type": "_Bool",
+    "params": "const Version*"
+  },
+  {
+    "name": "version_get_firmware_origin",
+    "type": "const char*",
+    "params": "const Version*"
+  },
+  {
+    "name": "version_get_git_origin",
+    "type": "const char*",
+    "params": "const Version*"
+  },
+  {
+    "name": "version_get_gitbranch",
+    "type": "const char*",
+    "params": "const Version*"
+  },
+  {
+    "name": "version_get_gitbranchnum",
+    "type": "const char*",
+    "params": "const Version*"
+  },
+  {
+    "name": "version_get_githash",
+    "type": "const char*",
+    "params": "const Version*"
+  },
+  {
+    "name": "version_get_target",
+    "type": "uint8_t",
+    "params": "const Version*"
+  },
+  {
+    "name": "version_get_version",
+    "type": "const char*",
+    "params": "const Version*"
   },
   {
     "name": "view_alloc",

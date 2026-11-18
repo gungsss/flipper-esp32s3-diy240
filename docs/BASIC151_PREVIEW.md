@@ -18,6 +18,9 @@ endpoints and accepts keyboard LED reports through either USB transport.
 The checked-in tests verify the resolver and compare these exported function
 signatures with the 1.5.1 SDK. Signature checks do not establish complete
 behavioral or binary compatibility with Flipper applications.
+The export set includes the ten APIs newly introduced by the 1.5.1 SDK and
+additional data, archive, command-line, and pipe APIs. Unsupported hardware
+APIs and official ARM application binaries remain outside this preview.
 The firmware base still reports version **1.4.3** and the ESP application API
 is not the complete official 88.2 SDK.
 These changes do not constitute a complete port of 1.5.1; do not label this
