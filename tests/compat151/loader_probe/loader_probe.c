@@ -12,6 +12,8 @@ int32_t loader_api_probe(void* context) {
         available |= loader_signal(loader, 0, context);
         loader_enqueue_launch(loader, "test", NULL, LoaderDeferredLaunchFlagNone);
         loader_clear_launch_queue(loader);
+        loader_start_with_gui_error(loader, "test", NULL);
+        loader_start_detached_with_gui_error(loader, "test", NULL);
     }
     furi_string_free(name);
     furi_string_free(path);

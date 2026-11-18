@@ -179,6 +179,32 @@ jobs:
             echo "::warning::ESP emulator did not reach service startup (exit $status)."
             exit 1
           fi
+      - name: Try an SD card in the SPI-capable emulator
+        if: matrix.orientation == 'landscape'
+        continue-on-error: true
+        timeout-minutes: 6
+        run: |
+          source /opt/esp/idf/export.sh
+          emulator=$(find "$RUNNER_TEMP/esp-emu" -type f -name esp-emu -print -quit)
+          test -n "$emulator" && test -s "$RUNNER_TEMP/esp-emu-flash.bin"
+          mkdir -p "$RUNNER_TEMP/sd-content"
+          printf 'SD test\n' > "$RUNNER_TEMP/sd-content/TEST.TXT"
+          python3 "$IDF_PATH/components/fatfs/fatfsgen.py" "$RUNNER_TEMP/sd-content" \
+            --sector_size 512 --partition_size 16777216 --sectors_per_cluster 2 \
+            --fat_type 16 --output_file "$RUNNER_TEMP/card.img"
+          cd .work/upstream/build_diy
+          set +e
+          timeout 100s "$emulator" --chip esp32s3 --psram-size 8M \
+            --sd "$RUNNER_TEMP/card.img,cs=14" \
+            --firmware "$RUNNER_TEMP/esp-emu-flash.bin" --elf "$PWD/furi_esp32.elf" \
+            --timeout 80s --exit-on 'All services started, entering background' \
+            > "$RUNNER_TEMP/esp-emu-sd.log" 2>&1
+          status=$?
+          set -e
+          cat "$RUNNER_TEMP/esp-emu-sd.log"
+          grep -F 'SD card mounted at' "$RUNNER_TEMP/esp-emu-sd.log"
+          grep -F 'All services started, entering background' "$RUNNER_TEMP/esp-emu-sd.log"
+          echo "Virtual FAT16 card mounted and startup completed (emulator exit $status). Real SD hardware remains untested."
       - name: Try an ESP32-S3 simulated boot
         if: matrix.orientation == 'landscape'
         continue-on-error: true
@@ -214,3 +240,4 @@ jobs:
           grep -F 'All services started, entering background' "$RUNNER_TEMP/qemu-boot.log"
           echo 'Emulated boot reached service startup; real peripherals remain untested.'
       # Development builds are compiled for verification only; no release artifacts are published.
+

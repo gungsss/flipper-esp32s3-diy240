@@ -12,7 +12,46 @@ diff --git a/components/loader/CMakeLists.txt b/components/loader/CMakeLists.txt
 diff --git a/components/loader/loader.c b/components/loader/loader.c
 --- a/components/loader/loader.c
 +++ b/components/loader/loader.c
-@@ -137,21 +137,63 @@
+@@ -5,6 +5,7 @@
+ #include <flipper_application/api_hashtable/api_hashtable.h>
+ #include <storage/storage.h>
+ #include <toolbox/path.h>
++#include <dialogs/dialogs.h>
+ 
+ extern const ElfApiInterface* const firmware_api_interface;
+ 
+@@ -34,6 +35,22 @@
+     return result;
+ }
+ 
++static void loader_show_gui_error(LoaderStatus status, FuriString* error_message) {
++    /* Match the official loader: an already-running app is not a modal error. */
++    if(status == LoaderStatusOk || status == LoaderStatusErrorAppStarted) return;
++    DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
++    DialogMessage* message = dialog_message_alloc();
++    dialog_message_set_header(message, "Unable to start app", 64, 3, AlignCenter, AlignTop);
++    const char* text = furi_string_empty(error_message) ?
++                           "Application unavailable" :
++                           furi_string_get_cstr(error_message);
++    dialog_message_set_text(message, text, 64, 30, AlignCenter, AlignCenter);
++    dialog_message_set_buttons(message, NULL, NULL, "OK");
++    dialog_message_show(dialogs, message);
++    dialog_message_free(message);
++    furi_record_close(RECORD_DIALOGS);
++}
++
+ LoaderStatus loader_start(
+     Loader* loader,
+     const char* name,
+@@ -58,6 +75,7 @@
+     if(result.value != LoaderStatusOk) {
+         FURI_LOG_E(TAG, "Start error: %s", furi_string_get_cstr(error_message));
+     }
++    loader_show_gui_error(result.value, error_message);
+     furi_string_free(error_message);
+     return result.value;
+ }
+@@ -137,21 +155,63 @@
      return loader->pubsub;
  }
  
@@ -83,7 +122,7 @@ diff --git a/components/loader/loader.c b/components/loader/loader.c
  }
  
  // callbacks
-@@ -458,6 +500,12 @@
+@@ -458,6 +518,12 @@
          FURI_LOG_E(TAG, "Application \"%s\" not found", name);
      } while(false);
  
@@ -96,7 +135,7 @@ diff --git a/components/loader/loader.c b/components/loader/loader.c
      /* BeforeLoad was announced but nothing started (unknown app, FAP preload/map failure):
       * close the announcement, or every subscriber keeps believing an app runs - the desktop
       * kept its animation frozen and ignored animation reloads (asset pack / anim speed),
-@@ -466,9 +514,11 @@
+@@ -466,9 +532,11 @@
          LoaderEvent failed_event;
          failed_event.type = LoaderEventTypeApplicationLoadFailed;
          furi_pubsub_publish(loader->pubsub, &failed_event);
@@ -111,25 +150,27 @@ diff --git a/components/loader/loader.c b/components/loader/loader.c
      }
  
      return status;
-@@ -485,6 +535,17 @@
+@@ -485,6 +553,19 @@
  static void loader_do_unlock(Loader* loader) {
      furi_check(loader->app.thread == (FuriThread*)LOADER_MAGIC_THREAD_VALUE);
      loader->app.thread = NULL;
 +}
 +
-+static bool loader_start_deferred_item(Loader* loader, const char* name, const char* args) {
++static bool loader_start_deferred_item(
++    Loader* loader, const char* name, const char* args, LoaderDeferredLaunchFlag flags) {
 +    FuriString* error_message = furi_string_alloc();
 +    LoaderMessageLoaderStatusResult status =
 +        loader_do_start_by_name(loader, name, args, error_message);
 +    if(status.value != LoaderStatusOk) {
 +        FURI_LOG_E(TAG, "Deferred start error: %s", furi_string_get_cstr(error_message));
++        if(flags & LoaderDeferredLaunchFlagGui) loader_show_gui_error(status.value, error_message);
 +    }
 +    furi_string_free(error_message);
 +    return status.value == LoaderStatusOk;
  }
  
  static void loader_do_app_closed(Loader* loader) {
-@@ -507,6 +568,11 @@
+@@ -507,6 +588,11 @@
      }
      loader->app.thread = NULL;
  
@@ -141,7 +182,7 @@ diff --git a/components/loader/loader.c b/components/loader/loader.c
      FURI_LOG_I(
          TAG, "Application stopped. Free heap: %zu", memmgr_get_free_heap());
  
-@@ -514,21 +580,56 @@
+@@ -514,21 +600,58 @@
      event.type = LoaderEventTypeApplicationStopped;
      furi_pubsub_publish(loader->pubsub, &event);
  
@@ -163,7 +204,8 @@ diff --git a/components/loader/loader.c b/components/loader/loader.c
 -    } else {
 -        // Emit queue empty since we don't have a deferred launch queue
 +        attempted = true;
-+        bool started = loader_start_deferred_item(loader, pending_name, pending_args);
++        bool started = loader_start_deferred_item(
++            loader, pending_name, pending_args, LoaderDeferredLaunchFlagGui);
 +        free(pending_name);
 +        free(pending_args);
 +        if(started) return;
@@ -172,7 +214,8 @@ diff --git a/components/loader/loader.c b/components/loader/loader.c
 +    LoaderDeferredLaunchRecord next;
 +    while(loader_queue_pop(&loader->launch_queue, &next)) {
 +        attempted = true;
-+        bool started = loader_start_deferred_item(loader, next.name_or_path, next.args);
++        bool started =
++            loader_start_deferred_item(loader, next.name_or_path, next.args, next.flags);
 +        loader_queue_item_clear(&next);
 +        if(started) return;
 +    }
@@ -206,7 +249,15 @@ diff --git a/components/loader/loader.c b/components/loader/loader.c
  }
  
  // app
-@@ -610,6 +711,29 @@
+@@ -579,6 +702,7 @@
+                         "Detached start error: %s",
+                         furi_string_get_cstr(error_message));
+                 }
++                loader_show_gui_error(status.value, error_message);
+                 if(message.start.name) free((void*)message.start.name);
+                 if(message.start.args) free((void*)message.start.args);
+                 furi_string_free(error_message);
+@@ -610,6 +734,29 @@
              case LoaderMessageTypeUnlock:
                  loader_do_unlock(loader);
                  break;
@@ -423,7 +474,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
  #include <gui/view_port.h>
  #include <gui/canvas.h>
  #include <gui/elements.h>
-@@ -339,6 +340,18 @@
+@@ -339,6 +340,20 @@
  #include "official_core_151_abi_checks.h"
  #include "official_storage_151_abi_checks.h"
  
@@ -438,11 +489,29 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
 +_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_show_menu), void (*)(Loader*)), "official 1.5.1 signature: loader_show_menu");
 +_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_enqueue_launch), void (*)(Loader*, const char*, const char*, LoaderDeferredLaunchFlag)), "official 1.5.1 signature: loader_enqueue_launch");
 +_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_clear_launch_queue), void (*)(Loader*)), "official 1.5.1 signature: loader_clear_launch_queue");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_start_with_gui_error), LoaderStatus (*)(Loader*, const char*, const char*)), "official 1.5.1 signature: loader_start_with_gui_error");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_start_detached_with_gui_error), void (*)(Loader*, const char*, const char*)), "official 1.5.1 signature: loader_start_detached_with_gui_error");
 +
  /* clang-format off */
  static const struct sym_entry firmware_api_table[] = {
      { .hash = 0x0020e7b6, .address = (uint32_t)flipper_format_update_float }, /* flipper_format_update_float */
-@@ -452,6 +465,7 @@
+@@ -356,6 +371,7 @@
+     { .hash = 0x01bc28a9, .address = (uint32_t)bit_lib_crc8 }, /* bit_lib_crc8 */
+     { .hash = 0x020f94cc, .address = (uint32_t)furi_hal_infrared_detect_tx_output }, /* furi_hal_infrared_detect_tx_output */
+     { .hash = 0x0221ca54, .address = (uint32_t)view_allocate_model }, /* view_allocate_model */
++    { .hash = 0x02472671, .address = (uint32_t)loader_start_with_gui_error }, /* loader_start_with_gui_error */
+     { .hash = 0x0266e05c, .address = (uint32_t)furi_hal_usb_hid_release_for_owner }, /* furi_hal_usb_hid_release_for_owner */
+     { .hash = 0x028d40d4, .address = (uint32_t)mjs_sprintf }, /* mjs_sprintf */
+     { .hash = 0x02f86a97, .address = (uint32_t)mjs_set_exec_flags_poller }, /* mjs_set_exec_flags_poller */
+@@ -381,6 +397,7 @@
+     { .hash = 0x0689dca8, .address = (uint32_t)mjs_exit }, /* mjs_exit */
+     { .hash = 0x068e7d2d, .address = (uint32_t)mjs_next }, /* mjs_next */
+     { .hash = 0x06cd2ea2, .address = (uint32_t)furi_hal_speaker_acquire }, /* furi_hal_speaker_acquire */
++    { .hash = 0x07003702, .address = (uint32_t)loader_start_detached_with_gui_error }, /* loader_start_detached_with_gui_error */
+     { .hash = 0x070f1ab9, .address = (uint32_t)furi_event_loop_unsubscribe }, /* furi_event_loop_unsubscribe */
+     { .hash = 0x0726391d, .address = (uint32_t)elements_button_center }, /* elements_button_center */
+     { .hash = 0x074563d8, .address = (uint32_t)esp_log_write }, /* esp_log_write */
+@@ -452,6 +469,7 @@
      { .hash = 0x0ddfc2b8, .address = (uint32_t)plugin_manager_alloc }, /* plugin_manager_alloc */
      { .hash = 0x0de49867, .address = (uint32_t)&message_vibro_on }, /* message_vibro_on */
      { .hash = 0x0e060515, .address = (uint32_t)&message_green_255 }, /* message_green_255 */
@@ -450,7 +519,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0x0e4dce53, .address = (uint32_t)view_set_previous_callback }, /* view_set_previous_callback */
      { .hash = 0x0eab4808, .address = (uint32_t)furi_string_cat }, /* furi_string_cat */
      { .hash = 0x0eab4990, .address = (uint32_t)furi_string_cmp }, /* furi_string_cmp */
-@@ -497,6 +511,7 @@
+@@ -497,6 +515,7 @@
      { .hash = 0x1214ffce, .address = (uint32_t)__bswapsi2 }, /* __bswapsi2 */
      { .hash = 0x124a8565, .address = (uint32_t)bit_lib_copy_bits }, /* bit_lib_copy_bits */
      { .hash = 0x12c73778, .address = (uint32_t)locale_get_measurement_unit }, /* locale_get_measurement_unit */
@@ -458,7 +527,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0x1335ce34, .address = (uint32_t)tar_archive_add_file }, /* tar_archive_add_file */
      { .hash = 0x135baa10, .address = (uint32_t)notification_message }, /* notification_message */
      { .hash = 0x13a0031a, .address = (uint32_t)popup_free }, /* popup_free */
-@@ -605,6 +620,7 @@
+@@ -605,6 +624,7 @@
      { .hash = 0x234101f6, .address = (uint32_t)submenu_add_item_ex }, /* submenu_add_item_ex */
      { .hash = 0x238a17a2, .address = (uint32_t)file_browser_worker_free }, /* file_browser_worker_free */
      { .hash = 0x238d54a0, .address = (uint32_t)file_browser_worker_load }, /* file_browser_worker_load */
@@ -466,7 +535,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0x23b27c27, .address = (uint32_t)bit_buffer_append_byte }, /* bit_buffer_append_byte */
      { .hash = 0x23d393d7, .address = (uint32_t)storage_dir_exists }, /* storage_dir_exists */
      { .hash = 0x245caa0e, .address = (uint32_t)subghz_block_generic_deserialize }, /* subghz_block_generic_deserialize */
-@@ -688,6 +704,7 @@
+@@ -688,6 +708,7 @@
      { .hash = 0x3253dbbf, .address = (uint32_t)infrared_worker_rx_start }, /* infrared_worker_rx_start */
      { .hash = 0x325b5bb6, .address = (uint32_t)&sequence_blink_start_magenta }, /* sequence_blink_start_magenta */
      { .hash = 0x327f1966, .address = (uint32_t)uart_param_config }, /* uart_param_config */
@@ -474,7 +543,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0x32e39619, .address = (uint32_t)mf_classic_get_uid }, /* mf_classic_get_uid */
      { .hash = 0x32e52c9e, .address = (uint32_t)furi_thread_set_priority }, /* furi_thread_set_priority */
      { .hash = 0x33164e2f, .address = (uint32_t)furi_message_queue_get_capacity }, /* furi_message_queue_get_capacity */
-@@ -760,6 +777,7 @@
+@@ -760,6 +781,7 @@
      { .hash = 0x3e1255ee, .address = (uint32_t)__furi_crash_implementation }, /* __furi_crash_implementation */
      { .hash = 0x3e574980, .address = (uint32_t)mjs_mk_array_buf }, /* mjs_mk_array_buf */
      { .hash = 0x3e789d89, .address = (uint32_t)&sequence_blink_magenta_10 }, /* sequence_blink_magenta_10 */
@@ -482,7 +551,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0x3ee13040, .address = (uint32_t)heap_caps_malloc }, /* heap_caps_malloc */
      { .hash = 0x3f1c02c8, .address = (uint32_t)esp_wifi_start }, /* esp_wifi_start */
      { .hash = 0x3fae2750, .address = (uint32_t)subghz_environment_set_nice_flor_s_rainbow_table_file_name }, /* subghz_environment_set_nice_flor_s_rainbow_table_file_name */
-@@ -1048,6 +1066,7 @@
+@@ -1048,6 +1070,7 @@
      { .hash = 0x6c14fe13, .address = (uint32_t)menu_get_view }, /* menu_get_view */
      { .hash = 0x6c418904, .address = (uint32_t)subghz_protocol_blocks_parity_bytes }, /* subghz_protocol_blocks_parity_bytes */
      { .hash = 0x6c831a1c, .address = (uint32_t)furi_string_replace_all_str }, /* furi_string_replace_all_str */
@@ -490,7 +559,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0x6c8c16b9, .address = (uint32_t)file_browser_worker_folder_enter }, /* file_browser_worker_folder_enter */
      { .hash = 0x6c93a048, .address = (uint32_t)view_dispatcher_set_tick_event_callback }, /* view_dispatcher_set_tick_event_callback */
      { .hash = 0x6cbb124e, .address = (uint32_t)furi_hal_spi_bus_unlock }, /* furi_hal_spi_bus_unlock */
-@@ -1298,6 +1317,7 @@
+@@ -1298,6 +1321,7 @@
      { .hash = 0x953605e4, .address = (uint32_t)view_holder_set_back_callback }, /* view_holder_set_back_callback */
      { .hash = 0x954769fa, .address = (uint32_t)bit_lib_add_parity }, /* bit_lib_add_parity */
      { .hash = 0x955f7eb1, .address = (uint32_t)flipper_format_write_header }, /* flipper_format_write_header */
@@ -498,7 +567,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0x956c4da5, .address = (uint32_t)elements_bubble_str }, /* elements_bubble_str */
      { .hash = 0x957212cb, .address = (uint32_t)widget_add_circle_element }, /* widget_add_circle_element */
      { .hash = 0x95cbc77c, .address = (uint32_t)view_stack_remove_view }, /* view_stack_remove_view */
-@@ -1454,6 +1474,7 @@
+@@ -1454,6 +1478,7 @@
      { .hash = 0xac31e266, .address = (uint32_t)stream_delete_and_insert_char }, /* stream_delete_and_insert_char */
      { .hash = 0xac46f417, .address = (uint32_t)&sequence_display_backlight_on }, /* sequence_display_backlight_on */
      { .hash = 0xac513fd0, .address = (uint32_t)view_holder_send_to_front }, /* view_holder_send_to_front */
@@ -506,7 +575,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0xac94b72e, .address = (uint32_t)subghz_setting_get_preset_count }, /* subghz_setting_get_preset_count */
      { .hash = 0xacc5bb29, .address = (uint32_t)i2c_master_write_to_device }, /* i2c_master_write_to_device */
      { .hash = 0xacfb6233, .address = (uint32_t)&I_DolphinMafia_119x62 }, /* I_DolphinMafia_119x62 */
-@@ -1541,6 +1562,7 @@
+@@ -1541,6 +1566,7 @@
      { .hash = 0xb8ea6245, .address = (uint32_t)furi_hal_nfc_field_detect_stop }, /* furi_hal_nfc_field_detect_stop */
      { .hash = 0xb8fef056, .address = (uint32_t)variable_item_list_reset }, /* variable_item_list_reset */
      { .hash = 0xb8ff9f17, .address = (uint32_t)view_stack_add_view }, /* view_stack_add_view */
@@ -514,7 +583,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0xb9986c58, .address = (uint32_t)&gpio_ibutton }, /* gpio_ibutton */
      { .hash = 0xb9a2ae7d, .address = (uint32_t)bt_start_stack }, /* bt_start_stack */
      { .hash = 0xb9d4ae5e, .address = (uint32_t)mbedtls_sha1_update }, /* mbedtls_sha1_update */
-@@ -1668,6 +1690,7 @@
+@@ -1668,6 +1694,7 @@
      { .hash = 0xcb57017f, .address = (uint32_t)&IP_EVENT }, /* IP_EVENT */
      { .hash = 0xcb5a4f62, .address = (uint32_t)mjs_create }, /* mjs_create */
      { .hash = 0xcb8aa2fe, .address = (uint32_t)nfc_device_copy_data }, /* nfc_device_copy_data */
@@ -522,7 +591,7 @@ diff --git a/components/flipper_application/flipper_application/firmware_api.c b
      { .hash = 0xcbb21513, .address = (uint32_t)furi_hal_rfid_field_detect_stop }, /* furi_hal_rfid_field_detect_stop */
      { .hash = 0xcbb8d3d7, .address = (uint32_t)dialog_file_browser_show }, /* dialog_file_browser_show */
      { .hash = 0xcbfeb206, .address = (uint32_t)furi_string_alloc_set }, /* furi_string_alloc_set */
-@@ -1723,6 +1746,7 @@
+@@ -1723,6 +1750,7 @@
      { .hash = 0xd51ac80e, .address = (uint32_t)bit_buffer_set_byte_with_parity }, /* bit_buffer_set_byte_with_parity */
      { .hash = 0xd51eed4c, .address = (uint32_t)datetime_get_days_per_month }, /* datetime_get_days_per_month */
      { .hash = 0xd551b8be, .address = (uint32_t)i2s_channel_disable }, /* i2s_channel_disable */

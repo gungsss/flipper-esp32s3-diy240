@@ -28,6 +28,8 @@ expected = {
     'loader_show_menu': ('void', 'Loader*'),
     'loader_enqueue_launch': ('void', 'Loader*, const char*, const char*, LoaderDeferredLaunchFlag'),
     'loader_clear_launch_queue': ('void', 'Loader*'),
+    'loader_start_with_gui_error': ('LoaderStatus', 'Loader*, const char*, const char*'),
+    'loader_start_detached_with_gui_error': ('void', 'Loader*, const char*, const char*'),
 }
 table = (source / 'components/flipper_application/flipper_application/firmware_api.c').read_text()
 official_loader_header = subprocess.check_output(
@@ -123,7 +125,8 @@ with tempfile.TemporaryDirectory() as d:
 typedef struct { char data[128]; } FuriString;
 typedef struct { int value; } FuriThread;
 typedef struct { int value; } FlipperApplication;
-typedef struct { char* name_or_path; char* args; unsigned flags; } LoaderDeferredLaunchRecord;
+typedef enum { LoaderDeferredLaunchFlagNone = 0, LoaderDeferredLaunchFlagGui = (1 << 1) } LoaderDeferredLaunchFlag;
+typedef struct { char* name_or_path; char* args; LoaderDeferredLaunchFlag flags; } LoaderDeferredLaunchRecord;
 typedef struct { LoaderDeferredLaunchRecord items[4]; size_t item_cnt; } LoaderLaunchQueue;
 #define LOADER_QUEUE_MAX_SIZE 4
 typedef struct {
@@ -137,6 +140,7 @@ enum { LoaderEventTypeApplicationStopped, LoaderEventTypeNoMoreAppsInQueue };
 typedef struct { int type; } LoaderEvent;
 static int event_count, events[10], started, freed_threads;
 static int failed_attempts;
+static int dialogs_shown;
 static FuriThread started_thread;
 static char started_name[128], started_args[128];
 #define furi_assert(x) assert(x)
@@ -147,6 +151,7 @@ static void furi_thread_free(FuriThread* t) { assert(t); freed_threads++; }
 static void flipper_application_free(FlipperApplication* p) { assert(p); }
 static void furi_string_free(FuriString* s) { free(s); }
 static FuriString* furi_string_alloc(void) { return calloc(1, sizeof(FuriString)); }
+static void loader_show_gui_error(int status, FuriString* error) { assert(status && error); dialogs_shown++; }
 static void furi_pubsub_publish(void* ps, LoaderEvent* e) {
     (void)ps; assert(event_count < 10); events[event_count++] = e->type;
 }
@@ -202,6 +207,14 @@ int main(void) {
     assert(loader_queue_push(&l.launch_queue, &good));
     loader_do_app_closed(&l);
     assert(failed_attempts == 1 && started == 4 && !strcmp(started_name, "next-good"));
+    assert(dialogs_shown == 0);
+    l.app.thread = &current;
+    bad = (LoaderDeferredLaunchRecord){copy_text("broken"), copy_text("arg"), LoaderDeferredLaunchFlagGui};
+    good = (LoaderDeferredLaunchRecord){copy_text("another"), copy_text("arg"), 0};
+    assert(loader_queue_push(&l.launch_queue, &bad));
+    assert(loader_queue_push(&l.launch_queue, &good));
+    loader_do_app_closed(&l);
+    assert(failed_attempts == 2 && started == 5 && dialogs_shown == 1);
     for(unsigned i=0; i<4; ++i) {
         LoaderDeferredLaunchRecord item = {copy_text("full"), copy_text("arg"), 0};
         assert(loader_queue_push(&l.launch_queue, &item));
@@ -267,5 +280,55 @@ int main(void) {
     subprocess.run(['gcc', '-std=c11', '-Wall', '-Wextra', '-Werror',
                     '-fsanitize=address,undefined', str(c), '-o', str(exe)], check=True)
     subprocess.run([str(exe)], check=True)
+    gui_harness = r"""
+#include <assert.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+typedef struct { const char* text; } FuriString;
+typedef struct { int unused; } DialogsApp;
+typedef struct { int unused; } DialogMessage;
+typedef enum { LoaderStatusOk, LoaderStatusErrorAppStarted, LoaderStatusErrorUnknownApp } LoaderStatus;
+enum { AlignCenter, AlignTop };
+#define RECORD_DIALOGS "dialogs"
+static DialogsApp app;
+static DialogMessage message;
+static int opens, closes, shows;
+static char displayed[128];
+static void* furi_record_open(const char* name) { assert(!strcmp(name, RECORD_DIALOGS)); opens++; return &app; }
+static void furi_record_close(const char* name) { assert(!strcmp(name, RECORD_DIALOGS)); closes++; }
+static DialogMessage* dialog_message_alloc(void) { return &message; }
+static void dialog_message_free(DialogMessage* m) { assert(m == &message); }
+static void dialog_message_set_header(DialogMessage* m, const char* s, int x, int y, int a, int b) {
+    assert(m && s); (void)x; (void)y; (void)a; (void)b;
+}
+static bool furi_string_empty(const FuriString* s) { return !s->text || !s->text[0]; }
+static const char* furi_string_get_cstr(const FuriString* s) { return s->text; }
+static void dialog_message_set_text(DialogMessage* m, const char* s, int x, int y, int a, int b) {
+    assert(m && s); snprintf(displayed, sizeof(displayed), "%s", s); (void)x; (void)y; (void)a; (void)b;
+}
+static void dialog_message_set_buttons(DialogMessage* m, const char* l, const char* c, const char* r) {
+    assert(m && !l && !c && r);
+}
+static int dialog_message_show(DialogsApp* a, DialogMessage* m) { assert(a == &app && m == &message); shows++; return 0; }
+""" + extract_function('loader_show_gui_error', 'void') + r"""
+int main(void) {
+    FuriString error = {"open failed"};
+    loader_show_gui_error(LoaderStatusOk, &error);
+    loader_show_gui_error(LoaderStatusErrorAppStarted, &error);
+    assert(!opens && !closes && !shows);
+    loader_show_gui_error(LoaderStatusErrorUnknownApp, &error);
+    assert(opens == 1 && closes == 1 && shows == 1 && !strcmp(displayed, "open failed"));
+    error.text = "";
+    loader_show_gui_error(LoaderStatusErrorUnknownApp, &error);
+    assert(opens == 2 && closes == 2 && shows == 2 && !strcmp(displayed, "Application unavailable"));
+    return 0;
+}
+"""
+    c.write_text(gui_harness)
+    subprocess.run(['gcc', '-std=c11', '-Wall', '-Wextra', '-Werror',
+                    '-fsanitize=address,undefined', str(c), '-o', str(exe)], check=True)
+    subprocess.run([str(exe)], check=True)
 print('Loader active, idle, locked, signal, name and launch-path host tests passed.')
 print('Deferred FIFO ordering, argument ownership, full/clear and app-close behavior passed.')
+print('Error dialog behavior and empty-message fallback passed.')
