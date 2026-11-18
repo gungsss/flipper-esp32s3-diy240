@@ -106,6 +106,8 @@ jobs:
           source /opt/esp/idf/export.sh
           cd .work/upstream
           ./build_diy.sh --build-only
+      - name: Check compiled DIY inputs
+        run: python3 tests/compat151/check_diy_build_inputs.py .work/upstream/build_diy/compile_commands.json
       - name: Build official 1.5.1 examples for the DIY Xtensa target
         if: matrix.orientation == 'landscape'
         run: |
@@ -132,4 +134,27 @@ jobs:
           xtensa-esp32s3-elf-readelf -h build_diy/fap/sdk_151_probe.fap | grep -E 'Machine:.*Xtensa'
           python3 tools/check_fap_symbols.py components/flipper_application/flipper_application/firmware_api.c \
             build_diy/fap/objects_sdk_151_probe.fap/undef_syms.txt
+      - name: Try an ESP32-S3 simulated boot
+        if: matrix.orientation == 'landscape'
+        continue-on-error: true
+        timeout-minutes: 8
+        run: |
+          source /opt/esp/idf/export.sh
+          if ! command -v qemu-system-xtensa >/dev/null; then
+            python /opt/esp/idf/tools/idf_tools.py install qemu-xtensa
+            source /opt/esp/idf/export.sh
+          fi
+          cd .work/upstream/build_diy
+          esptool.py --chip esp32s3 merge_bin --fill-flash-size 16MB \
+            -o "$RUNNER_TEMP/simulated-flash.bin" @flash_project_args
+          set +e
+          timeout 45s qemu-system-xtensa -nographic -no-reboot -machine esp32s3 -m 8M \
+            -drive "file=$RUNNER_TEMP/simulated-flash.bin,if=mtd,format=raw" \
+            > "$RUNNER_TEMP/qemu-boot.log" 2>&1
+          status=$?
+          set -e
+          cat "$RUNNER_TEMP/qemu-boot.log"
+          if [[ "$status" -ne 0 && "$status" -ne 124 ]]; then exit "$status"; fi
+          grep -F 'All services started, entering background' "$RUNNER_TEMP/qemu-boot.log"
+          echo 'Emulated boot reached service startup; real peripherals remain untested.'
       # Development builds are compiled for verification only; no release artifacts are published.

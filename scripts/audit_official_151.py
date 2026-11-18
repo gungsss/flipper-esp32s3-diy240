@@ -6,8 +6,11 @@ Files marked different or absent need individual review; matching source alone
 does not prove that the selected firmware compiles or behaves identically.
 """
 import argparse
+import csv
 import hashlib
+import io
 import json
+import re
 import subprocess
 from collections import Counter
 from pathlib import Path
@@ -37,6 +40,25 @@ def candidates(path):
 
 def blob_sha(data):
     return hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+
+def audit_sdk(official, port):
+    raw = git(official, 'show', f'{OFFICIAL_COMMIT}:targets/f7/api_symbols.csv')
+    table = (port / 'components/flipper_application/flipper_application/firmware_api.c').read_text()
+    exported = set(re.findall(
+        r'\.hash = 0x[0-9a-fA-F]+,\s*\.address = \(uint32_t\).*?/\* (.*?) \*/', table))
+    groups = {'Function': set(), 'Variable': set()}
+    for row in csv.DictReader(io.StringIO(raw)):
+        if row['status'] == '+' and row['entry'] in groups:
+            groups[row['entry']].add(row['name'])
+    result = {}
+    for kind, official_names in groups.items():
+        missing = sorted(official_names - exported)
+        result[kind.lower()] = {
+            'official_names': len(official_names),
+            'name_matches': len(official_names) - len(missing),
+            'missing_names': missing,
+        }
+    return result
 
 def audit(official, port):
     actual = git(official, 'rev-parse', '1.5.1^{commit}').strip()
@@ -69,6 +91,7 @@ def audit(official, port):
         'scope': 'C, header, and FAM files under official application, service, core, and library trees',
         'warning': 'Text identity is not proof of runtime, ABI, hardware, or full firmware parity.',
         'counts': dict(sorted(Counter(row['status'] for row in files).items())),
+        'sdk': audit_sdk(official, port),
         'files': files,
     }
 
@@ -81,4 +104,11 @@ if __name__ == '__main__':
     report = audit(args.official, args.port)
     if args.output:
         args.output.write_text(json.dumps(report, indent=2) + '\n')
-    print(json.dumps({k: v for k, v in report.items() if k != 'files'}, indent=2))
+    summary = {k: v for k, v in report.items() if k not in ('files', 'sdk')}
+    summary['sdk_name_counts'] = {
+        kind: {'official_names': details['official_names'],
+               'name_matches': details['name_matches'],
+               'missing_names': len(details['missing_names'])}
+        for kind, details in report['sdk'].items()
+    }
+    print(json.dumps(summary, indent=2))

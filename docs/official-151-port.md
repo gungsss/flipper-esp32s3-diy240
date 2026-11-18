@@ -13,7 +13,8 @@ existing ESP-IDF hardware layer, but all portable application and service
 behavior must be checked against that commit, not merely labeled 1.5.1.
 
 `scripts/audit_official_151.py OFFICIAL_REPO PORT_REPO --output audit.json`
-inventories C, header, and FAM source identity. Identical text does not prove
+inventories C, header and FAM source identity, and lists official SDK names
+that are not yet exposed by the ESP32 loader. Identical text does not prove
 runtime or ABI compatibility. A missing match may be a build-system,
 third-party, or STM32-specific file rather than a missing user feature; every
 difference requires review. The inventory deliberately withholds the hotel NFC
@@ -26,6 +27,10 @@ review.
 - SD module on an independent SPI bus; the panel's CS is permanently low.
 - USB-serial flashing and qFlipper USB, BLE, input buttons, display and SD need
   regression tests. User settings/data must not be silently erased.
+- The current ESP OTA image check validates the chip and project but does not
+  distinguish this ST7735 DIY pinout from another ESP32-S3 board. A board-specific
+  image identity and recovery/compatibility test are still needed before OTA can
+  be called safe for this hardware.
 - NFC, Sub-GHz, infrared, iButton and LF RFID functionality need their own
   physical peripherals; the listed parts do not supply those radios/sensors.
 - The reused Sub-GHz code changes the official frequency defaults and transmit
