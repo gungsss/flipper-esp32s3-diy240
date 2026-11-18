@@ -39,6 +39,8 @@ jobs:
           python3 tests/compat151/check_official_api_delta.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_time_input.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_gui_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
+          python3 tests/compat151/check_official_format_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
+          python3 tests/compat151/check_official_bit_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_core_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_storage_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_rpc_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
@@ -62,6 +64,11 @@ jobs:
             tests/compat151/bit_lib_regression.c .work/upstream/components/bit_lib/bit_lib.c \
             -o "$RUNNER_TEMP/bit-lib-regression"
           ASAN_OPTIONS=detect_leaks=0 "$RUNNER_TEMP/bit-lib-regression"
+          gcc -g -O1 -std=c11 -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -Itests/compat151/include -I.work/upstream/components \
+            tests/compat151/bit_buffer_regression.c .work/upstream/components/toolbox/bit_buffer.c \
+            -o "$RUNNER_TEMP/bit-buffer-regression"
+          ASAN_OPTIONS=detect_leaks=0 "$RUNNER_TEMP/bit-buffer-regression"
 
   compile:
     needs: verify
@@ -116,4 +123,9 @@ jobs:
             python3 tools/check_fap_symbols.py components/flipper_application/flipper_application/firmware_api.c \
               "build_diy/fap/objects_$app.fap/undef_syms.txt"
           done
+          FAP_BOARD=DIY ./buildFap.sh "$GITHUB_WORKSPACE/tests/compat151/sdk_probe"
+          test -s build_diy/fap/sdk_151_probe.fap
+          xtensa-esp32s3-elf-readelf -h build_diy/fap/sdk_151_probe.fap | grep -E 'Machine:.*Xtensa'
+          python3 tools/check_fap_symbols.py components/flipper_application/flipper_application/firmware_api.c \
+            build_diy/fap/objects_sdk_151_probe.fap/undef_syms.txt
       # Development builds are compiled for verification only; no release artifacts are published.

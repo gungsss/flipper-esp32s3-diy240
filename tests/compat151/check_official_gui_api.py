@@ -17,7 +17,7 @@ csv_data = subprocess.check_output(
 prefixes = (
     'canvas_', 'gui_', 'view_', 'widget_', 'scene_manager_', 'date_time_input_',
     'button_menu_', 'button_panel_', 'icon_', 'elements_', 'submenu_', 'menu_',
-    'dialog_ex_', 'text_input_',
+    'dialog_ex_', 'text_input_', 'file_browser_',
 )
 rows = [r for r in csv.DictReader(io.StringIO(csv_data))
         if r['entry'] == 'Function' and r['status'] == '+' and r['name'].startswith(prefixes)]
@@ -63,6 +63,8 @@ with tempfile.TemporaryDirectory() as tmp:
 #include <gui/modules/text_input.h>
 #include <gui/modules/widget.h>
 #include <gui/modules/date_time_input.h>
+#include <gui/modules/file_browser.h>
+#include <gui/modules/file_browser_worker.h>
 #include "official_gui_151_abi_checks.h"
 ''')
     subprocess.run([

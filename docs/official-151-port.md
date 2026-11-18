@@ -51,9 +51,15 @@ review.
 - Added the missing GUI/date-time and preset symbols from the official 1.5.1
   SDK API delta; this does not imply the rest of the official ABI is available.
 - Added official GUI SDK exports for canvas, views, widgets, scenes, menus,
-  buttons, icons, text input, dialogs and drawing elements. All 231 selected
+  buttons, icons, text input, dialogs, drawing elements and the file browser. All 252 selected
   functions have C signature checks against the 1.5.1 SDK list. These checks
   do not establish ABI or runtime equivalence across processor architectures.
+- Added the remaining Flipper Format, bit buffer, and bit library function
+  exports. All 61 format and 56 bit-utility functions in the 1.5.1 SDK have
+  C signature checks. Actual behavior and target ABI still need validation.
+- Fixed an out-of-bounds read when retrieving a byte near the end of a bit
+  buffer; the regression test catches this in the unchanged 1.5.1 source and
+  passes against the adapted implementation under address/undefined sanitizers.
 - Added 123 existing Furi core functions to the ESP32 SDK symbol table with
   the official 1.5.1 C signature checks, and the RTC format function used by
   the example; many other SDK exports remain absent.

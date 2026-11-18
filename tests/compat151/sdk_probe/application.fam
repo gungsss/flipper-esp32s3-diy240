@@ -1,0 +1,9 @@
+App(
+    appid="sdk_151_probe",
+    name="1.5.1 API probe",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="sdk_151_probe_main",
+    requires=["gui"],
+    stack_size=1 * 1024,
+    fap_category="Tests",
+)
