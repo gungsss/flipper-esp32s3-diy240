@@ -29,6 +29,8 @@ def elf_hash(name):
 
 table = {name: int(value, 16) for value, name in entries}
 expected = json.loads((Path(__file__).parent / 'expected_core_api.json').read_text())
+assert 'cli_vcp_disable' not in {row['name'] for row in expected}, 'legacy VCP ABI must not be claimed as 1.5.1'
+assert '"ESP legacy CLI VCP disable signature"' in text
 for row in expected:
     name = row['name']
     assert name in table and table[name] == elf_hash(name), name

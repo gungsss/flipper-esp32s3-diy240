@@ -21,6 +21,9 @@ behavioral or binary compatibility with Flipper applications.
 The export set includes the ten APIs newly introduced by the 1.5.1 SDK and
 additional data, archive, command-line, and pipe APIs. Unsupported hardware
 APIs and official ARM application binaries remain outside this preview.
+The existing ESP `cli_vcp_disable` returns a status used by the USB-UART
+bridge; the 1.5.1 SDK declares it `void`. The legacy behavior is retained and
+this symbol is explicitly excluded from the 1.5.1 signature-coverage claim.
 The firmware base still reports version **1.4.3** and the ESP application API
 is not the complete official 88.2 SDK.
 These changes do not constitute a complete port of 1.5.1; do not label this

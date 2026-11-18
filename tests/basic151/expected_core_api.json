@@ -570,11 +570,6 @@
     "params": "PipeSide*, uint32_t"
   },
   {
-    "name": "cli_vcp_disable",
-    "type": "void",
-    "params": "CliVcp*"
-  },
-  {
     "name": "cli_vcp_enable",
     "type": "void",
     "params": "CliVcp*"
