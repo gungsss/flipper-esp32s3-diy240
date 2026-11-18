@@ -1417,6 +1417,31 @@ index 17259ed..298252b 100644
 +    { .hash = 0xff7edc51, .address = (uint32_t)strint_to_uint16 }, /* strint_to_uint16 */
 @@ -1514,0 +2600 @@ static const struct sym_entry firmware_api_table[] = {
 +    { .hash = 0xff7edcf4, .address = (uint32_t)strint_to_uint64 }, /* strint_to_uint64 */
+diff --git a/components/furi_hal/furi_hal_usb_hid_tinyusb.c b/components/furi_hal/furi_hal_usb_hid_tinyusb.c
+index 872bf2e..6770f36 100644
+--- a/components/furi_hal/furi_hal_usb_hid_tinyusb.c
++++ b/components/furi_hal/furi_hal_usb_hid_tinyusb.c
+@@ -24,0 +25 @@
++#define HID_EP_OUT      0x01
+@@ -35 +36 @@ static const uint8_t hid_report_descriptor[] = {
+-#define HID_CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN)
++#define HID_CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN)
+@@ -39 +40 @@ static const uint8_t hid_configuration_descriptor[] = {
+-    TUD_HID_DESCRIPTOR(
++    TUD_HID_INOUT_DESCRIPTOR(
+@@ -43,0 +45 @@ static const uint8_t hid_configuration_descriptor[] = {
++        HID_EP_OUT,
+@@ -207,2 +209,5 @@ void tud_hid_set_report_cb(
+-    if(report_type == HID_REPORT_TYPE_OUTPUT && report_id == REPORT_ID_KEYBOARD &&
+-       bufsize >= 1) {
++    if(report_type != HID_REPORT_TYPE_OUTPUT || !buffer) return;
++
++    /* Control SET_REPORT passes the report ID separately. TinyUSB passes an
++     * interrupt OUT report with report_id == 0 and the ID in buffer[0]. */
++    if(report_id == REPORT_ID_KEYBOARD && bufsize >= 1) {
+@@ -209,0 +215,2 @@ void tud_hid_set_report_cb(
++    } else if(report_id == 0 && bufsize >= 2 && buffer[0] == REPORT_ID_KEYBOARD) {
++        s_state.led_state = buffer[1];
 diff --git a/components/gui/canvas.h b/components/gui/canvas.h
 index 5d5737d..7ae4bac 100644
 --- a/components/gui/canvas.h
@@ -2231,3 +2256,9 @@ index db1d517..01b23c2 100644
 @@ -319 +320 @@ static bool archive_extract_current_file(TarArchive* archive, const char* dst_pa
 -            if(!readcnt || !storage_file_write(out_file, readbuf, readcnt)) {
 +            if((readcnt <= 0) || !storage_file_write(out_file, readbuf, readcnt)) {
+diff --git a/fam_config.py b/fam_config.py
+index 030cfb2..2f6a807 100644
+--- a/fam_config.py
++++ b/fam_config.py
+@@ -42,0 +43 @@ APPS = [
++    "example_date_time_input",

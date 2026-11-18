@@ -48,6 +48,8 @@ jobs:
           python3 tests/basic151/check_elf_target.py .work/upstream
           python3 tests/basic151/check_browser_callback.py .work/upstream
           python3 tests/basic151/check_date_time_input.py .work/upstream
+          python3 tests/basic151/check_hid_output.py .work/upstream
+          python3 tests/basic151/check_151_example.py .work/upstream
           if command -v node >/dev/null 2>&1; then
             node tests/basic151/check_js_upload.cjs .work/upstream
           else

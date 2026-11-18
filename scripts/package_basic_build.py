@@ -17,7 +17,7 @@ info.update({
     'reported_flipper_version': '1.4.3',
     'reported_esp_app_api_version': '1.0',
     'official_151_app_api_version': '88.2',
-    'scope': 'ESP32 port with selected 1.5.1 core, GUI, storage, loader, CLI, RPC and toolbox changes; not a complete 1.5.1 port',
+    'scope': 'ESP32 port with selected 1.5.1 core, GUI, storage, loader, CLI, RPC, USB HID, toolbox and date/time example; not a complete 1.5.1 port',
     'hardware_validation': 'This particular build has not been tested on the physical board',
 })
 
@@ -64,8 +64,9 @@ manifest = {
 (out / 'BACA_DULU.txt').write_text('''FIRMWARE UJI ESP32-S3 - ST7735S LANDSCAPE
 
 Dasar: Sor3nt ESP32 port e6ec119 (versi Flipper yang dilaporkan 1.4.3).
-Build ini membawa beberapa perubahan GUI, loader, CLI, RPC, dan toolbox dari
-Flipper 1.5.1. Ini BELUM port 1.5.1 lengkap dan belum diuji pada perangkat fisik.
+Build ini membawa beberapa perubahan GUI, loader, CLI, RPC, USB HID, toolbox,
+dan contoh aplikasi tanggal/waktu dari Flipper 1.5.1. Ini BELUM port 1.5.1
+lengkap dan belum diuji pada perangkat fisik.
 Versi API aplikasi ESP masih 1.0, sedangkan API resmi 1.5.1 adalah 88.2.
 Aplikasi FAP resmi berbasis ARM tidak dapat langsung berjalan pada ESP32.
 NFC dan modul lain yang tidak terpasang tidak menjadi target build ini.

@@ -12,6 +12,9 @@ GUI, storage and Furi API exports, file/stream and locale API exports,
 file-browser callback compatibility, 12/24-hour date-input fixes,
 JavaScript timer validation, RPC application context validation, ELF
 architecture validation, and archive/bit-reading fixes.
+The original upstream 1.5.1 date/time example is also compiled for ESP32;
+its files are verified byte for byte. USB HID has both input and output
+endpoints and accepts keyboard LED reports through either USB transport.
 The checked-in tests verify the resolver and compare these exported function
 signatures with the 1.5.1 SDK. Signature checks do not establish complete
 behavioral or binary compatibility with Flipper applications.

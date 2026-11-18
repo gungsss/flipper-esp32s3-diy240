@@ -1,0 +1,11 @@
+{
+  "applications/examples/example_date_time_input/ReadMe.md": "1eec96b04738299540a1a627b824d12fb0ea836ab89f9c836fc5d59f5c16e5ff",
+  "applications/examples/example_date_time_input/application.fam": "280156282edb853a02fce72756263252c4232a332d24d42c8fdca79d9a0d2d9b",
+  "applications/examples/example_date_time_input/example_date_time_input.c": "4a5efcfb28cbeb7757fcb7955b77572e6c73a899982da2a58c72ec87f7944475",
+  "applications/examples/example_date_time_input/example_date_time_input.h": "6b440e178f1052cefd6d675a7b2c254ec8eb6ba9cb8a31d008e8a2ba42ed2421",
+  "applications/examples/example_date_time_input/scenes/example_date_time_input_scene.c": "fe98a7aa18c211ae454cd012da07dc1991b7b1bf2110c989c316a5cdeb9a9c22",
+  "applications/examples/example_date_time_input/scenes/example_date_time_input_scene.h": "fadcdf777e2d2f10a46271022f179aa09a717b1e90e9c41a479a3a072cda9f3e",
+  "applications/examples/example_date_time_input/scenes/example_date_time_input_scene_config.h": "213e131f50219b29b1474d99ccf3373af6e83047ac7381d9938d4f4ff703900d",
+  "applications/examples/example_date_time_input/scenes/example_date_time_input_scene_input_date_time.c": "9ffc7c7ffc46d252e9f6f55a96b3bcd7a41fc44a95122ecb2fa073cb4a79fad9",
+  "applications/examples/example_date_time_input/scenes/example_date_time_input_scene_show_date_time.c": "79e116e39172877f68c2a60ce119e45167dccf0ee1d1244dc2c77010de77a0ba"
+}

@@ -28,4 +28,8 @@ sources = [str(x['file']).replace('\\', '/').lower() for x in db]
 blocked = [x for x in sources if '/applications/main/nfc/' in x or '/supported_cards/' in x]
 if blocked:
     raise SystemExit('Unexpected NFC app or card parser in compile inputs')
+example = '/applications/examples/example_date_time_input/'
+example_files = [x for x in sources if example in x and x.endswith('.c')]
+if len(example_files) != 4:
+    raise SystemExit(f'Expected four original 1.5.1 date/time app sources, got {len(example_files)}')
 print(f'OK: ST7735 landscape, SD SPI3, and {len(sources)} compile inputs checked.')
