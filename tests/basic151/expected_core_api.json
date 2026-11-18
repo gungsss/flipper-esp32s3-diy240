@@ -1268,5 +1268,1490 @@
     "name": "widget_add_line_element",
     "type": "void",
     "params": "Widget*, uint8_t, uint8_t, uint8_t, uint8_t"
+  },
+  {
+    "name": "byte_input_alloc",
+    "type": "ByteInput*",
+    "params": ""
+  },
+  {
+    "name": "byte_input_free",
+    "type": "void",
+    "params": "ByteInput*"
+  },
+  {
+    "name": "byte_input_get_view",
+    "type": "View*",
+    "params": "ByteInput*"
+  },
+  {
+    "name": "byte_input_set_header_text",
+    "type": "void",
+    "params": "ByteInput*, const char*"
+  },
+  {
+    "name": "byte_input_set_result_callback",
+    "type": "void",
+    "params": "ByteInput*, ByteInputCallback, ByteChangedCallback, void*, uint8_t*, uint8_t"
+  },
+  {
+    "name": "canvas_clear",
+    "type": "void",
+    "params": "Canvas*"
+  },
+  {
+    "name": "canvas_current_font_height",
+    "type": "size_t",
+    "params": "const Canvas*"
+  },
+  {
+    "name": "canvas_draw_bitmap",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t, const uint8_t*"
+  },
+  {
+    "name": "canvas_draw_box",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
+  },
+  {
+    "name": "canvas_draw_circle",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t"
+  },
+  {
+    "name": "canvas_draw_disc",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t"
+  },
+  {
+    "name": "canvas_draw_dot",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t"
+  },
+  {
+    "name": "canvas_draw_frame",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
+  },
+  {
+    "name": "canvas_draw_icon",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, const Icon*"
+  },
+  {
+    "name": "canvas_draw_icon_ex",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, const Icon*, IconRotation"
+  },
+  {
+    "name": "canvas_draw_line",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, int32_t, int32_t"
+  },
+  {
+    "name": "canvas_draw_rbox",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t, size_t"
+  },
+  {
+    "name": "canvas_draw_rframe",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t, size_t"
+  },
+  {
+    "name": "canvas_draw_str",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, const char*"
+  },
+  {
+    "name": "canvas_draw_str_aligned",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, Align, Align, const char*"
+  },
+  {
+    "name": "canvas_draw_triangle",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t, CanvasDirection"
+  },
+  {
+    "name": "canvas_draw_xbm",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t, const uint8_t*"
+  },
+  {
+    "name": "canvas_get_buffer",
+    "type": "uint8_t*",
+    "params": "Canvas*"
+  },
+  {
+    "name": "canvas_get_buffer_size",
+    "type": "size_t",
+    "params": "const Canvas*"
+  },
+  {
+    "name": "canvas_height",
+    "type": "size_t",
+    "params": "const Canvas*"
+  },
+  {
+    "name": "canvas_invert_color",
+    "type": "void",
+    "params": "Canvas*"
+  },
+  {
+    "name": "canvas_set_bitmap_mode",
+    "type": "void",
+    "params": "Canvas*, _Bool"
+  },
+  {
+    "name": "canvas_set_color",
+    "type": "void",
+    "params": "Canvas*, Color"
+  },
+  {
+    "name": "canvas_set_font",
+    "type": "void",
+    "params": "Canvas*, Font"
+  },
+  {
+    "name": "canvas_string_width",
+    "type": "uint16_t",
+    "params": "Canvas*, const char*"
+  },
+  {
+    "name": "canvas_width",
+    "type": "size_t",
+    "params": "const Canvas*"
+  },
+  {
+    "name": "date_time_input_alloc",
+    "type": "DateTimeInput*",
+    "params": ""
+  },
+  {
+    "name": "date_time_input_free",
+    "type": "void",
+    "params": "DateTimeInput*"
+  },
+  {
+    "name": "date_time_input_get_view",
+    "type": "View*",
+    "params": "DateTimeInput*"
+  },
+  {
+    "name": "date_time_input_set_editable_fields",
+    "type": "void",
+    "params": "DateTimeInput*, _Bool, _Bool, _Bool, _Bool, _Bool, _Bool"
+  },
+  {
+    "name": "date_time_input_set_result_callback",
+    "type": "void",
+    "params": "DateTimeInput*, DateTimeChangedCallback, DateTimeDoneCallback, void*, DateTime*"
+  },
+  {
+    "name": "dialog_ex_alloc",
+    "type": "DialogEx*",
+    "params": ""
+  },
+  {
+    "name": "dialog_ex_free",
+    "type": "void",
+    "params": "DialogEx*"
+  },
+  {
+    "name": "dialog_ex_get_view",
+    "type": "View*",
+    "params": "DialogEx*"
+  },
+  {
+    "name": "dialog_ex_reset",
+    "type": "void",
+    "params": "DialogEx*"
+  },
+  {
+    "name": "dialog_ex_set_center_button_text",
+    "type": "void",
+    "params": "DialogEx*, const char*"
+  },
+  {
+    "name": "dialog_ex_set_context",
+    "type": "void",
+    "params": "DialogEx*, void*"
+  },
+  {
+    "name": "dialog_ex_set_header",
+    "type": "void",
+    "params": "DialogEx*, const char*, uint8_t, uint8_t, Align, Align"
+  },
+  {
+    "name": "dialog_ex_set_icon",
+    "type": "void",
+    "params": "DialogEx*, uint8_t, uint8_t, const Icon*"
+  },
+  {
+    "name": "dialog_ex_set_left_button_text",
+    "type": "void",
+    "params": "DialogEx*, const char*"
+  },
+  {
+    "name": "dialog_ex_set_result_callback",
+    "type": "void",
+    "params": "DialogEx*, DialogExResultCallback"
+  },
+  {
+    "name": "dialog_ex_set_right_button_text",
+    "type": "void",
+    "params": "DialogEx*, const char*"
+  },
+  {
+    "name": "dialog_ex_set_text",
+    "type": "void",
+    "params": "DialogEx*, const char*, uint8_t, uint8_t, Align, Align"
+  },
+  {
+    "name": "elements_bold_rounded_frame",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
+  },
+  {
+    "name": "elements_button_center",
+    "type": "void",
+    "params": "Canvas*, const char*"
+  },
+  {
+    "name": "elements_button_left",
+    "type": "void",
+    "params": "Canvas*, const char*"
+  },
+  {
+    "name": "elements_button_right",
+    "type": "void",
+    "params": "Canvas*, const char*"
+  },
+  {
+    "name": "elements_multiline_text",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, const char*"
+  },
+  {
+    "name": "elements_multiline_text_aligned",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, Align, Align, const char*"
+  },
+  {
+    "name": "elements_progress_bar_with_text",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, float, const char*"
+  },
+  {
+    "name": "elements_scrollbar_pos",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t, size_t"
+  },
+  {
+    "name": "elements_slightly_rounded_box",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
+  },
+  {
+    "name": "elements_slightly_rounded_frame",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
+  },
+  {
+    "name": "elements_string_fit_width",
+    "type": "void",
+    "params": "Canvas*, FuriString*, size_t"
+  },
+  {
+    "name": "elements_text_box",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t, Align, Align, const char*, _Bool"
+  },
+  {
+    "name": "furi_delay_ms",
+    "type": "void",
+    "params": "uint32_t"
+  },
+  {
+    "name": "furi_delay_tick",
+    "type": "void",
+    "params": "uint32_t"
+  },
+  {
+    "name": "furi_delay_us",
+    "type": "void",
+    "params": "uint32_t"
+  },
+  {
+    "name": "furi_get_tick",
+    "type": "uint32_t",
+    "params": ""
+  },
+  {
+    "name": "furi_kernel_get_tick_frequency",
+    "type": "uint32_t",
+    "params": ""
+  },
+  {
+    "name": "furi_log_print_format",
+    "type": "void",
+    "params": "FuriLogLevel, const char*, const char*, ..."
+  },
+  {
+    "name": "furi_message_queue_alloc",
+    "type": "FuriMessageQueue*",
+    "params": "uint32_t, uint32_t"
+  },
+  {
+    "name": "furi_message_queue_free",
+    "type": "void",
+    "params": "FuriMessageQueue*"
+  },
+  {
+    "name": "furi_message_queue_get",
+    "type": "FuriStatus",
+    "params": "FuriMessageQueue*, void*, uint32_t"
+  },
+  {
+    "name": "furi_message_queue_put",
+    "type": "FuriStatus",
+    "params": "FuriMessageQueue*, const void*, uint32_t"
+  },
+  {
+    "name": "furi_message_queue_reset",
+    "type": "FuriStatus",
+    "params": "FuriMessageQueue*"
+  },
+  {
+    "name": "furi_ms_to_ticks",
+    "type": "uint32_t",
+    "params": "uint32_t"
+  },
+  {
+    "name": "furi_mutex_acquire",
+    "type": "FuriStatus",
+    "params": "FuriMutex*, uint32_t"
+  },
+  {
+    "name": "furi_mutex_alloc",
+    "type": "FuriMutex*",
+    "params": "FuriMutexType"
+  },
+  {
+    "name": "furi_mutex_free",
+    "type": "void",
+    "params": "FuriMutex*"
+  },
+  {
+    "name": "furi_mutex_release",
+    "type": "FuriStatus",
+    "params": "FuriMutex*"
+  },
+  {
+    "name": "furi_pubsub_subscribe",
+    "type": "FuriPubSubSubscription*",
+    "params": "FuriPubSub*, FuriPubSubCallback, void*"
+  },
+  {
+    "name": "furi_pubsub_unsubscribe",
+    "type": "void",
+    "params": "FuriPubSub*, FuriPubSubSubscription*"
+  },
+  {
+    "name": "furi_record_close",
+    "type": "void",
+    "params": "const char*"
+  },
+  {
+    "name": "furi_record_open",
+    "type": "void*",
+    "params": "const char*"
+  },
+  {
+    "name": "furi_semaphore_acquire",
+    "type": "FuriStatus",
+    "params": "FuriSemaphore*, uint32_t"
+  },
+  {
+    "name": "furi_semaphore_alloc",
+    "type": "FuriSemaphore*",
+    "params": "uint32_t, uint32_t"
+  },
+  {
+    "name": "furi_semaphore_free",
+    "type": "void",
+    "params": "FuriSemaphore*"
+  },
+  {
+    "name": "furi_semaphore_release",
+    "type": "FuriStatus",
+    "params": "FuriSemaphore*"
+  },
+  {
+    "name": "furi_stream_buffer_alloc",
+    "type": "FuriStreamBuffer*",
+    "params": "size_t, size_t"
+  },
+  {
+    "name": "furi_stream_buffer_free",
+    "type": "void",
+    "params": "FuriStreamBuffer*"
+  },
+  {
+    "name": "furi_stream_buffer_receive",
+    "type": "size_t",
+    "params": "FuriStreamBuffer*, void*, size_t, uint32_t"
+  },
+  {
+    "name": "furi_stream_buffer_send",
+    "type": "size_t",
+    "params": "FuriStreamBuffer*, const void*, size_t, uint32_t"
+  },
+  {
+    "name": "furi_string_alloc",
+    "type": "FuriString*",
+    "params": ""
+  },
+  {
+    "name": "furi_string_alloc_printf",
+    "type": "FuriString*",
+    "params": "const char[], ..."
+  },
+  {
+    "name": "furi_string_alloc_set",
+    "type": "FuriString*",
+    "params": "const FuriString*"
+  },
+  {
+    "name": "furi_string_alloc_set_str",
+    "type": "FuriString*",
+    "params": "const char[]"
+  },
+  {
+    "name": "furi_string_cat",
+    "type": "void",
+    "params": "FuriString*, const FuriString*"
+  },
+  {
+    "name": "furi_string_cat_printf",
+    "type": "int",
+    "params": "FuriString*, const char[], ..."
+  },
+  {
+    "name": "furi_string_cat_str",
+    "type": "void",
+    "params": "FuriString*, const char[]"
+  },
+  {
+    "name": "furi_string_cmp",
+    "type": "int",
+    "params": "const FuriString*, const FuriString*"
+  },
+  {
+    "name": "furi_string_cmp_str",
+    "type": "int",
+    "params": "const FuriString*, const char[]"
+  },
+  {
+    "name": "furi_string_cmpi_str",
+    "type": "int",
+    "params": "const FuriString*, const char[]"
+  },
+  {
+    "name": "furi_string_empty",
+    "type": "_Bool",
+    "params": "const FuriString*"
+  },
+  {
+    "name": "furi_string_equal",
+    "type": "_Bool",
+    "params": "const FuriString*, const FuriString*"
+  },
+  {
+    "name": "furi_string_equal_str",
+    "type": "_Bool",
+    "params": "const FuriString*, const char[]"
+  },
+  {
+    "name": "furi_string_free",
+    "type": "void",
+    "params": "FuriString*"
+  },
+  {
+    "name": "furi_string_get_char",
+    "type": "char",
+    "params": "const FuriString*, size_t"
+  },
+  {
+    "name": "furi_string_get_cstr",
+    "type": "const char*",
+    "params": "const FuriString*"
+  },
+  {
+    "name": "furi_string_left",
+    "type": "void",
+    "params": "FuriString*, size_t"
+  },
+  {
+    "name": "furi_string_move",
+    "type": "void",
+    "params": "FuriString*, FuriString*"
+  },
+  {
+    "name": "furi_string_printf",
+    "type": "int",
+    "params": "FuriString*, const char[], ..."
+  },
+  {
+    "name": "furi_string_push_back",
+    "type": "void",
+    "params": "FuriString*, char"
+  },
+  {
+    "name": "furi_string_replace_all_str",
+    "type": "void",
+    "params": "FuriString*, const char[], const char[]"
+  },
+  {
+    "name": "furi_string_replace_str",
+    "type": "size_t",
+    "params": "FuriString*, const char[], const char[], size_t"
+  },
+  {
+    "name": "furi_string_reserve",
+    "type": "void",
+    "params": "FuriString*, size_t"
+  },
+  {
+    "name": "furi_string_reset",
+    "type": "void",
+    "params": "FuriString*"
+  },
+  {
+    "name": "furi_string_right",
+    "type": "void",
+    "params": "FuriString*, size_t"
+  },
+  {
+    "name": "furi_string_search_char",
+    "type": "size_t",
+    "params": "const FuriString*, char, size_t"
+  },
+  {
+    "name": "furi_string_search_rchar",
+    "type": "size_t",
+    "params": "const FuriString*, char, size_t"
+  },
+  {
+    "name": "furi_string_search_str",
+    "type": "size_t",
+    "params": "const FuriString*, const char[], size_t"
+  },
+  {
+    "name": "furi_string_set",
+    "type": "void",
+    "params": "FuriString*, FuriString*"
+  },
+  {
+    "name": "furi_string_set_char",
+    "type": "void",
+    "params": "FuriString*, size_t, const char"
+  },
+  {
+    "name": "furi_string_set_n",
+    "type": "void",
+    "params": "FuriString*, const FuriString*, size_t, size_t"
+  },
+  {
+    "name": "furi_string_set_str",
+    "type": "void",
+    "params": "FuriString*, const char[]"
+  },
+  {
+    "name": "furi_string_set_strn",
+    "type": "void",
+    "params": "FuriString*, const char[], size_t"
+  },
+  {
+    "name": "furi_string_size",
+    "type": "size_t",
+    "params": "const FuriString*"
+  },
+  {
+    "name": "furi_string_start_with_str",
+    "type": "_Bool",
+    "params": "const FuriString*, const char[]"
+  },
+  {
+    "name": "furi_string_trim",
+    "type": "void",
+    "params": "FuriString*, const char[]"
+  },
+  {
+    "name": "furi_string_utf8_length",
+    "type": "size_t",
+    "params": "FuriString*"
+  },
+  {
+    "name": "furi_thread_alloc",
+    "type": "FuriThread*",
+    "params": ""
+  },
+  {
+    "name": "furi_thread_alloc_ex",
+    "type": "FuriThread*",
+    "params": "const char*, uint32_t, FuriThreadCallback, void*"
+  },
+  {
+    "name": "furi_thread_flags_clear",
+    "type": "uint32_t",
+    "params": "uint32_t"
+  },
+  {
+    "name": "furi_thread_flags_get",
+    "type": "uint32_t",
+    "params": ""
+  },
+  {
+    "name": "furi_thread_flags_set",
+    "type": "uint32_t",
+    "params": "FuriThreadId, uint32_t"
+  },
+  {
+    "name": "furi_thread_flags_wait",
+    "type": "uint32_t",
+    "params": "uint32_t, uint32_t, uint32_t"
+  },
+  {
+    "name": "furi_thread_free",
+    "type": "void",
+    "params": "FuriThread*"
+  },
+  {
+    "name": "furi_thread_get_id",
+    "type": "FuriThreadId",
+    "params": "FuriThread*"
+  },
+  {
+    "name": "furi_thread_join",
+    "type": "_Bool",
+    "params": "FuriThread*"
+  },
+  {
+    "name": "furi_thread_set_callback",
+    "type": "void",
+    "params": "FuriThread*, FuriThreadCallback"
+  },
+  {
+    "name": "furi_thread_set_context",
+    "type": "void",
+    "params": "FuriThread*, void*"
+  },
+  {
+    "name": "furi_thread_set_current_priority",
+    "type": "void",
+    "params": "FuriThreadPriority"
+  },
+  {
+    "name": "furi_thread_set_name",
+    "type": "void",
+    "params": "FuriThread*, const char*"
+  },
+  {
+    "name": "furi_thread_set_priority",
+    "type": "void",
+    "params": "FuriThread*, FuriThreadPriority"
+  },
+  {
+    "name": "furi_thread_set_stack_size",
+    "type": "void",
+    "params": "FuriThread*, size_t"
+  },
+  {
+    "name": "furi_thread_start",
+    "type": "void",
+    "params": "FuriThread*"
+  },
+  {
+    "name": "furi_thread_yield",
+    "type": "void",
+    "params": ""
+  },
+  {
+    "name": "furi_timer_alloc",
+    "type": "FuriTimer*",
+    "params": "FuriTimerCallback, FuriTimerType, void*"
+  },
+  {
+    "name": "furi_timer_free",
+    "type": "void",
+    "params": "FuriTimer*"
+  },
+  {
+    "name": "furi_timer_set_thread_priority",
+    "type": "void",
+    "params": "FuriTimerThreadPriority"
+  },
+  {
+    "name": "furi_timer_start",
+    "type": "FuriStatus",
+    "params": "FuriTimer*, uint32_t"
+  },
+  {
+    "name": "furi_timer_stop",
+    "type": "FuriStatus",
+    "params": "FuriTimer*"
+  },
+  {
+    "name": "gui_add_view_port",
+    "type": "void",
+    "params": "Gui*, ViewPort*, GuiLayer"
+  },
+  {
+    "name": "gui_direct_draw_acquire",
+    "type": "Canvas*",
+    "params": "Gui*"
+  },
+  {
+    "name": "gui_direct_draw_release",
+    "type": "void",
+    "params": "Gui*"
+  },
+  {
+    "name": "gui_remove_view_port",
+    "type": "void",
+    "params": "Gui*, ViewPort*"
+  },
+  {
+    "name": "gui_view_port_send_to_back",
+    "type": "void",
+    "params": "Gui*, ViewPort*"
+  },
+  {
+    "name": "loading_alloc",
+    "type": "Loading*",
+    "params": ""
+  },
+  {
+    "name": "loading_free",
+    "type": "void",
+    "params": "Loading*"
+  },
+  {
+    "name": "loading_get_view",
+    "type": "View*",
+    "params": "Loading*"
+  },
+  {
+    "name": "number_input_alloc",
+    "type": "NumberInput*",
+    "params": ""
+  },
+  {
+    "name": "number_input_free",
+    "type": "void",
+    "params": "NumberInput*"
+  },
+  {
+    "name": "number_input_get_view",
+    "type": "View*",
+    "params": "NumberInput*"
+  },
+  {
+    "name": "number_input_set_header_text",
+    "type": "void",
+    "params": "NumberInput*, const char*"
+  },
+  {
+    "name": "number_input_set_result_callback",
+    "type": "void",
+    "params": "NumberInput*, NumberInputCallback, void*, int32_t, int32_t, int32_t"
+  },
+  {
+    "name": "popup_alloc",
+    "type": "Popup*",
+    "params": ""
+  },
+  {
+    "name": "popup_disable_timeout",
+    "type": "void",
+    "params": "Popup*"
+  },
+  {
+    "name": "popup_enable_timeout",
+    "type": "void",
+    "params": "Popup*"
+  },
+  {
+    "name": "popup_free",
+    "type": "void",
+    "params": "Popup*"
+  },
+  {
+    "name": "popup_get_view",
+    "type": "View*",
+    "params": "Popup*"
+  },
+  {
+    "name": "popup_reset",
+    "type": "void",
+    "params": "Popup*"
+  },
+  {
+    "name": "popup_set_callback",
+    "type": "void",
+    "params": "Popup*, PopupCallback"
+  },
+  {
+    "name": "popup_set_context",
+    "type": "void",
+    "params": "Popup*, void*"
+  },
+  {
+    "name": "popup_set_header",
+    "type": "void",
+    "params": "Popup*, const char*, uint8_t, uint8_t, Align, Align"
+  },
+  {
+    "name": "popup_set_icon",
+    "type": "void",
+    "params": "Popup*, uint8_t, uint8_t, const Icon*"
+  },
+  {
+    "name": "popup_set_text",
+    "type": "void",
+    "params": "Popup*, const char*, uint8_t, uint8_t, Align, Align"
+  },
+  {
+    "name": "popup_set_timeout",
+    "type": "void",
+    "params": "Popup*, uint32_t"
+  },
+  {
+    "name": "scene_manager_alloc",
+    "type": "SceneManager*",
+    "params": "const SceneManagerHandlers*, void*"
+  },
+  {
+    "name": "scene_manager_free",
+    "type": "void",
+    "params": "SceneManager*"
+  },
+  {
+    "name": "scene_manager_get_scene_state",
+    "type": "uint32_t",
+    "params": "const SceneManager*, uint32_t"
+  },
+  {
+    "name": "scene_manager_handle_back_event",
+    "type": "_Bool",
+    "params": "SceneManager*"
+  },
+  {
+    "name": "scene_manager_handle_custom_event",
+    "type": "_Bool",
+    "params": "SceneManager*, uint32_t"
+  },
+  {
+    "name": "scene_manager_handle_tick_event",
+    "type": "void",
+    "params": "SceneManager*"
+  },
+  {
+    "name": "scene_manager_has_previous_scene",
+    "type": "_Bool",
+    "params": "const SceneManager*, uint32_t"
+  },
+  {
+    "name": "scene_manager_next_scene",
+    "type": "void",
+    "params": "SceneManager*, uint32_t"
+  },
+  {
+    "name": "scene_manager_previous_scene",
+    "type": "_Bool",
+    "params": "SceneManager*"
+  },
+  {
+    "name": "scene_manager_search_and_switch_to_another_scene",
+    "type": "_Bool",
+    "params": "SceneManager*, uint32_t"
+  },
+  {
+    "name": "scene_manager_search_and_switch_to_previous_scene",
+    "type": "_Bool",
+    "params": "SceneManager*, uint32_t"
+  },
+  {
+    "name": "scene_manager_search_and_switch_to_previous_scene_one_of",
+    "type": "_Bool",
+    "params": "SceneManager*, const uint32_t*, size_t"
+  },
+  {
+    "name": "scene_manager_set_scene_state",
+    "type": "void",
+    "params": "SceneManager*, uint32_t, uint32_t"
+  },
+  {
+    "name": "scene_manager_stop",
+    "type": "void",
+    "params": "SceneManager*"
+  },
+  {
+    "name": "storage_common_copy",
+    "type": "FS_Error",
+    "params": "Storage*, const char*, const char*"
+  },
+  {
+    "name": "storage_common_exists",
+    "type": "_Bool",
+    "params": "Storage*, const char*"
+  },
+  {
+    "name": "storage_common_migrate",
+    "type": "FS_Error",
+    "params": "Storage*, const char*, const char*"
+  },
+  {
+    "name": "storage_common_mkdir",
+    "type": "FS_Error",
+    "params": "Storage*, const char*"
+  },
+  {
+    "name": "storage_common_remove",
+    "type": "FS_Error",
+    "params": "Storage*, const char*"
+  },
+  {
+    "name": "storage_common_rename",
+    "type": "FS_Error",
+    "params": "Storage*, const char*, const char*"
+  },
+  {
+    "name": "storage_common_stat",
+    "type": "FS_Error",
+    "params": "Storage*, const char*, FileInfo*"
+  },
+  {
+    "name": "storage_dir_close",
+    "type": "_Bool",
+    "params": "File*"
+  },
+  {
+    "name": "storage_dir_exists",
+    "type": "_Bool",
+    "params": "Storage*, const char*"
+  },
+  {
+    "name": "storage_dir_open",
+    "type": "_Bool",
+    "params": "File*, const char*"
+  },
+  {
+    "name": "storage_dir_read",
+    "type": "_Bool",
+    "params": "File*, FileInfo*, char*, uint16_t"
+  },
+  {
+    "name": "storage_file_alloc",
+    "type": "File*",
+    "params": "Storage*"
+  },
+  {
+    "name": "storage_file_close",
+    "type": "_Bool",
+    "params": "File*"
+  },
+  {
+    "name": "storage_file_eof",
+    "type": "_Bool",
+    "params": "File*"
+  },
+  {
+    "name": "storage_file_exists",
+    "type": "_Bool",
+    "params": "Storage*, const char*"
+  },
+  {
+    "name": "storage_file_free",
+    "type": "void",
+    "params": "File*"
+  },
+  {
+    "name": "storage_file_get_error",
+    "type": "FS_Error",
+    "params": "File*"
+  },
+  {
+    "name": "storage_file_is_open",
+    "type": "_Bool",
+    "params": "File*"
+  },
+  {
+    "name": "storage_file_open",
+    "type": "_Bool",
+    "params": "File*, const char*, FS_AccessMode, FS_OpenMode"
+  },
+  {
+    "name": "storage_file_read",
+    "type": "size_t",
+    "params": "File*, void*, size_t"
+  },
+  {
+    "name": "storage_file_seek",
+    "type": "_Bool",
+    "params": "File*, uint32_t, _Bool"
+  },
+  {
+    "name": "storage_file_size",
+    "type": "uint64_t",
+    "params": "File*"
+  },
+  {
+    "name": "storage_file_sync",
+    "type": "_Bool",
+    "params": "File*"
+  },
+  {
+    "name": "storage_file_tell",
+    "type": "uint64_t",
+    "params": "File*"
+  },
+  {
+    "name": "storage_file_write",
+    "type": "size_t",
+    "params": "File*, const void*, size_t"
+  },
+  {
+    "name": "storage_simply_mkdir",
+    "type": "_Bool",
+    "params": "Storage*, const char*"
+  },
+  {
+    "name": "storage_simply_remove",
+    "type": "_Bool",
+    "params": "Storage*, const char*"
+  },
+  {
+    "name": "storage_simply_remove_recursive",
+    "type": "_Bool",
+    "params": "Storage*, const char*"
+  },
+  {
+    "name": "submenu_add_item",
+    "type": "void",
+    "params": "Submenu*, const char*, uint32_t, SubmenuItemCallback, void*"
+  },
+  {
+    "name": "submenu_alloc",
+    "type": "Submenu*",
+    "params": ""
+  },
+  {
+    "name": "submenu_free",
+    "type": "void",
+    "params": "Submenu*"
+  },
+  {
+    "name": "submenu_get_selected_item",
+    "type": "uint32_t",
+    "params": "Submenu*"
+  },
+  {
+    "name": "submenu_get_view",
+    "type": "View*",
+    "params": "Submenu*"
+  },
+  {
+    "name": "submenu_reset",
+    "type": "void",
+    "params": "Submenu*"
+  },
+  {
+    "name": "submenu_set_header",
+    "type": "void",
+    "params": "Submenu*, const char*"
+  },
+  {
+    "name": "submenu_set_selected_item",
+    "type": "void",
+    "params": "Submenu*, uint32_t"
+  },
+  {
+    "name": "text_box_alloc",
+    "type": "TextBox*",
+    "params": ""
+  },
+  {
+    "name": "text_box_free",
+    "type": "void",
+    "params": "TextBox*"
+  },
+  {
+    "name": "text_box_get_view",
+    "type": "View*",
+    "params": "TextBox*"
+  },
+  {
+    "name": "text_box_reset",
+    "type": "void",
+    "params": "TextBox*"
+  },
+  {
+    "name": "text_box_set_focus",
+    "type": "void",
+    "params": "TextBox*, TextBoxFocus"
+  },
+  {
+    "name": "text_box_set_font",
+    "type": "void",
+    "params": "TextBox*, TextBoxFont"
+  },
+  {
+    "name": "text_box_set_text",
+    "type": "void",
+    "params": "TextBox*, const char*"
+  },
+  {
+    "name": "text_input_alloc",
+    "type": "TextInput*",
+    "params": ""
+  },
+  {
+    "name": "text_input_free",
+    "type": "void",
+    "params": "TextInput*"
+  },
+  {
+    "name": "text_input_get_validator_callback_context",
+    "type": "void*",
+    "params": "TextInput*"
+  },
+  {
+    "name": "text_input_get_view",
+    "type": "View*",
+    "params": "TextInput*"
+  },
+  {
+    "name": "text_input_reset",
+    "type": "void",
+    "params": "TextInput*"
+  },
+  {
+    "name": "text_input_set_header_text",
+    "type": "void",
+    "params": "TextInput*, const char*"
+  },
+  {
+    "name": "text_input_set_minimum_length",
+    "type": "void",
+    "params": "TextInput*, size_t"
+  },
+  {
+    "name": "text_input_set_result_callback",
+    "type": "void",
+    "params": "TextInput*, TextInputCallback, void*, char*, size_t, _Bool"
+  },
+  {
+    "name": "text_input_set_validator",
+    "type": "void",
+    "params": "TextInput*, TextInputValidatorCallback, void*"
+  },
+  {
+    "name": "variable_item_get_context",
+    "type": "void*",
+    "params": "VariableItem*"
+  },
+  {
+    "name": "variable_item_get_current_value_index",
+    "type": "uint8_t",
+    "params": "VariableItem*"
+  },
+  {
+    "name": "variable_item_list_add",
+    "type": "VariableItem*",
+    "params": "VariableItemList*, const char*, uint8_t, VariableItemChangeCallback, void*"
+  },
+  {
+    "name": "variable_item_list_alloc",
+    "type": "VariableItemList*",
+    "params": ""
+  },
+  {
+    "name": "variable_item_list_free",
+    "type": "void",
+    "params": "VariableItemList*"
+  },
+  {
+    "name": "variable_item_list_get_selected_item_index",
+    "type": "uint8_t",
+    "params": "VariableItemList*"
+  },
+  {
+    "name": "variable_item_list_get_view",
+    "type": "View*",
+    "params": "VariableItemList*"
+  },
+  {
+    "name": "variable_item_list_reset",
+    "type": "void",
+    "params": "VariableItemList*"
+  },
+  {
+    "name": "variable_item_list_set_enter_callback",
+    "type": "void",
+    "params": "VariableItemList*, VariableItemListEnterCallback, void*"
+  },
+  {
+    "name": "variable_item_list_set_selected_item",
+    "type": "void",
+    "params": "VariableItemList*, uint8_t"
+  },
+  {
+    "name": "variable_item_set_current_value_index",
+    "type": "void",
+    "params": "VariableItem*, uint8_t"
+  },
+  {
+    "name": "variable_item_set_current_value_text",
+    "type": "void",
+    "params": "VariableItem*, const char*"
+  },
+  {
+    "name": "variable_item_set_item_label",
+    "type": "void",
+    "params": "VariableItem*, const char*"
+  },
+  {
+    "name": "variable_item_set_values_count",
+    "type": "void",
+    "params": "VariableItem*, uint8_t"
+  },
+  {
+    "name": "view_alloc",
+    "type": "View*",
+    "params": ""
+  },
+  {
+    "name": "view_allocate_model",
+    "type": "void",
+    "params": "View*, ViewModelType, size_t"
+  },
+  {
+    "name": "view_commit_model",
+    "type": "void",
+    "params": "View*, _Bool"
+  },
+  {
+    "name": "view_dispatcher_add_view",
+    "type": "void",
+    "params": "ViewDispatcher*, uint32_t, View*"
+  },
+  {
+    "name": "view_dispatcher_alloc",
+    "type": "ViewDispatcher*",
+    "params": ""
+  },
+  {
+    "name": "view_dispatcher_attach_to_gui",
+    "type": "void",
+    "params": "ViewDispatcher*, Gui*, ViewDispatcherType"
+  },
+  {
+    "name": "view_dispatcher_check_id",
+    "type": "_Bool",
+    "params": "ViewDispatcher*, uint32_t"
+  },
+  {
+    "name": "view_dispatcher_enable_queue",
+    "type": "void",
+    "params": "ViewDispatcher*"
+  },
+  {
+    "name": "view_dispatcher_free",
+    "type": "void",
+    "params": "ViewDispatcher*"
+  },
+  {
+    "name": "view_dispatcher_remove_view",
+    "type": "void",
+    "params": "ViewDispatcher*, uint32_t"
+  },
+  {
+    "name": "view_dispatcher_run",
+    "type": "void",
+    "params": "ViewDispatcher*"
+  },
+  {
+    "name": "view_dispatcher_send_custom_event",
+    "type": "void",
+    "params": "ViewDispatcher*, uint32_t"
+  },
+  {
+    "name": "view_dispatcher_set_custom_event_callback",
+    "type": "void",
+    "params": "ViewDispatcher*, ViewDispatcherCustomEventCallback"
+  },
+  {
+    "name": "view_dispatcher_set_event_callback_context",
+    "type": "void",
+    "params": "ViewDispatcher*, void*"
+  },
+  {
+    "name": "view_dispatcher_set_navigation_event_callback",
+    "type": "void",
+    "params": "ViewDispatcher*, ViewDispatcherNavigationEventCallback"
+  },
+  {
+    "name": "view_dispatcher_set_tick_event_callback",
+    "type": "void",
+    "params": "ViewDispatcher*, ViewDispatcherTickEventCallback, uint32_t"
+  },
+  {
+    "name": "view_dispatcher_stop",
+    "type": "void",
+    "params": "ViewDispatcher*"
+  },
+  {
+    "name": "view_dispatcher_switch_to_view",
+    "type": "void",
+    "params": "ViewDispatcher*, uint32_t"
+  },
+  {
+    "name": "view_free",
+    "type": "void",
+    "params": "View*"
+  },
+  {
+    "name": "view_get_model",
+    "type": "void*",
+    "params": "View*"
+  },
+  {
+    "name": "view_port_alloc",
+    "type": "ViewPort*",
+    "params": ""
+  },
+  {
+    "name": "view_port_draw_callback_set",
+    "type": "void",
+    "params": "ViewPort*, ViewPortDrawCallback, void*"
+  },
+  {
+    "name": "view_port_enabled_set",
+    "type": "void",
+    "params": "ViewPort*, _Bool"
+  },
+  {
+    "name": "view_port_free",
+    "type": "void",
+    "params": "ViewPort*"
+  },
+  {
+    "name": "view_port_input_callback_set",
+    "type": "void",
+    "params": "ViewPort*, ViewPortInputCallback, void*"
+  },
+  {
+    "name": "view_port_set_orientation",
+    "type": "void",
+    "params": "ViewPort*, ViewPortOrientation"
+  },
+  {
+    "name": "view_port_update",
+    "type": "void",
+    "params": "ViewPort*"
+  },
+  {
+    "name": "view_set_context",
+    "type": "void",
+    "params": "View*, void*"
+  },
+  {
+    "name": "view_set_draw_callback",
+    "type": "void",
+    "params": "View*, ViewDrawCallback"
+  },
+  {
+    "name": "view_set_enter_callback",
+    "type": "void",
+    "params": "View*, ViewCallback"
+  },
+  {
+    "name": "view_set_exit_callback",
+    "type": "void",
+    "params": "View*, ViewCallback"
+  },
+  {
+    "name": "view_set_input_callback",
+    "type": "void",
+    "params": "View*, ViewInputCallback"
+  },
+  {
+    "name": "view_set_orientation",
+    "type": "void",
+    "params": "View*, ViewOrientation"
+  },
+  {
+    "name": "view_set_previous_callback",
+    "type": "void",
+    "params": "View*, ViewNavigationCallback"
+  },
+  {
+    "name": "widget_add_button_element",
+    "type": "void",
+    "params": "Widget*, GuiButtonType, const char*, ButtonCallback, void*"
+  },
+  {
+    "name": "widget_add_icon_element",
+    "type": "void",
+    "params": "Widget*, uint8_t, uint8_t, const Icon*"
+  },
+  {
+    "name": "widget_add_rect_element",
+    "type": "void",
+    "params": "Widget*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, _Bool"
+  },
+  {
+    "name": "widget_add_string_element",
+    "type": "void",
+    "params": "Widget*, uint8_t, uint8_t, Align, Align, Font, const char*"
+  },
+  {
+    "name": "widget_add_string_multiline_element",
+    "type": "void",
+    "params": "Widget*, uint8_t, uint8_t, Align, Align, Font, const char*"
+  },
+  {
+    "name": "widget_add_text_box_element",
+    "type": "void",
+    "params": "Widget*, uint8_t, uint8_t, uint8_t, uint8_t, Align, Align, const char*, _Bool"
+  },
+  {
+    "name": "widget_add_text_scroll_element",
+    "type": "void",
+    "params": "Widget*, uint8_t, uint8_t, uint8_t, uint8_t, const char*"
+  },
+  {
+    "name": "widget_alloc",
+    "type": "Widget*",
+    "params": ""
+  },
+  {
+    "name": "widget_free",
+    "type": "void",
+    "params": "Widget*"
+  },
+  {
+    "name": "widget_get_view",
+    "type": "View*",
+    "params": "Widget*"
+  },
+  {
+    "name": "widget_reset",
+    "type": "void",
+    "params": "Widget*"
   }
 ]

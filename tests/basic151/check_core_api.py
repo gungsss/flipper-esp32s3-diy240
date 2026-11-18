@@ -91,4 +91,4 @@ int main(void) {
         '-o', str(temp / 'test'),
     ], check=True)
     subprocess.run([str(temp / 'test')], check=True)
-print(f'Resolver passed: {len(entries)} entries, {len(expected)} additional SDK functions.')
+print(f'Resolver passed: {len(entries)} entries; {len(expected)} SDK functions have ABI checks.')
