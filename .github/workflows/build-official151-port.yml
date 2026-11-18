@@ -202,7 +202,7 @@ jobs:
           status=$?
           set -e
           cat "$RUNNER_TEMP/esp-emu-sd.log"
-          grep -F 'SD card mounted at' "$RUNNER_TEMP/esp-emu-sd.log"
+          grep -E 'StorageExt.*card mounted' "$RUNNER_TEMP/esp-emu-sd.log"
           grep -F 'All services started, entering background' "$RUNNER_TEMP/esp-emu-sd.log"
           echo "Virtual FAT16 card mounted and startup completed (emulator exit $status). Real SD hardware remains untested."
       - name: Try an ESP32-S3 simulated boot
