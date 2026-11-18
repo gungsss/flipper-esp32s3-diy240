@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+"""Prepare a transparently labeled test bundle from verified ESP-IDF outputs."""
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+root, out = map(lambda x: Path(x).resolve(), sys.argv[1:3])
+here = Path(__file__).resolve().parent
+subprocess.run([sys.executable, str(here / 'package_artifacts.py'), '--source', str(root),
+                '--output', str(out)], check=True)
+info_path = out / 'BUILD_INFO.json'
+info = json.loads(info_path.read_text())
+info.update({
+    'lcd': 'ST7735S landscape 160x128, CS tied to ground',
+    'display_driver': 'waveshare/esp_lcd_st7735==2.0.0',
+    'reported_flipper_version': '1.4.3',
+    'scope': 'ESP32 port with selected 1.5.1 GUI, loader, CLI, RPC and toolbox changes; not a complete 1.5.1 port',
+    'hardware_validation': 'This particular build has not been tested on the physical board',
+})
+
+records = info['images']
+intervals = []
+for row in records:
+    data = (out / row['file']).read_bytes()
+    start = int(row['offset'], 16)
+    end = start + len(data)
+    if end > 16 * 1024 * 1024:
+        raise SystemExit('Flash image exceeds 16 MiB')
+    if row['file'] in ('bootloader/bootloader.bin', 'furi_esp32.bin'):
+        if len(data) < 16 or data[0] != 0xe9 or data[12:14] != bytes((9, 0)):
+            raise SystemExit(f"Image is not for ESP32-S3: {row['file']}")
+    intervals.append((start, end))
+intervals.sort()
+if any(end > next_start for (_, end), (next_start, _) in zip(intervals, intervals[1:])):
+    raise SystemExit('Overlapping flash image ranges')
+info_path.write_text(json.dumps(info, indent=2) + '\n')
+
+for old in ('FLASH.md', 'HARDWARE.md', 'INSTALL_WINDOWS.md'):
+    (out / old).unlink()
+
+manifest = {
+    'name': 'ESP32-S3 ST7735S: experimental 1.5.1 compatibility',
+    'version': '2.0.0-esp-compat-151-dev',
+    'new_install_prompt_erase': False,
+    'builds': [{'chipFamily': 'ESP32-S3', 'parts': [
+        {'path': row['file'], 'offset': int(row['offset'], 16)} for row in records
+    ]}],
+}
+(out / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+(out / 'install.html').write_text('''<!doctype html>
+<html lang="id"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flasher ESP32-S3 ST7735S</title>
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+<style>body{font-family:system-ui;background:#101720;color:#edf4f4;max-width:45rem;margin:8vh auto;padding:1.5rem;line-height:1.6}button{padding:.9rem 1.3rem;font-size:1rem}p{color:#c7d3d3}</style>
+<h1>Firmware uji ESP32-S3</h1><p>Layar ST7735S landscape, tombol, microSD, dan Bluetooth.</p>
+<p>Ini build pengembangan dengan sebagian perubahan 1.5.1. Versi dasar yang dilaporkan masih 1.4.3.</p>
+<p>Sambungkan ESP32 menggunakan kabel USB data, tutup qFlipper/serial monitor, lalu pilih port ESP32-S3.</p>
+<esp-web-install-button manifest="./manifest.json"><button slot="activate">Hubungkan dan flash</button>
+<span slot="unsupported">Gunakan Chrome atau Edge di komputer.</span>
+<span slot="not-allowed">Buka melalui localhost atau HTTPS.</span></esp-web-install-button></html>''')
+(out / 'BACA_DULU.txt').write_text('''FIRMWARE UJI ESP32-S3 - ST7735S LANDSCAPE
+
+Dasar: Sor3nt ESP32 port e6ec119 (versi Flipper yang dilaporkan 1.4.3).
+Build ini membawa beberapa perubahan GUI, loader, CLI, RPC, dan toolbox dari
+Flipper 1.5.1. Ini BELUM port 1.5.1 lengkap dan belum diuji pada perangkat fisik.
+NFC dan modul lain yang tidak terpasang tidak menjadi target build ini.
+
+Menjalankan flasher lokal di macOS/Windows/Linux:
+1. Ekstrak seluruh isi ZIP ke satu folder.
+2. Buka Terminal/PowerShell di folder tersebut, lalu jalankan:
+   python3 -m http.server 8000 --bind 127.0.0.1
+   Di Windows bisa memakai: py -3 -m http.server 8000 --bind 127.0.0.1
+3. Buka http://127.0.0.1:8000/install.html di Chrome atau Edge.
+4. Hubungkan ESP32 dengan kabel USB data, tutup qFlipper atau serial monitor,
+   klik tombol flash dan pilih port ESP32-S3.
+
+Flashing menulis ulang bootloader, tabel partisi, dan firmware. Simpan dahulu
+data yang diperlukan. Jika memakai microSD, pasang kartu yang sesuai pada
+modulnya sebelum memeriksa fungsi penyimpanan.
+''')
+print('Experimental ST7735S package prepared and image headers/offsets verified.')
