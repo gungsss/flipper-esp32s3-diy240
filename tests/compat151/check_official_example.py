@@ -76,7 +76,8 @@ with tempfile.TemporaryDirectory() as directory:
     unresolved = subprocess.check_output(['nm', '-u', str(probe_obj)], text=True)
     names = sorted(set(re.findall(r'\bU\s+(\w+)', unresolved)))
     required = {'file_browser_alloc', 'bit_buffer_append_bit',
-                'flipper_format_update_string_cstr', 'crc32_calc_buffer'}
+                'flipper_format_update_string_cstr', 'crc32_calc_buffer',
+                'string_stream_alloc', 'stream_write_cstring'}
     assert required <= set(names), 'SDK probe failed to exercise newly exported functions'
     imports = root / 'sdk_probe_imports.txt'
     imports.write_text('\n'.join(names) + '\n')

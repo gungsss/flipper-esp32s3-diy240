@@ -3,6 +3,7 @@
 #include <gui/modules/file_browser.h>
 #include <toolbox/bit_buffer.h>
 #include <toolbox/crc32_calc.h>
+#include <toolbox/stream/string_stream.h>
 
 /* Compile and import check only. Physical-device execution is separate. */
 int32_t sdk_151_probe_main(void* context) {
@@ -23,6 +24,14 @@ int32_t sdk_151_probe_main(void* context) {
     format_ok &= flipper_format_update_string_cstr(format, "Name", "second");
     flipper_format_free(format);
     if(!format_ok) return 3;
+
+    Stream* stream = string_stream_alloc();
+    bool stream_ok = stream_write_cstring(stream, "ESP32") == 5;
+    stream_ok &= stream_rewind(stream);
+    uint8_t first = 0;
+    stream_ok &= stream_read(stream, &first, 1) == 1 && first == 'E';
+    stream_free(stream);
+    if(!stream_ok) return 4;
 
     FuriString* path = furi_string_alloc_set("/ext");
     FileBrowser* browser = file_browser_alloc(path);

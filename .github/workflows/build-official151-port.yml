@@ -41,6 +41,10 @@ jobs:
           python3 tests/compat151/check_official_gui_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_format_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_bit_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
+          python3 tests/compat151/check_official_stream_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
+          python3 tests/compat151/check_official_toolbox_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
+          python3 tests/compat151/check_stream_runtime.py .work/upstream
+          python3 tests/compat151/check_ble_target.py .work/upstream
           python3 tests/compat151/check_official_core_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_storage_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_rpc_api.py "$RUNNER_TEMP/flipper-official" .work/upstream

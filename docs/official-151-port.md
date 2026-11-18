@@ -57,6 +57,13 @@ review.
 - Added the remaining Flipper Format, bit buffer, and bit library function
   exports. All 61 format and 56 bit-utility functions in the 1.5.1 SDK have
   C signature checks. Actual behavior and target ABI still need validation.
+- Added the remaining official stream SDK function exports, with signature
+  checks for all 45 stream, string stream and file stream functions. A host
+  test exercises the adapted memory stream and FuriString implementations.
+- Added the missing portable archive, array, directory, path, argument, value
+  and conversion exports, with C signature checks for all 66 selected functions.
+- BLE Device Information identifies the actual selected ESP32 target rather
+  than advertising an ESP32-C6 on S3. Bluetooth pairing on hardware is untested.
 - Fixed an out-of-bounds read when retrieving a byte near the end of a bit
   buffer; the regression test catches this in the unchanged 1.5.1 source and
   passes against the adapted implementation under address/undefined sanitizers.
