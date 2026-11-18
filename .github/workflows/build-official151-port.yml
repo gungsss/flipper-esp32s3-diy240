@@ -5,6 +5,7 @@ on:
     paths:
       - 'patch/flipper_1_5_1_port.patch'
       - 'patch/loader_151_port.patch'
+      - 'patch/loader_cli_151_port.patch'
       - 'tests/compat151/**'
       - 'scripts/audit_official_151.py'
       - '.github/workflows/build-official151-port.yml'
@@ -32,6 +33,8 @@ jobs:
           git -C .work/upstream apply "$GITHUB_WORKSPACE/patch/flipper_1_5_1_port.patch"
           git -C .work/upstream apply --check "$GITHUB_WORKSPACE/patch/loader_151_port.patch"
           git -C .work/upstream apply "$GITHUB_WORKSPACE/patch/loader_151_port.patch"
+          git -C .work/upstream apply --check "$GITHUB_WORKSPACE/patch/loader_cli_151_port.patch"
+          git -C .work/upstream apply "$GITHUB_WORKSPACE/patch/loader_cli_151_port.patch"
       - name: Audit against the exact official 1.5.1 source commit
         run: |
           git init "$RUNNER_TEMP/flipper-official"
@@ -54,6 +57,7 @@ jobs:
           python3 tests/compat151/check_official_storage_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_rpc_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
           ASAN_OPTIONS=detect_leaks=0 python3 tests/compat151/check_loader_state.py "$RUNNER_TEMP/flipper-official" .work/upstream
+          ASAN_OPTIONS=detect_leaks=0 python3 tests/compat151/check_loader_cli.py .work/upstream
           python3 tests/compat151/check_crc32.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_example.py "$RUNNER_TEMP/flipper-official" .work/upstream
       - name: Verify ABI ordering and released view behavior
@@ -104,6 +108,8 @@ jobs:
           git -C .work/upstream apply "$GITHUB_WORKSPACE/patch/flipper_1_5_1_port.patch"
           git -C .work/upstream apply --check "$GITHUB_WORKSPACE/patch/loader_151_port.patch"
           git -C .work/upstream apply "$GITHUB_WORKSPACE/patch/loader_151_port.patch"
+          git -C .work/upstream apply --check "$GITHUB_WORKSPACE/patch/loader_cli_151_port.patch"
+          git -C .work/upstream apply "$GITHUB_WORKSPACE/patch/loader_cli_151_port.patch"
           python3 patch/patch_flipper.py .work/upstream
           python3 variants/st7735/patch_st7735.py .work/upstream
           if [[ "$ORIENTATION" == landscape ]]; then
