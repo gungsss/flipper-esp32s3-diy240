@@ -27,10 +27,11 @@ review.
 - SD module on an independent SPI bus; the panel's CS is permanently low.
 - USB-serial flashing and qFlipper USB, BLE, input buttons, display and SD need
   regression tests. User settings/data must not be silently erased.
-- The current ESP OTA image check validates the chip and project but does not
-  distinguish this ST7735 DIY pinout from another ESP32-S3 board. A board-specific
-  image identity and recovery/compatibility test are still needed before OTA can
-  be called safe for this hardware.
+- The existing Wi-Fi updater defaults to a T-Embed release feed. The development
+  port checks a board-and-wiring profile in the image before OTA erase/write;
+  old images without that profile will be rejected. The marker is a compatibility
+  check, not a cryptographic signature. Real Wi-Fi/Bluetooth OTA, feed setup,
+  recovery and device behavior still require testing.
 - NFC, Sub-GHz, infrared, iButton and LF RFID functionality need their own
   physical peripherals; the listed parts do not supply those radios/sensors.
 - The reused Sub-GHz code changes the official frequency defaults and transmit
@@ -69,6 +70,10 @@ review.
   protocol and GPIO exports, with C signature checks for 98 selected functions.
 - BLE Device Information identifies the actual selected ESP32 target rather
   than advertising an ESP32-C6 on S3. Bluetooth pairing on hardware is untested.
+- Added a custom ESP image descriptor for the ST7735 DIY wiring and check it in
+  the shared OTA flash path and RPC inspection. Host tests use the real source
+  with mocked storage/IDF to check wrong-chip, wrong-project, wrong-board and
+  truncated images before any erase. The real ESP image layout is checked in CI.
 - Aligned the Elplast encoder's buffer size and repeat default with the 1.5.1
   source. This board has no Sub-GHz transceiver; radio behavior is untested.
 - Fixed an out-of-bounds read when retrieving a byte near the end of a bit

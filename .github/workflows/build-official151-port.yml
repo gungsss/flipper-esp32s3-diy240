@@ -45,6 +45,8 @@ jobs:
           python3 tests/compat151/check_official_toolbox_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_stream_runtime.py .work/upstream
           python3 tests/compat151/check_ble_target.py .work/upstream
+          python3 tests/compat151/check_ota_profile.py .work/upstream
+          python3 tests/compat151/check_ota_integration.py .work/upstream
           python3 tests/compat151/check_official_core_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_storage_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
           python3 tests/compat151/check_official_rpc_api.py "$RUNNER_TEMP/flipper-official" .work/upstream
@@ -107,7 +109,9 @@ jobs:
           cd .work/upstream
           ./build_diy.sh --build-only
       - name: Check compiled DIY inputs
-        run: python3 tests/compat151/check_diy_build_inputs.py .work/upstream/build_diy/compile_commands.json
+        run: |
+          python3 tests/compat151/check_diy_build_inputs.py .work/upstream/build_diy/compile_commands.json
+          python3 tests/compat151/check_ota_profile_image.py .work/upstream/build_diy/furi_esp32.bin
       - name: Build official 1.5.1 examples for the DIY Xtensa target
         if: matrix.orientation == 'landscape'
         run: |
@@ -140,15 +144,18 @@ jobs:
         timeout-minutes: 8
         run: |
           source /opt/esp/idf/export.sh
-          if ! command -v qemu-system-xtensa >/dev/null; then
-            python /opt/esp/idf/tools/idf_tools.py install qemu-xtensa
-            source /opt/esp/idf/export.sh
-          fi
+          curl -fsSL 'https://github.com/espressif/qemu/releases/download/esp-develop-9.2.2-20261109/qemu-xtensa-softmmu-esp_develop_9.2.2_20261109-x86_64-linux-gnu.tar.xz' -o "$RUNNER_TEMP/qemu.tar.xz"
+          printf '%s  %s\n' 'fbc3bffa9fa71192847969a627a584aabe2e86d85bed4902a096ff06c2b8a815' "$RUNNER_TEMP/qemu.tar.xz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/qemu-new"
+          tar -xf "$RUNNER_TEMP/qemu.tar.xz" -C "$RUNNER_TEMP/qemu-new"
+          qemu_bin=$(find "$RUNNER_TEMP/qemu-new" -type f -name qemu-system-xtensa -print -quit)
+          test -n "$qemu_bin" && test -x "$qemu_bin"
+          "$qemu_bin" --version
           cd .work/upstream/build_diy
           esptool.py --chip esp32s3 merge_bin --fill-flash-size 16MB \
             -o "$RUNNER_TEMP/simulated-flash.bin" @flash_project_args
           set +e
-          timeout 45s qemu-system-xtensa -nographic -no-reboot -machine esp32s3 -m 8M \
+          timeout 45s "$qemu_bin" -nographic -no-reboot -machine esp32s3 -m 8M \
             -drive "file=$RUNNER_TEMP/simulated-flash.bin,if=mtd,format=raw" \
             > "$RUNNER_TEMP/qemu-boot.log" 2>&1
           status=$?

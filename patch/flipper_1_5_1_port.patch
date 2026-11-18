@@ -2850,6 +2850,259 @@ index 6098b28..9c9114b 100644
       * wDescriptorLength is inside the 9-byte HID class descriptor at offset 7..8.
       * Absolute: 9 (config) + 9 (interface) + 7 (in HID class desc up to wDesc) = 25.
       */
+diff --git a/components/fw_ota/CMakeLists.txt b/components/fw_ota/CMakeLists.txt
+index 41deae3..e7ff2dc 100644
+--- a/components/fw_ota/CMakeLists.txt
++++ b/components/fw_ota/CMakeLists.txt
+@@ -2,7 +2,9 @@
+ # Post-Reboot-Flags). Genutzt vom WiFi-Self-Update (wlan_app), vom RPC-Handler
+ # (qT-Embed/qFlipper "system_update") und vom OTA-Updater-System-App.
+ idf_component_register(
+-    SRCS "fw_ota.c"
++    SRCS "fw_ota.c" "fw_ota_profile.c"
+     INCLUDE_DIRS "." ".."
+-    REQUIRES furi storage toolbox app_update esp_partition esp_app_format bootloader_support esp_system soc
++    REQUIRES furi furi_hal storage toolbox app_update esp_partition esp_app_format bootloader_support esp_system soc
+ )
++
++target_link_options(${COMPONENT_LIB} INTERFACE "LINKER:--undefined=fw_ota_board_profile")
+diff --git a/components/fw_ota/fw_ota.c b/components/fw_ota/fw_ota.c
+index 52c1b3c..69e6f4a 100644
+--- a/components/fw_ota/fw_ota.c
++++ b/components/fw_ota/fw_ota.c
+@@ -1,6 +1,8 @@
+ #include "fw_ota.h"
++#include "fw_ota_profile.h"
+ 
+ #include <furi.h>
++#include <board.h>
+ #include <storage/storage.h>
+ #include <toolbox/fw_version.h>
+ 
+@@ -75,70 +77,75 @@ const char* fw_ota_image_status_str(FwOtaImageStatus status) {
+         return "image built for another chip";
+     case FwOtaImageWrongProject:
+         return "not a furi_esp32 image";
++    case FwOtaImageBoardMismatch:
++        return "firmware board mismatch";
+     case FwOtaImageReadError:
+     default:
+         return "read error";
+     }
+ }
+ 
++/* Validate the actual open file. The flash path uses the same file handle for
++ * validation and reading, so a path replacement cannot change the image in
++ * between those operations. This identifies the board, not the publisher. */
++static FwOtaImageStatus fw_ota_inspect_open_file(File* f, FwOtaImageInfo* out) {
++    uint8_t hdr[sizeof(esp_image_header_t) + sizeof(esp_image_segment_header_t) +
++                sizeof(esp_app_desc_t)
++#if defined(BOARD_OTA_PROFILE_ST7735) && BOARD_OTA_PROFILE_ST7735
++                + sizeof(FwOtaBoardProfile)
++#endif
++    ];
++    const size_t read_size = storage_file_read(f, hdr, sizeof(hdr));
++    if(read_size != sizeof(hdr)) {
++        return (read_size >= sizeof(esp_image_header_t) && hdr[0] != ESP_IMAGE_HEADER_MAGIC) ?
++                   FwOtaImageNotAnImage :
++                   FwOtaImageReadError;
++    }
++
++    const esp_image_header_t* ih = (const esp_image_header_t*)hdr;
++    if(ih->magic != ESP_IMAGE_HEADER_MAGIC) return FwOtaImageNotAnImage;
++
++    const esp_app_desc_t* ad =
++        (const esp_app_desc_t*)(hdr + sizeof(esp_image_header_t) + sizeof(esp_image_segment_header_t));
++    const bool have_desc = ad->magic_word == ESP_APP_DESC_MAGIC_WORD;
++    if(out) {
++        out->chip_id = (uint16_t)ih->chip_id;
++        if(have_desc) {
++            strncpy(out->version, ad->version, sizeof(out->version) - 1);
++            strncpy(out->project_name, ad->project_name, sizeof(out->project_name) - 1);
++            strncpy(out->date, ad->date, sizeof(out->date) - 1);
++            strncpy(out->time, ad->time, sizeof(out->time) - 1);
++        }
++    }
++
++    if(ih->chip_id != CONFIG_IDF_FIRMWARE_CHIP_ID) return FwOtaImageChipMismatch;
++    if(!have_desc || strncmp(ad->project_name, FW_OTA_PROJECT_NAME, sizeof(ad->project_name)) != 0)
++        return FwOtaImageWrongProject;
++#if defined(BOARD_OTA_PROFILE_ST7735) && BOARD_OTA_PROFILE_ST7735
++    const size_t profile_offset = sizeof(esp_image_header_t) +
++                                  sizeof(esp_image_segment_header_t) + sizeof(esp_app_desc_t);
++    if(!fw_ota_profile_matches(hdr + profile_offset, sizeof(hdr) - profile_offset))
++        return FwOtaImageBoardMismatch;
++#endif
++    return FwOtaImageOk;
++}
++
+ FwOtaImageStatus fw_ota_inspect_image(const char* path, FwOtaImageInfo* out) {
+     if(out) memset(out, 0, sizeof(*out));
+     if(!path || !path[0]) return FwOtaImageFileNotFound;
+ 
+     Storage* storage = furi_record_open(RECORD_STORAGE);
+     FwOtaImageStatus status = FwOtaImageReadError;
+-
+     FileInfo fi;
+     if(storage_common_stat(storage, path, &fi) != FSE_OK || fi.size == 0) {
+         furi_record_close(RECORD_STORAGE);
+         return FwOtaImageFileNotFound;
+     }
++    if(out) out->size = (uint32_t)fi.size;
+ 
+-    // Image-Header (24 B) + erster Segment-Header (8 B) + App-Descriptor.
+-    uint8_t hdr[sizeof(esp_image_header_t) + sizeof(esp_image_segment_header_t) +
+-                sizeof(esp_app_desc_t)];
+     File* f = storage_file_alloc(storage);
+-    do {
+-        if(!storage_file_open(f, path, FSAM_READ, FSOM_OPEN_EXISTING)) break;
+-        size_t r = storage_file_read(f, hdr, sizeof(hdr));
+-        if(r != sizeof(hdr)) {
+-            status = (r >= sizeof(esp_image_header_t) && hdr[0] != ESP_IMAGE_HEADER_MAGIC) ?
+-                         FwOtaImageNotAnImage :
+-                         FwOtaImageReadError;
+-            break;
+-        }
+-
+-        const esp_image_header_t* ih = (const esp_image_header_t*)hdr;
+-        if(ih->magic != ESP_IMAGE_HEADER_MAGIC) {
+-            status = FwOtaImageNotAnImage;
+-            break;
+-        }
+-
+-        const esp_app_desc_t* ad =
+-            (const esp_app_desc_t*)(hdr + sizeof(esp_image_header_t) + sizeof(esp_image_segment_header_t));
+-        bool have_desc = ad->magic_word == ESP_APP_DESC_MAGIC_WORD;
+-
+-        if(out) {
+-            out->chip_id = (uint16_t)ih->chip_id;
+-            out->size = (uint32_t)fi.size;
+-            if(have_desc) {
+-                strncpy(out->version, ad->version, sizeof(out->version) - 1);
+-                strncpy(out->project_name, ad->project_name, sizeof(out->project_name) - 1);
+-                strncpy(out->date, ad->date, sizeof(out->date) - 1);
+-                strncpy(out->time, ad->time, sizeof(out->time) - 1);
+-            }
+-        }
+-
+-        if(ih->chip_id != CONFIG_IDF_FIRMWARE_CHIP_ID) {
+-            status = FwOtaImageChipMismatch;
+-            break;
+-        }
+-        if(!have_desc || strncmp(ad->project_name, FW_OTA_PROJECT_NAME, sizeof(ad->project_name)) != 0) {
+-            status = FwOtaImageWrongProject;
+-            break;
+-        }
+-        status = FwOtaImageOk;
+-    } while(0);
++    if(storage_file_open(f, path, FSAM_READ, FSOM_OPEN_EXISTING))
++        status = fw_ota_inspect_open_file(f, out);
+ 
+     storage_file_close(f);
+     storage_file_free(f);
+@@ -177,6 +184,18 @@ bool fw_ota_flash_file(
+             fw_ota_set_err(err, err_size, "open bin failed");
+             break;
+         }
++#if defined(BOARD_OTA_PROFILE_ST7735) && BOARD_OTA_PROFILE_ST7735
++        /* Wi-Fi also calls this directly. Reject a wrong board before erase. */
++        const FwOtaImageStatus image_status = fw_ota_inspect_open_file(f, NULL);
++        if(image_status != FwOtaImageOk) {
++            fw_ota_set_err(err, err_size, fw_ota_image_status_str(image_status));
++            break;
++        }
++        if(!storage_file_seek(f, 0, true)) {
++            fw_ota_set_err(err, err_size, "firmware rewind failed");
++            break;
++        }
++#endif
+         // esp_ota_begin loescht die Zielpartition (kann einige Sekunden dauern).
+         esp_err_t e = esp_ota_begin(next, fi.size, &handle);
+         if(e != ESP_OK) {
+diff --git a/components/fw_ota/fw_ota.h b/components/fw_ota/fw_ota.h
+index 9d3a1e9..1c21dd5 100644
+--- a/components/fw_ota/fw_ota.h
++++ b/components/fw_ota/fw_ota.h
+@@ -39,6 +39,7 @@ typedef enum {
+     FwOtaImageChipMismatch,   // Image fuer einen anderen Chip gebaut
+     FwOtaImageWrongProject,   // App-Descriptor: nicht "furi_esp32"
+     FwOtaImageReadError,
++    FwOtaImageBoardMismatch, // Wrong DIY display or wiring profile
+ } FwOtaImageStatus;
+ 
+ typedef struct {
+@@ -56,8 +57,8 @@ bool fw_ota_is_supported(void);
+ /** Label der laufenden App-Partition ("ota_0", "ota_1", "factory"). */
+ const char* fw_ota_running_partition_label(void);
+ 
+-/** Liest Image-Header + App-Descriptor der Datei und prueft Magic, Chip-ID und
+- *  Projektname. out darf NULL sein. Reines Datei-IO. */
++/** Checks image header, chip and project; DIY ST7735 builds also check their
++ *  compiled board profile. out may be NULL. This is not signature validation. */
+ FwOtaImageStatus fw_ota_inspect_image(const char* path, FwOtaImageInfo* out);
+ 
+ /** Klartext zu FwOtaImageStatus (fuer Logs/UI). */
+diff --git a/components/fw_ota/fw_ota_profile.c b/components/fw_ota/fw_ota_profile.c
+new file mode 100644
+index 0000000..6fe84c5
+--- /dev/null
++++ b/components/fw_ota/fw_ota_profile.c
+@@ -0,0 +1,32 @@
++#include "fw_ota_profile.h"
++#include <board.h>
++#include <string.h>
++
++_Static_assert(sizeof(FwOtaBoardProfile) == 44, "OTA profile layout changed");
++
++/* The section and forced linker reference give this a stable image offset. */
++const __attribute__((section(".rodata_custom_desc"), used)) FwOtaBoardProfile
++    fw_ota_board_profile = {
++#if defined(BOARD_OTA_PROFILE_ST7735) && BOARD_OTA_PROFILE_ST7735
++        .magic = {'D', 'I', 'Y', 'O', 'T', 'A', '1', 0},
++        .schema = 1,
++        .display_controller = 7735,
++        .pins = {
++            BOARD_PIN_LCD_MOSI, BOARD_PIN_LCD_SCLK, BOARD_PIN_LCD_DC,
++            BOARD_PIN_LCD_RST, BOARD_PIN_LCD_CS, BOARD_PIN_LCD_BL,
++            BOARD_PIN_SD_SCK, BOARD_PIN_SD_MOSI, BOARD_PIN_SD_MISO2,
++            BOARD_PIN_SD_CS, BOARD_PIN_BTN_UP, BOARD_PIN_BTN_DOWN,
++            BOARD_PIN_BTN_LEFT, BOARD_PIN_BTN_RIGHT, BOARD_PIN_BTN_OK,
++            BOARD_PIN_BTN_BACK,
++        },
++#else
++        .magic = {0},
++#endif
++};
++
++bool fw_ota_profile_matches(const void* candidate, size_t length) {
++    static const uint8_t magic[8] = {'D', 'I', 'Y', 'O', 'T', 'A', '1', 0};
++    return candidate && length >= sizeof(fw_ota_board_profile) &&
++           memcmp(fw_ota_board_profile.magic, magic, sizeof(magic)) == 0 &&
++           memcmp(candidate, &fw_ota_board_profile, sizeof(fw_ota_board_profile)) == 0;
++}
+diff --git a/components/fw_ota/fw_ota_profile.h b/components/fw_ota/fw_ota_profile.h
+new file mode 100644
+index 0000000..208658e
+--- /dev/null
++++ b/components/fw_ota/fw_ota_profile.h
+@@ -0,0 +1,17 @@
++#pragma once
++
++#include <stdbool.h>
++#include <stddef.h>
++#include <stdint.h>
++
++/* Fixed-size board description placed immediately after esp_app_desc_t.
++ * This is a compatibility marker, not a cryptographic signature. */
++typedef struct __attribute__((packed)) {
++    uint8_t magic[8];
++    uint16_t schema;
++    uint16_t display_controller;
++    uint16_t pins[16];
++} FwOtaBoardProfile;
++
++extern const FwOtaBoardProfile fw_ota_board_profile;
++bool fw_ota_profile_matches(const void* candidate, size_t length);
 diff --git a/components/gui/canvas.c b/components/gui/canvas.c
 index b4ad7a8..946e427 100644
 --- a/components/gui/canvas.c
@@ -3677,6 +3930,18 @@ index b2d2822..c3b6a49 100644
  void* rpc_system_app_alloc(RpcSession* session);
  void rpc_system_app_free(void* ctx);
  void* rpc_system_gui_alloc(RpcSession* session);
+diff --git a/components/rpc/rpc_system.c b/components/rpc/rpc_system.c
+index 4d609fb..f2d45aa 100644
+--- a/components/rpc/rpc_system.c
++++ b/components/rpc/rpc_system.c
+@@ -181,6 +181,7 @@ static void rpc_system_system_update_process(const PB_Main* request, void* conte
+                 code = PB_System_UpdateResponse_UpdateResultCode_ManifestInvalid;
+                 break;
+             case FwOtaImageChipMismatch:
++            case FwOtaImageBoardMismatch:
+                 code = PB_System_UpdateResponse_UpdateResultCode_TargetMismatch;
+                 break;
+             case FwOtaImageWrongProject:
 diff --git a/components/toolbox/CMakeLists.txt b/components/toolbox/CMakeLists.txt
 index 9ff87c2..125e493 100644
 --- a/components/toolbox/CMakeLists.txt

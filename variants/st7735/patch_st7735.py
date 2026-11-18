@@ -23,7 +23,8 @@ def replace_once(text, old, new, label):
 def patch_generator(s):
     for old, new in (
         ("#define BOARD_LCD_H_RES 240\n#define BOARD_LCD_V_RES 240",
-         "#define BOARD_LCD_H_RES 128\n#define BOARD_LCD_V_RES 160\n#define BOARD_LCD_SIDE_MARGIN 0"),
+         "#define BOARD_LCD_H_RES 128\n#define BOARD_LCD_V_RES 160\n#define BOARD_LCD_SIDE_MARGIN 0\n"
+         "#define BOARD_OTA_PROFILE_ST7735 1"),
         ("#define BOARD_LCD_SPI_FREQ_HZ (20 * 1000 * 1000)",
          "#define BOARD_LCD_SPI_FREQ_HZ (5 * 1000 * 1000)"),
         ("#define BOARD_LCD_MIRROR_X false", "#define BOARD_LCD_MIRROR_X true"),
