@@ -1,3 +1,13 @@
+diff --git a/components/bit_lib/bit_lib.c b/components/bit_lib/bit_lib.c
+index c00cfac..97535d8 100644
+--- a/components/bit_lib/bit_lib.c
++++ b/components/bit_lib/bit_lib.c
+@@ -39,0 +40,3 @@ uint8_t bit_lib_get_bits(const uint8_t* data, size_t position, uint8_t length) {
++    } else if(shift + length <= 8) {
++        // Requested bits fit in the current byte, don't read the next one
++        return (uint8_t)(data[position / 8] << shift) >> (8 - length);
+@@ -41 +43,0 @@ uint8_t bit_lib_get_bits(const uint8_t* data, size_t position, uint8_t length) {
+-        // TODO FL-3534: fix read out of bounds
 diff --git a/components/flipper_application/flipper_application/firmware_api.c b/components/flipper_application/flipper_application/firmware_api.c
 index 17259ed..547e0fa 100644
 --- a/components/flipper_application/flipper_application/firmware_api.c

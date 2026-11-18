@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     container: espressif/idf:v5.4.1
+    env:
+      ESP_IDF_EXPORT_SCRIPT: /opt/esp/idf/export.sh
     defaults:
       run:
         shell: bash
@@ -41,6 +43,11 @@ jobs:
         run: |
           python3 tests/basic151/check_loader_cli.py .work/upstream
           python3 tests/basic151/check_rpc_start.py .work/upstream
+          gcc -g -O1 -std=c11 -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -Itests/basic151/include -I.work/upstream/components/bit_lib \
+            tests/basic151/bit_lib_regression.c .work/upstream/components/bit_lib/bit_lib.c \
+            -o "$RUNNER_TEMP/bit-lib-regression"
+          "$RUNNER_TEMP/bit-lib-regression"
       - name: Compile ESP32-S3 firmware
         run: |
           source /opt/esp/idf/export.sh
