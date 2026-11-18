@@ -938,5 +938,335 @@
     "name": "view_tie_icon_animation",
     "type": "void",
     "params": "View*, IconAnimation*"
+  },
+  {
+    "name": "button_menu_add_item",
+    "type": "ButtonMenuItem*",
+    "params": "ButtonMenu*, const char*, int32_t, ButtonMenuItemCallback, ButtonMenuItemType, void*"
+  },
+  {
+    "name": "button_menu_alloc",
+    "type": "ButtonMenu*",
+    "params": ""
+  },
+  {
+    "name": "button_menu_free",
+    "type": "void",
+    "params": "ButtonMenu*"
+  },
+  {
+    "name": "button_menu_get_view",
+    "type": "View*",
+    "params": "ButtonMenu*"
+  },
+  {
+    "name": "button_menu_reset",
+    "type": "void",
+    "params": "ButtonMenu*"
+  },
+  {
+    "name": "button_menu_set_header",
+    "type": "void",
+    "params": "ButtonMenu*, const char*"
+  },
+  {
+    "name": "button_menu_set_selected_item",
+    "type": "void",
+    "params": "ButtonMenu*, uint32_t"
+  },
+  {
+    "name": "button_panel_add_icon",
+    "type": "void",
+    "params": "ButtonPanel*, uint16_t, uint16_t, const Icon*"
+  },
+  {
+    "name": "button_panel_add_item",
+    "type": "void",
+    "params": "ButtonPanel*, uint32_t, uint16_t, uint16_t, uint16_t, uint16_t, const Icon*, const Icon*, ButtonItemCallback, void*"
+  },
+  {
+    "name": "button_panel_add_label",
+    "type": "void",
+    "params": "ButtonPanel*, uint16_t, uint16_t, Font, const char*"
+  },
+  {
+    "name": "button_panel_alloc",
+    "type": "ButtonPanel*",
+    "params": ""
+  },
+  {
+    "name": "button_panel_free",
+    "type": "void",
+    "params": "ButtonPanel*"
+  },
+  {
+    "name": "button_panel_get_view",
+    "type": "View*",
+    "params": "ButtonPanel*"
+  },
+  {
+    "name": "button_panel_reserve",
+    "type": "void",
+    "params": "ButtonPanel*, size_t, size_t"
+  },
+  {
+    "name": "button_panel_reset",
+    "type": "void",
+    "params": "ButtonPanel*"
+  },
+  {
+    "name": "dialog_ex_disable_extended_events",
+    "type": "void",
+    "params": "DialogEx*"
+  },
+  {
+    "name": "dialog_ex_enable_extended_events",
+    "type": "void",
+    "params": "DialogEx*"
+  },
+  {
+    "name": "elements_bubble",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
+  },
+  {
+    "name": "elements_bubble_str",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, const char*, Align, Align"
+  },
+  {
+    "name": "elements_button_down",
+    "type": "void",
+    "params": "Canvas*, const char*"
+  },
+  {
+    "name": "elements_button_up",
+    "type": "void",
+    "params": "Canvas*, const char*"
+  },
+  {
+    "name": "elements_frame",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, size_t"
+  },
+  {
+    "name": "elements_multiline_text_framed",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, const char*"
+  },
+  {
+    "name": "elements_progress_bar",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, float"
+  },
+  {
+    "name": "elements_scrollable_text_line",
+    "type": "void",
+    "params": "Canvas*, int32_t, int32_t, size_t, FuriString*, size_t, _Bool"
+  },
+  {
+    "name": "elements_scrollbar",
+    "type": "void",
+    "params": "Canvas*, size_t, size_t"
+  },
+  {
+    "name": "file_browser_alloc",
+    "type": "FileBrowser*",
+    "params": "FuriString*"
+  },
+  {
+    "name": "file_browser_configure",
+    "type": "void",
+    "params": "FileBrowser*, const char*, const char*, _Bool, _Bool, const Icon*, _Bool"
+  },
+  {
+    "name": "file_browser_free",
+    "type": "void",
+    "params": "FileBrowser*"
+  },
+  {
+    "name": "file_browser_get_view",
+    "type": "View*",
+    "params": "FileBrowser*"
+  },
+  {
+    "name": "file_browser_set_callback",
+    "type": "void",
+    "params": "FileBrowser*, FileBrowserCallback, void*"
+  },
+  {
+    "name": "file_browser_set_item_callback",
+    "type": "void",
+    "params": "FileBrowser*, FileBrowserLoadItemCallback, void*"
+  },
+  {
+    "name": "file_browser_start",
+    "type": "void",
+    "params": "FileBrowser*, FuriString*"
+  },
+  {
+    "name": "file_browser_stop",
+    "type": "void",
+    "params": "FileBrowser*"
+  },
+  {
+    "name": "file_browser_worker_alloc",
+    "type": "BrowserWorker*",
+    "params": "FuriString*, const char*, const char*, _Bool, _Bool"
+  },
+  {
+    "name": "file_browser_worker_folder_enter",
+    "type": "void",
+    "params": "BrowserWorker*, FuriString*, int32_t"
+  },
+  {
+    "name": "file_browser_worker_folder_exit",
+    "type": "void",
+    "params": "BrowserWorker*"
+  },
+  {
+    "name": "file_browser_worker_folder_refresh",
+    "type": "void",
+    "params": "BrowserWorker*, int32_t"
+  },
+  {
+    "name": "file_browser_worker_free",
+    "type": "void",
+    "params": "BrowserWorker*"
+  },
+  {
+    "name": "file_browser_worker_is_in_start_folder",
+    "type": "_Bool",
+    "params": "BrowserWorker*"
+  },
+  {
+    "name": "file_browser_worker_load",
+    "type": "void",
+    "params": "BrowserWorker*, uint32_t, uint32_t"
+  },
+  {
+    "name": "file_browser_worker_set_callback_context",
+    "type": "void",
+    "params": "BrowserWorker*, void*"
+  },
+  {
+    "name": "file_browser_worker_set_config",
+    "type": "void",
+    "params": "BrowserWorker*, FuriString*, const char*, _Bool, _Bool"
+  },
+  {
+    "name": "file_browser_worker_set_folder_callback",
+    "type": "void",
+    "params": "BrowserWorker*, BrowserWorkerFolderOpenCallback"
+  },
+  {
+    "name": "file_browser_worker_set_item_callback",
+    "type": "void",
+    "params": "BrowserWorker*, BrowserWorkerListItemCallback"
+  },
+  {
+    "name": "file_browser_worker_set_list_callback",
+    "type": "void",
+    "params": "BrowserWorker*, BrowserWorkerListLoadCallback"
+  },
+  {
+    "name": "file_browser_worker_set_long_load_callback",
+    "type": "void",
+    "params": "BrowserWorker*, BrowserWorkerLongLoadCallback"
+  },
+  {
+    "name": "icon_animation_alloc",
+    "type": "IconAnimation*",
+    "params": "const Icon*"
+  },
+  {
+    "name": "icon_animation_free",
+    "type": "void",
+    "params": "IconAnimation*"
+  },
+  {
+    "name": "icon_animation_get_height",
+    "type": "uint8_t",
+    "params": "const IconAnimation*"
+  },
+  {
+    "name": "icon_animation_get_width",
+    "type": "uint8_t",
+    "params": "const IconAnimation*"
+  },
+  {
+    "name": "icon_animation_is_last_frame",
+    "type": "_Bool",
+    "params": "const IconAnimation*"
+  },
+  {
+    "name": "icon_animation_set_update_callback",
+    "type": "void",
+    "params": "IconAnimation*, IconAnimationCallback, void*"
+  },
+  {
+    "name": "icon_animation_start",
+    "type": "void",
+    "params": "IconAnimation*"
+  },
+  {
+    "name": "icon_animation_stop",
+    "type": "void",
+    "params": "IconAnimation*"
+  },
+  {
+    "name": "icon_get_data",
+    "type": "const uint8_t*",
+    "params": "const Icon*"
+  },
+  {
+    "name": "icon_get_frame_count",
+    "type": "uint32_t",
+    "params": "const Icon*"
+  },
+  {
+    "name": "icon_get_frame_data",
+    "type": "const uint8_t*",
+    "params": "const Icon*, uint32_t"
+  },
+  {
+    "name": "icon_get_height",
+    "type": "uint16_t",
+    "params": "const Icon*"
+  },
+  {
+    "name": "icon_get_width",
+    "type": "uint16_t",
+    "params": "const Icon*"
+  },
+  {
+    "name": "scene_manager_get_current_scene",
+    "type": "uint32_t",
+    "params": "SceneManager*"
+  },
+  {
+    "name": "submenu_add_item_ex",
+    "type": "void",
+    "params": "Submenu*, const char*, uint32_t, SubmenuItemCallbackEx, void*"
+  },
+  {
+    "name": "submenu_change_item_label",
+    "type": "void",
+    "params": "Submenu*, uint32_t, const char*"
+  },
+  {
+    "name": "text_input_get_validator_callback",
+    "type": "TextInputValidatorCallback",
+    "params": "TextInput*"
+  },
+  {
+    "name": "widget_add_circle_element",
+    "type": "void",
+    "params": "Widget*, uint8_t, uint8_t, uint8_t, _Bool"
+  },
+  {
+    "name": "widget_add_line_element",
+    "type": "void",
+    "params": "Widget*, uint8_t, uint8_t, uint8_t, uint8_t"
   }
 ]

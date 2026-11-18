@@ -15,7 +15,9 @@ info.update({
     'lcd': 'ST7735S landscape 160x128, CS tied to ground',
     'display_driver': 'waveshare/esp_lcd_st7735==2.0.0',
     'reported_flipper_version': '1.4.3',
-    'scope': 'ESP32 port with selected 1.5.1 GUI, loader, CLI, RPC and toolbox changes; not a complete 1.5.1 port',
+    'reported_esp_app_api_version': '1.0',
+    'official_151_app_api_version': '88.2',
+    'scope': 'ESP32 port with selected 1.5.1 core, GUI, storage, loader, CLI, RPC and toolbox changes; not a complete 1.5.1 port',
     'hardware_validation': 'This particular build has not been tested on the physical board',
 })
 
@@ -64,6 +66,8 @@ manifest = {
 Dasar: Sor3nt ESP32 port e6ec119 (versi Flipper yang dilaporkan 1.4.3).
 Build ini membawa beberapa perubahan GUI, loader, CLI, RPC, dan toolbox dari
 Flipper 1.5.1. Ini BELUM port 1.5.1 lengkap dan belum diuji pada perangkat fisik.
+Versi API aplikasi ESP masih 1.0, sedangkan API resmi 1.5.1 adalah 88.2.
+Aplikasi FAP resmi berbasis ARM tidak dapat langsung berjalan pada ESP32.
 NFC dan modul lain yang tidak terpasang tidak menjadi target build ini.
 
 Menjalankan flasher lokal di macOS/Windows/Linux:

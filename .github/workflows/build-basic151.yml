@@ -45,6 +45,12 @@ jobs:
           python3 tests/basic151/check_rpc_start.py .work/upstream
           python3 tests/basic151/check_core_api.py .work/upstream
           python3 tests/basic151/check_js_timer.py .work/upstream
+          python3 tests/basic151/check_elf_target.py .work/upstream
+          if command -v node >/dev/null 2>&1; then
+            node tests/basic151/check_js_upload.cjs .work/upstream
+          else
+            echo 'JavaScript SDK upload test skipped: node is unavailable in this image.'
+          fi
           gcc -g -O1 -std=c11 -fsanitize=address,undefined -fno-omit-frame-pointer \
             -Itests/basic151/include -I.work/upstream/components/bit_lib \
             tests/basic151/bit_lib_regression.c .work/upstream/components/bit_lib/bit_lib.c \
