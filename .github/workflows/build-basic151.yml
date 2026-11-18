@@ -43,6 +43,8 @@ jobs:
         run: |
           python3 tests/basic151/check_loader_cli.py .work/upstream
           python3 tests/basic151/check_rpc_start.py .work/upstream
+          python3 tests/basic151/check_core_api.py .work/upstream
+          python3 tests/basic151/check_js_timer.py .work/upstream
           gcc -g -O1 -std=c11 -fsanitize=address,undefined -fno-omit-frame-pointer \
             -Itests/basic151/include -I.work/upstream/components/bit_lib \
             tests/basic151/bit_lib_regression.c .work/upstream/components/bit_lib/bit_lib.c \

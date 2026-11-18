@@ -8,8 +8,9 @@ packaging. The normal upstream ESP32 firmware includes generic NFC support
 libraries, even though the NFC app is disabled on this target.
 
 The separate compatibility changes cover the loader, command-line parser,
-some GUI API exports, RPC application context validation, and an archive read
-fix from official 1.5.1. The firmware base still reports version **1.4.3**.
+GUI, storage and Furi API exports, JavaScript timer validation, RPC application
+context validation, and archive/bit-reading fixes. The firmware base still
+reports version **1.4.3**.
 These changes do not constitute a complete port of 1.5.1; do not label this
 build as such or offer an official Flipper update for it.
 
