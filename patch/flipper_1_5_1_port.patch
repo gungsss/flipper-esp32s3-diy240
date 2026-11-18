@@ -2352,6 +2352,18 @@ index b2445e2..da8133d 100644
   * To be used by GUI, called on input dispatch.
   *
   * @param      view_port  ViewPort instance
+diff --git a/components/input/input.h b/components/input/input.h
+index 7d56152..f7b1aaf 100644
+--- a/components/input/input.h
++++ b/components/input/input.h
+@@ -6,6 +6,7 @@
+ #pragma once
+ 
+ #include <stdint.h>
++#include <furi.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
 diff --git a/components/nfc/protocols/felica/felica.c b/components/nfc/protocols/felica/felica.c
 index 3b32724..851a30f 100644
 --- a/components/nfc/protocols/felica/felica.c

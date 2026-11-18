@@ -91,7 +91,7 @@ jobs:
           source /opt/esp/idf/export.sh
           cd .work/upstream
           ./build_diy.sh --build-only
-      - name: Build an official 1.5.1 example for the DIY Xtensa target
+      - name: Build official 1.5.1 examples for the DIY Xtensa target
         if: matrix.orientation == 'landscape'
         run: |
           source /opt/esp/idf/export.sh
@@ -100,10 +100,15 @@ jobs:
           git -C "$RUNNER_TEMP/fap-official" fetch --depth=1 --filter=blob:none origin refs/tags/1.5.1:refs/tags/1.5.1
           test "$(git -C "$RUNNER_TEMP/fap-official" rev-parse 1.5.1^{commit})" = 9e810dc399e027e48ce07751df72168abbb19065
           mkdir -p "$RUNNER_TEMP/official-fap"
-          git -C "$RUNNER_TEMP/fap-official" archive 1.5.1 applications/examples/example_date_time_input | tar -x -C "$RUNNER_TEMP/official-fap"
+          git -C "$RUNNER_TEMP/fap-official" archive 1.5.1 \
+            applications/examples/example_date_time_input \
+            applications/examples/example_view_dispatcher \
+            applications/examples/example_apps_data | tar -x -C "$RUNNER_TEMP/official-fap"
           cd .work/upstream
-          FAP_BOARD=DIY ./buildFap.sh "$RUNNER_TEMP/official-fap/applications/examples/example_date_time_input"
-          test -s build_diy/fap/example_date_time_input.fap
-          xtensa-esp32s3-elf-readelf -h build_diy/fap/example_date_time_input.fap | grep -E 'Machine:.*Xtensa'
-          python3 tools/check_fap_symbols.py components/flipper_application/flipper_application/firmware_api.c \
-            build_diy/fap/objects_example_date_time_input.fap/undef_syms.txt
+          for app in example_date_time_input example_view_dispatcher example_apps_data; do
+            FAP_BOARD=DIY ./buildFap.sh "$RUNNER_TEMP/official-fap/applications/examples/$app"
+            test -s "build_diy/fap/$app.fap"
+            xtensa-esp32s3-elf-readelf -h "build_diy/fap/$app.fap" | grep -E 'Machine:.*Xtensa'
+            python3 tools/check_fap_symbols.py components/flipper_application/flipper_application/firmware_api.c \
+              "build_diy/fap/objects_$app.fap/undef_syms.txt"
+          done

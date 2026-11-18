@@ -28,6 +28,9 @@ review.
   regression tests. User settings/data must not be silently erased.
 - NFC, Sub-GHz, infrared, iButton and LF RFID functionality need their own
   physical peripherals; the listed parts do not supply those radios/sensors.
+- The reused Sub-GHz code changes the official frequency defaults and transmit
+  region checks. It is disabled on the current DIY board and needs a separate
+  implementation and hardware/regional verification before claiming parity.
 - Official prebuilt ARM FAP files do not execute on the ESP32-S3's Xtensa CPU.
   Supporting applications requires an ESP32-compatible build and ABI or an
   independently tested execution layer.
@@ -50,11 +53,14 @@ review.
 - Exposed 25 additional storage, locale, and date/time functions; all 64
   official functions in those groups have 1.5.1 SDK C signature checks.
   Device storage behavior remains untested.
-- Added an explicit DIY target to the FAP builder and a CI check that builds
-  the official 1.5.1 date/time example for Xtensa, then checks its imports.
-  CI build results and real-device execution must be verified separately.
-- The same official example compiles on the host against the port headers and
-  its unresolved symbols are checked against the current firmware API table.
+- Added an explicit DIY target to the FAP builder and CI checks that build the
+  official 1.5.1 date/time, view-dispatcher and application-data examples for
+  Xtensa, then check their imports. CI results and real-device execution must
+  be verified separately.
+- These three official examples also compile on the host against the port
+  headers and their imports are checked against the firmware API table.
+- Restored the Furi header visibility that official input headers provide,
+  allowing the unchanged official view-dispatcher example to compile.
 - Replaced the port's date/time input implementation and header with the exact
   official 1.5.1 sources. Host tests check the 12-hour and 24-hour render paths.
 - Added the USB HID interrupt-OUT endpoint, like the 1.5.1 hardware interface,
