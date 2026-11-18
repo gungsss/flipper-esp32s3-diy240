@@ -34,6 +34,10 @@ review.
 - Official prebuilt ARM FAP files do not execute on the ESP32-S3's Xtensa CPU.
   Supporting applications requires an ESP32-compatible build and ABI or an
   independently tested execution layer.
+- The development ELF loader rejects incompatible machine types on ESP32-S3;
+  a host harness checks its real open path with ARM and Xtensa headers. This
+  prevents incompatible applications from reaching the loader; it does not
+  make ARM applications executable.
 
 ## Completed in this development branch
 

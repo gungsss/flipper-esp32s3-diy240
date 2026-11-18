@@ -270,6 +270,25 @@ index 205ffbe..dd7dfb6 100644
  # firmware_api.c ist die FAP-ABI-Symboltabelle und exportiert bewusst auch deprecated APIs
  # (z.B. view_dispatcher_enable_queue) -> deprecated-Warnung hier gezielt unterdruecken.
  # Ein #pragma scheidet aus: die Tabelle ist ein Array-Initializer, dort sind keine Statements erlaubt.
+diff --git a/components/flipper_application/flipper_application/elf/elf_file.c b/components/flipper_application/flipper_application/elf/elf_file.c
+index 19fa9ad..4deaad6 100644
+--- a/components/flipper_application/flipper_application/elf/elf_file.c
++++ b/components/flipper_application/flipper_application/elf/elf_file.c
+@@ -892,6 +892,14 @@ bool elf_file_open(ELFFile* elf, const char* path) {
+         return false;
+     }
+ 
++#if defined(CONFIG_IDF_TARGET_ESP32S3) || defined(__XTENSA__)
++    /* Official Flipper FAPs contain ARM code; never treat them as Xtensa. */
++    if(h.e_machine != EM_XTENSA) {
++        FURI_LOG_E(TAG, "Incompatible ELF machine %u (expected Xtensa)", h.e_machine);
++        return false;
++    }
++#endif
++
+     if(h.e_shoff == 0 || h.e_shnum == 0) {
+         FURI_LOG_E(TAG, "No section headers (shoff=%lu, shnum=%u)", (unsigned long)h.e_shoff, h.e_shnum);
+         return false;
 diff --git a/components/flipper_application/flipper_application/firmware_api.c b/components/flipper_application/flipper_application/firmware_api.c
 index 17259ed..8371f70 100644
 --- a/components/flipper_application/flipper_application/firmware_api.c

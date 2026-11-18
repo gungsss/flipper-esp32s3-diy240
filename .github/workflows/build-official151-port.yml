@@ -46,6 +46,8 @@ jobs:
         run: |
           python3 tests/compat151/check_firmware_api.py .work/upstream
           python3 tests/compat151/check_view_api.py .work/upstream
+          python3 tests/compat151/check_elf_arch.py .work/upstream
+          python3 tests/compat151/check_rpc_start.py .work/upstream
       - name: Verify HID descriptors and output report handling
         run: |
           git clone --quiet --depth=1 --branch 0.21.0 https://github.com/hathach/tinyusb.git "$RUNNER_TEMP/tinyusb"
