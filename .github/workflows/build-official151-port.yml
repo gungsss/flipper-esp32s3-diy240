@@ -138,6 +138,36 @@ jobs:
           xtensa-esp32s3-elf-readelf -h build_diy/fap/sdk_151_probe.fap | grep -E 'Machine:.*Xtensa'
           python3 tools/check_fap_symbols.py components/flipper_application/flipper_application/firmware_api.c \
             build_diy/fap/objects_sdk_151_probe.fap/undef_syms.txt
+      - name: Try the existing build in the SPI-capable ESP emulator
+        if: matrix.orientation == 'landscape'
+        continue-on-error: true
+        timeout-minutes: 6
+        run: |
+          source /opt/esp/idf/export.sh
+          curl -fsSL 'https://github.com/espressif/esp-emulator/releases/download/v1.1.0/esp-emu-1.1.0-x86_64-unknown-linux-gnu.tar.gz' -o "$RUNNER_TEMP/esp-emu.tar.gz"
+          printf '%s  %s\n' 'bcb940dcf48aa6a1b62dbdc4abc37f05431710f4040d9e2504723a5ea4fd5de9' "$RUNNER_TEMP/esp-emu.tar.gz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/esp-emu"
+          tar -xzf "$RUNNER_TEMP/esp-emu.tar.gz" -C "$RUNNER_TEMP/esp-emu"
+          emulator=$(find "$RUNNER_TEMP/esp-emu" -type f -name esp-emu -print -quit)
+          test -n "$emulator" && test -x "$emulator"
+          "$emulator" --version
+          cd .work/upstream/build_diy
+          esptool.py --chip esp32s3 merge_bin --fill-flash-size 16MB \
+            -o "$RUNNER_TEMP/esp-emu-flash.bin" @flash_project_args
+          set +e
+          timeout 100s "$emulator" --chip esp32s3 --psram-size 8M \
+            --firmware "$RUNNER_TEMP/esp-emu-flash.bin" --elf "$PWD/furi_esp32.elf" \
+            --timeout 80s --exit-on 'All services started, entering background' \
+            > "$RUNNER_TEMP/esp-emu-boot.log" 2>&1
+          status=$?
+          set -e
+          cat "$RUNNER_TEMP/esp-emu-boot.log"
+          if grep -F 'All services started, entering background' "$RUNNER_TEMP/esp-emu-boot.log"; then
+            echo 'Emulator reached service startup; physical peripherals remain untested.'
+          else
+            echo "::warning::ESP emulator did not reach service startup (exit $status)."
+            exit 1
+          fi
       - name: Try an ESP32-S3 simulated boot
         if: matrix.orientation == 'landscape'
         continue-on-error: true
