@@ -1,0 +1,59 @@
+name: Build ESP32-S3 basic 1.5.1 compatibility preview
+on:
+  push:
+    branches: [work/esp32s3-basic-151-preview]
+    paths:
+      - 'patch/esp32_basic_151.patch'
+      - 'tests/basic151/**'
+      - 'scripts/audit_basic_build.py'
+      - 'scripts/package_basic_build.py'
+      - '.github/workflows/build-basic151.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    container: espressif/idf:v5.4.1
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch clean pinned ESP32 source
+        run: bash scripts/fetch_upstream.sh
+      - name: Apply display and independent compatibility changes
+        run: |
+          set -euo pipefail
+          python3 patch/patch_flipper.py .work/upstream
+          python3 variants/st7735/patch_st7735.py .work/upstream
+          python3 variants/st7735/patch_landscape.py .work/upstream
+          test ! -e .work/upstream/applications/main/nfc/plugins/supported_cards/hotels.c
+          if grep -Eiq 'nfc|hotel' patch/esp32_basic_151.patch; then
+            echo 'Unexpected radio or card material in compatibility patch' >&2
+            exit 1
+          fi
+          git -C .work/upstream apply --unidiff-zero --check "$GITHUB_WORKSPACE/patch/esp32_basic_151.patch"
+          git -C .work/upstream apply --unidiff-zero "$GITHUB_WORKSPACE/patch/esp32_basic_151.patch"
+      - name: Test compatibility changes
+        env:
+          ASAN_OPTIONS: detect_leaks=0
+        run: |
+          python3 tests/basic151/check_loader_cli.py .work/upstream
+          python3 tests/basic151/check_rpc_start.py .work/upstream
+      - name: Compile ESP32-S3 firmware
+        run: |
+          source /opt/esp/idf/export.sh
+          cd .work/upstream
+          ./build_diy.sh --build-only
+      - name: Check inputs and package flashable images
+        run: |
+          python3 scripts/audit_basic_build.py .work/upstream
+          python3 scripts/package_basic_build.py .work/upstream dist/esp32-basic-preview
+      - name: Upload experimental test bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: esp32s3-st7735-basic-151-preview
+          path: dist/esp32-basic-preview/
+          if-no-files-found: error
+          retention-days: 14
