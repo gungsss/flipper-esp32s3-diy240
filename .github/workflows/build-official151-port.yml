@@ -196,7 +196,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/sd-content"
           printf 'SD test\n' > "$RUNNER_TEMP/sd-content/TEST.TXT"
           python3 "$IDF_PATH/components/fatfs/fatfsgen.py" "$RUNNER_TEMP/sd-content" \
-            --sector_size 512 --partition_size 16777216 --sectors_per_cluster 2 \
+            --sector_size 512 --partition_size 16777216 --sectors_per_cluster 1 \
             --fat_type 16 --output_file "$RUNNER_TEMP/card.img"
           cd .work/upstream/build_diy
           set +e
@@ -223,12 +223,19 @@ jobs:
           tar -xzf "$RUNNER_TEMP/esp-emu-examples.tar.gz" -C "$RUNNER_TEMP/esp-emu-examples"
           part=$(find "$RUNNER_TEMP/esp-emu-examples" -type f -name pushbutton.wasm -print -quit)
           emulator=$(find "$RUNNER_TEMP/esp-emu" -type f -name esp-emu -print -quit)
-          test -n "$part" && test -n "$emulator" && test -s "$RUNNER_TEMP/card.img"
+          test -n "$part" && test -n "$emulator" && test -s "$RUNNER_TEMP/esp-emu-flash.bin"
+          # The emulator's BLE controller starves the CPU after starting.
+          # Disable Bluetooth only in this fresh simulated card's settings.
+          mkdir -p "$RUNNER_TEMP/button-sd/.int"
+          python3 -c 'from pathlib import Path; import sys; Path(sys.argv[1]).write_bytes(bytes([0x19,0,0,0,0,0,0,0,0]))' "$RUNNER_TEMP/button-sd/.int/.bt.settings"
+          python3 "$IDF_PATH/components/fatfs/fatfsgen.py" "$RUNNER_TEMP/button-sd" \
+            --long_name_support --sector_size 512 --partition_size 16777216 \
+            --sectors_per_cluster 1 --fat_type 16 --output_file "$RUNNER_TEMP/button-card.img"
           cp "$part" "$RUNNER_TEMP/esp-button/pushbutton.wasm"
           printf '%s\n' '{"parts":{"button":{"module":"pushbutton.wasm","pins":{"A":8}}}}' > "$RUNNER_TEMP/esp-button/board.json"
           cd .work/upstream/build_diy
           timeout 80s "$emulator" --chip esp32s3 --psram-size 8M \
-            --sd "$RUNNER_TEMP/card.img,cs=14" \
+            --sd "$RUNNER_TEMP/button-card.img,cs=14" \
             --firmware "$RUNNER_TEMP/esp-emu-flash.bin" --elf "$PWD/furi_esp32.elf" \
             --cosim-board "$RUNNER_TEMP/esp-button/board.json" \
             --control-tcp 127.0.0.1:17765 --timeout 70s \
@@ -245,6 +252,7 @@ jobs:
           test "$control_status" -eq 0
           test "$emu_status" -eq 0
           grep -F 'All services started, entering background' "$RUNNER_TEMP/esp-emu-button.log"
+          grep -F 'BT disabled in settings, skipping BLE stack init' "$RUNNER_TEMP/esp-emu-button.log"
           grep -F '[DMAIN] key=4 type=2' "$RUNNER_TEMP/esp-emu-button.log"
           echo 'Virtual OK button reached the desktop; the physical controller remains untested.'
       - name: Try an ESP32-S3 simulated boot
