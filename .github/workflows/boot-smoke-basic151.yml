@@ -1,0 +1,58 @@
+name: Boot ESP32-S3 compatibility preview in emulator
+on:
+  push:
+    branches: [work/esp32s3-basic-151-preview]
+    paths: ['.github/workflows/boot-smoke-basic151.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Download previously built independent preview
+        uses: actions/download-artifact@v4
+        with:
+          name: esp32s3-st7735-basic-151-preview
+          run-id: 44367242830
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: firmware
+      - name: Verify files and assemble virtual flash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          root = Path('firmware')
+          info = json.loads((root / 'BUILD_INFO.json').read_text())
+          assert info['upstream_commit'] == 'e6ec11972a8e025d7ab686a6ef3016cf52360834'
+          flash = bytearray(b'\xff') * (16 * 1024 * 1024)
+          for image in info['images']:
+              data = (root / image['file']).read_bytes()
+              assert hashlib.sha256(data).hexdigest() == image['sha256']
+              start = int(image['offset'], 16)
+              assert 0 <= start < start + len(data) <= len(flash)
+              flash[start:start + len(data)] = data
+          Path('virtual-flash.bin').write_bytes(flash)
+          PY
+      - name: Download official ESP32 emulator
+        run: |
+          curl -fLsS --retry 3 -o esp-emu.tar.gz https://github.com/espressif/esp-emulator/releases/download/v1.1.0/esp-emu-1.1.0-x86_64-unknown-linux-gnu.tar.gz
+          echo 'bcb940dcf48aa6a1b62dbdc4abc37f05431710f4040d9e2504723a5ea4fd5de9  esp-emu.tar.gz' | sha256sum -c -
+          mkdir emulator
+          tar -xzf esp-emu.tar.gz -C emulator
+          find emulator -type f -name esp-emu -print
+      - name: Start firmware in ESP32-S3 simulator
+        run: |
+          executable=$(find emulator -type f -name esp-emu -print -quit)
+          test -n "$executable"
+          chmod +x "$executable"
+          set +e
+          "$executable" --chip esp32s3 --firmware virtual-flash.bin --psram-size 8M --timeout 90s --exit-on 'All services started' > boot.log 2>&1
+          status=$?
+          set -e
+          tail -n 100 boot.log
+          echo "Emulator exit code: $status"
+          grep -q 'All services started' boot.log
+          grep -q 'Display initialized (160x128' boot.log
+          echo 'Boot and display driver initialization observed in simulator; physical display, input, SD and Bluetooth are not validated.'
