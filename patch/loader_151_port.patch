@@ -1,0 +1,316 @@
+diff --git a/components/loader/loader.c b/components/loader/loader.c
+--- a/components/loader/loader.c
++++ b/components/loader/loader.c
+@@ -137,6 +137,30 @@
+     return loader->pubsub;
+ }
+ 
++bool loader_signal(Loader* loader, uint32_t signal, void* arg) {
++    LoaderMessageBoolResult result;
++    LoaderMessage message = {
++        .type = LoaderMessageTypeSignal,
++        .signal.signal = signal,
++        .signal.arg = arg,
++        .bool_value = &result,
++    };
++    loader_generic_synchronous_request(loader, &message);
++    return result.value;
++}
++
++bool loader_get_application_name(Loader* loader, FuriString* name) {
++    furi_check(name);
++    LoaderMessageBoolResult result;
++    LoaderMessage message = {
++        .type = LoaderMessageTypeGetApplicationName,
++        .application_name = name,
++        .bool_value = &result,
++    };
++    loader_generic_synchronous_request(loader, &message);
++    return result.value;
++}
++
+ void loader_enqueue_launch(
+     Loader* instance,
+     const char* name,
+@@ -148,10 +172,15 @@
+ }
+ 
+ bool loader_get_application_launch_path(Loader* instance, FuriString* path) {
+-    UNUSED(instance);
+-    UNUSED(path);
+-    /* ESP32 port: no FAP paths */
+-    return false;
++    furi_check(path);
++    LoaderMessageBoolResult result;
++    LoaderMessage message = {
++        .type = LoaderMessageTypeGetApplicationLaunchPath,
++        .application_name = path,
++        .bool_value = &result,
++    };
++    loader_generic_synchronous_request(instance, &message);
++    return result.value;
+ }
+ 
+ // callbacks
+@@ -458,6 +487,12 @@
+         FURI_LOG_E(TAG, "Application \"%s\" not found", name);
+     } while(false);
+ 
++    if(status.value == LoaderStatusOk && loader->app.thread &&
++       loader->app.thread != (FuriThread*)LOADER_MAGIC_THREAD_VALUE) {
++        furi_check(loader->app.launch_path == NULL);
++        loader->app.launch_path = furi_string_alloc_set_str(name);
++    }
++
+     /* BeforeLoad was announced but nothing started (unknown app, FAP preload/map failure):
+      * close the announcement, or every subscriber keeps believing an app runs - the desktop
+      * kept its animation frozen and ignored animation reloads (asset pack / anim speed),
+@@ -507,6 +542,11 @@
+     }
+     loader->app.thread = NULL;
+ 
++    if(loader->app.launch_path) {
++        furi_string_free(loader->app.launch_path);
++        loader->app.launch_path = NULL;
++    }
++
+     FURI_LOG_I(
+         TAG, "Application stopped. Free heap: %zu", memmgr_get_free_heap());
+ 
+@@ -515,20 +555,49 @@
+     furi_pubsub_publish(loader->pubsub, &event);
+ 
+     if(loader->pending_name) {
+-        LoaderMessage relaunch;
+-        memset(&relaunch, 0, sizeof(relaunch));
+-        relaunch.type = LoaderMessageTypeStartByNameDetachedWithGuiError;
+-        relaunch.start.name = loader->pending_name;
+-        relaunch.start.args = loader->pending_args;
++        /* The loader is the only reader of its one-slot queue. Posting the
++         * relaunch to that queue here can deadlock if another request filled it
++         * while the application was closing. Start the pending app directly. */
++        char* pending_name = loader->pending_name;
++        char* pending_args = loader->pending_args;
+         loader->pending_name = NULL;
+         loader->pending_args = NULL;
+-        furi_message_queue_put(loader->queue, &relaunch, FuriWaitForever);
++        FuriString* error_message = furi_string_alloc();
++        LoaderMessageLoaderStatusResult status =
++            loader_do_start_by_name(loader, pending_name, pending_args, error_message);
++        if(status.value != LoaderStatusOk) {
++            FURI_LOG_E(TAG, "Deferred start error: %s", furi_string_get_cstr(error_message));
++        }
++        furi_string_free(error_message);
++        free(pending_name);
++        free(pending_args);
+     } else {
+         // Emit queue empty since we don't have a deferred launch queue
+         LoaderEvent empty_event;
+         empty_event.type = LoaderEventTypeNoMoreAppsInQueue;
+         furi_pubsub_publish(loader->pubsub, &empty_event);
+     }
++}
++
++static bool loader_is_application_running(Loader* loader) {
++    return loader->app.thread && loader->app.thread != (FuriThread*)LOADER_MAGIC_THREAD_VALUE;
++}
++
++static bool loader_do_signal(Loader* loader, uint32_t signal, void* arg) {
++    return loader_is_application_running(loader) &&
++           furi_thread_signal(loader->app.thread, signal, arg);
++}
++
++static bool loader_do_get_application_name(Loader* loader, FuriString* name) {
++    if(!loader_is_application_running(loader)) return false;
++    furi_string_set(name, furi_thread_get_name(furi_thread_get_id(loader->app.thread)));
++    return true;
++}
++
++static bool loader_do_get_application_launch_path(Loader* loader, FuriString* path) {
++    if(!loader_is_application_running(loader) || !loader->app.launch_path) return false;
++    furi_string_set(path, loader->app.launch_path);
++    return true;
+ }
+ 
+ // app
+@@ -610,6 +679,21 @@
+             case LoaderMessageTypeUnlock:
+                 loader_do_unlock(loader);
+                 break;
++            case LoaderMessageTypeSignal:
++                message.bool_value->value =
++                    loader_do_signal(loader, message.signal.signal, message.signal.arg);
++                api_lock_unlock(message.api_lock);
++                break;
++            case LoaderMessageTypeGetApplicationName:
++                message.bool_value->value =
++                    loader_do_get_application_name(loader, message.application_name);
++                api_lock_unlock(message.api_lock);
++                break;
++            case LoaderMessageTypeGetApplicationLaunchPath:
++                message.bool_value->value =
++                    loader_do_get_application_launch_path(loader, message.application_name);
++                api_lock_unlock(message.api_lock);
++                break;
+             }
+         }
+     }
+diff --git a/components/loader/loader.h b/components/loader/loader.h
+--- a/components/loader/loader.h
++++ b/components/loader/loader.h
+@@ -46,9 +46,12 @@
+ /** Open the loader menu directly on the Settings submenu. */
+ void loader_show_settings(Loader* instance);
+ FuriPubSub* loader_get_pubsub(Loader* instance);
++bool loader_signal(Loader* instance, uint32_t signal, void* arg);
++bool loader_get_application_name(Loader* instance, FuriString* name);
+ 
+ typedef enum {
+-    LoaderDeferredLaunchFlagGui = (1 << 0),
++    LoaderDeferredLaunchFlagNone = 0,
++    LoaderDeferredLaunchFlagGui = (1 << 1),
+ } LoaderDeferredLaunchFlag;
+ 
+ /** Enqueue an app launch (stub on ESP32 — no FAP support) */
+@@ -58,7 +61,7 @@
+     const char* args,
+     LoaderDeferredLaunchFlag flags);
+ 
+-/** Get the path of the currently running application (stub on ESP32) */
++/** Get the launch name or path of the currently running application. */
+ bool loader_get_application_launch_path(Loader* instance, FuriString* path);
+ 
+ int32_t loader_srv(void* p);
+diff --git a/components/loader/loader_i.h b/components/loader/loader_i.h
+--- a/components/loader/loader_i.h
++++ b/components/loader/loader_i.h
+@@ -13,6 +13,7 @@
+ typedef struct FlipperApplication FlipperApplication;
+ 
+ typedef struct {
++    FuriString* launch_path;
+     char* args;
+     FuriThread* thread;
+     FlipperApplication* fap;
+@@ -45,6 +46,9 @@
+     LoaderMessageTypeUnlock,
+     LoaderMessageTypeIsLocked,
+     LoaderMessageTypeStartByNameDetachedWithGuiError,
++    LoaderMessageTypeSignal,
++    LoaderMessageTypeGetApplicationName,
++    LoaderMessageTypeGetApplicationLaunchPath,
+ } LoaderMessageType;
+ 
+ typedef struct {
+@@ -67,6 +71,11 @@
+ 
+     union {
+         LoaderMessageStartByName start;
++        struct {
++            uint32_t signal;
++            void* arg;
++        } signal;
++        FuriString* application_name;
+     };
+ 
+     union {
+diff --git a/components/flipper_application/flipper_application/firmware_api.c b/components/flipper_application/flipper_application/firmware_api.c
+--- a/components/flipper_application/flipper_application/firmware_api.c
++++ b/components/flipper_application/flipper_application/firmware_api.c
+@@ -59,6 +59,7 @@
+ #include <furi.h>
+ #include <furi_hal_power.h>
+ #include <gui/gui.h>
++#include "../../loader/loader.h"
+ #include <gui/view_port.h>
+ #include <gui/canvas.h>
+ #include <gui/elements.h>
+@@ -339,6 +340,16 @@
+ #include "official_core_151_abi_checks.h"
+ #include "official_storage_151_abi_checks.h"
+ 
++_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_start), LoaderStatus (*)(Loader*, const char*, const char*, FuriString*)), "official 1.5.1 signature: loader_start");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_signal), bool (*)(Loader*, uint32_t, void*)), "official 1.5.1 signature: loader_signal");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_get_application_name), bool (*)(Loader*, FuriString*)), "official 1.5.1 signature: loader_get_application_name");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_get_application_launch_path), bool (*)(Loader*, FuriString*)), "official 1.5.1 signature: loader_get_application_launch_path");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_get_pubsub), FuriPubSub* (*)(Loader*)), "official 1.5.1 signature: loader_get_pubsub");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_is_locked), bool (*)(Loader*)), "official 1.5.1 signature: loader_is_locked");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_lock), bool (*)(Loader*)), "official 1.5.1 signature: loader_lock");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_unlock), void (*)(Loader*)), "official 1.5.1 signature: loader_unlock");
++_Static_assert(__builtin_types_compatible_p(__typeof__(&loader_show_menu), void (*)(Loader*)), "official 1.5.1 signature: loader_show_menu");
++
+ /* clang-format off */
+ static const struct sym_entry firmware_api_table[] = {
+     { .hash = 0x0020e7b6, .address = (uint32_t)flipper_format_update_float }, /* flipper_format_update_float */
+@@ -452,6 +463,7 @@
+     { .hash = 0x0ddfc2b8, .address = (uint32_t)plugin_manager_alloc }, /* plugin_manager_alloc */
+     { .hash = 0x0de49867, .address = (uint32_t)&message_vibro_on }, /* message_vibro_on */
+     { .hash = 0x0e060515, .address = (uint32_t)&message_green_255 }, /* message_green_255 */
++    { .hash = 0x0e07c979, .address = (uint32_t)loader_signal }, /* loader_signal */
+     { .hash = 0x0e4dce53, .address = (uint32_t)view_set_previous_callback }, /* view_set_previous_callback */
+     { .hash = 0x0eab4808, .address = (uint32_t)furi_string_cat }, /* furi_string_cat */
+     { .hash = 0x0eab4990, .address = (uint32_t)furi_string_cmp }, /* furi_string_cmp */
+@@ -497,6 +509,7 @@
+     { .hash = 0x1214ffce, .address = (uint32_t)__bswapsi2 }, /* __bswapsi2 */
+     { .hash = 0x124a8565, .address = (uint32_t)bit_lib_copy_bits }, /* bit_lib_copy_bits */
+     { .hash = 0x12c73778, .address = (uint32_t)locale_get_measurement_unit }, /* locale_get_measurement_unit */
++    { .hash = 0x130f57a7, .address = (uint32_t)loader_unlock }, /* loader_unlock */
+     { .hash = 0x1335ce34, .address = (uint32_t)tar_archive_add_file }, /* tar_archive_add_file */
+     { .hash = 0x135baa10, .address = (uint32_t)notification_message }, /* notification_message */
+     { .hash = 0x13a0031a, .address = (uint32_t)popup_free }, /* popup_free */
+@@ -605,6 +618,7 @@
+     { .hash = 0x234101f6, .address = (uint32_t)submenu_add_item_ex }, /* submenu_add_item_ex */
+     { .hash = 0x238a17a2, .address = (uint32_t)file_browser_worker_free }, /* file_browser_worker_free */
+     { .hash = 0x238d54a0, .address = (uint32_t)file_browser_worker_load }, /* file_browser_worker_load */
++    { .hash = 0x238e1950, .address = (uint32_t)loader_show_menu }, /* loader_show_menu */
+     { .hash = 0x23b27c27, .address = (uint32_t)bit_buffer_append_byte }, /* bit_buffer_append_byte */
+     { .hash = 0x23d393d7, .address = (uint32_t)storage_dir_exists }, /* storage_dir_exists */
+     { .hash = 0x245caa0e, .address = (uint32_t)subghz_block_generic_deserialize }, /* subghz_block_generic_deserialize */
+@@ -688,6 +702,7 @@
+     { .hash = 0x3253dbbf, .address = (uint32_t)infrared_worker_rx_start }, /* infrared_worker_rx_start */
+     { .hash = 0x325b5bb6, .address = (uint32_t)&sequence_blink_start_magenta }, /* sequence_blink_start_magenta */
+     { .hash = 0x327f1966, .address = (uint32_t)uart_param_config }, /* uart_param_config */
++    { .hash = 0x32bdd9ce, .address = (uint32_t)loader_get_application_name }, /* loader_get_application_name */
+     { .hash = 0x32e39619, .address = (uint32_t)mf_classic_get_uid }, /* mf_classic_get_uid */
+     { .hash = 0x32e52c9e, .address = (uint32_t)furi_thread_set_priority }, /* furi_thread_set_priority */
+     { .hash = 0x33164e2f, .address = (uint32_t)furi_message_queue_get_capacity }, /* furi_message_queue_get_capacity */
+@@ -760,6 +775,7 @@
+     { .hash = 0x3e1255ee, .address = (uint32_t)__furi_crash_implementation }, /* __furi_crash_implementation */
+     { .hash = 0x3e574980, .address = (uint32_t)mjs_mk_array_buf }, /* mjs_mk_array_buf */
+     { .hash = 0x3e789d89, .address = (uint32_t)&sequence_blink_magenta_10 }, /* sequence_blink_magenta_10 */
++    { .hash = 0x3e824aa9, .address = (uint32_t)loader_start }, /* loader_start */
+     { .hash = 0x3ee13040, .address = (uint32_t)heap_caps_malloc }, /* heap_caps_malloc */
+     { .hash = 0x3f1c02c8, .address = (uint32_t)esp_wifi_start }, /* esp_wifi_start */
+     { .hash = 0x3fae2750, .address = (uint32_t)subghz_environment_set_nice_flor_s_rainbow_table_file_name }, /* subghz_environment_set_nice_flor_s_rainbow_table_file_name */
+@@ -1298,6 +1314,7 @@
+     { .hash = 0x953605e4, .address = (uint32_t)view_holder_set_back_callback }, /* view_holder_set_back_callback */
+     { .hash = 0x954769fa, .address = (uint32_t)bit_lib_add_parity }, /* bit_lib_add_parity */
+     { .hash = 0x955f7eb1, .address = (uint32_t)flipper_format_write_header }, /* flipper_format_write_header */
++    { .hash = 0x9567804b, .address = (uint32_t)loader_get_pubsub }, /* loader_get_pubsub */
+     { .hash = 0x956c4da5, .address = (uint32_t)elements_bubble_str }, /* elements_bubble_str */
+     { .hash = 0x957212cb, .address = (uint32_t)widget_add_circle_element }, /* widget_add_circle_element */
+     { .hash = 0x95cbc77c, .address = (uint32_t)view_stack_remove_view }, /* view_stack_remove_view */
+@@ -1454,6 +1471,7 @@
+     { .hash = 0xac31e266, .address = (uint32_t)stream_delete_and_insert_char }, /* stream_delete_and_insert_char */
+     { .hash = 0xac46f417, .address = (uint32_t)&sequence_display_backlight_on }, /* sequence_display_backlight_on */
+     { .hash = 0xac513fd0, .address = (uint32_t)view_holder_send_to_front }, /* view_holder_send_to_front */
++    { .hash = 0xac57cdd4, .address = (uint32_t)loader_get_application_launch_path }, /* loader_get_application_launch_path */
+     { .hash = 0xac94b72e, .address = (uint32_t)subghz_setting_get_preset_count }, /* subghz_setting_get_preset_count */
+     { .hash = 0xacc5bb29, .address = (uint32_t)i2c_master_write_to_device }, /* i2c_master_write_to_device */
+     { .hash = 0xacfb6233, .address = (uint32_t)&I_DolphinMafia_119x62 }, /* I_DolphinMafia_119x62 */
+@@ -1668,6 +1686,7 @@
+     { .hash = 0xcb57017f, .address = (uint32_t)&IP_EVENT }, /* IP_EVENT */
+     { .hash = 0xcb5a4f62, .address = (uint32_t)mjs_create }, /* mjs_create */
+     { .hash = 0xcb8aa2fe, .address = (uint32_t)nfc_device_copy_data }, /* nfc_device_copy_data */
++    { .hash = 0xcb936be4, .address = (uint32_t)loader_lock }, /* loader_lock */
+     { .hash = 0xcbb21513, .address = (uint32_t)furi_hal_rfid_field_detect_stop }, /* furi_hal_rfid_field_detect_stop */
+     { .hash = 0xcbb8d3d7, .address = (uint32_t)dialog_file_browser_show }, /* dialog_file_browser_show */
+     { .hash = 0xcbfeb206, .address = (uint32_t)furi_string_alloc_set }, /* furi_string_alloc_set */
+@@ -1723,6 +1742,7 @@
+     { .hash = 0xd51ac80e, .address = (uint32_t)bit_buffer_set_byte_with_parity }, /* bit_buffer_set_byte_with_parity */
+     { .hash = 0xd51eed4c, .address = (uint32_t)datetime_get_days_per_month }, /* datetime_get_days_per_month */
+     { .hash = 0xd551b8be, .address = (uint32_t)i2s_channel_disable }, /* i2s_channel_disable */
++    { .hash = 0xd5556e88, .address = (uint32_t)loader_is_locked }, /* loader_is_locked */
+     { .hash = 0xd5adbc28, .address = (uint32_t)flipper_format_file_alloc }, /* flipper_format_file_alloc */
+     { .hash = 0xd5d1fa73, .address = (uint32_t)flipper_format_file_close }, /* flipper_format_file_close */
+     { .hash = 0xd5d6ddbb, .address = (uint32_t)protocol_dict_free }, /* protocol_dict_free */
