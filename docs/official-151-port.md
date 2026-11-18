@@ -57,6 +57,9 @@ review.
 - Exposed 25 additional storage, locale, and date/time functions; all 64
   official functions in those groups have 1.5.1 SDK C signature checks.
   Device storage behavior remains untested.
+- Exposed 18 existing RPC functions with official C signature checks, and
+  exercised the app-start request handler on the host. Bluetooth and USB
+  communication still require tests on the physical board.
 - Added an explicit DIY target to the FAP builder and CI checks that build the
   official 1.5.1 date/time, view-dispatcher and application-data examples for
   Xtensa, then check their imports. CI results and real-device execution must
