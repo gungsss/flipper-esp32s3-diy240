@@ -1,6 +1,6 @@
 {
   "name": "Flipper 1.5.1 ESP32-S3 Native160 port by m4145",
-  "version": "1.5.1-ESP32-preview",
+  "version": "1.5.1-esp32-native160-preview.20261119",
   "new_install_prompt_erase": false,
   "builds": [
     {
