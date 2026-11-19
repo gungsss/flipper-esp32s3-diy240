@@ -19,7 +19,10 @@ info.update({
     'reported_flipper_version': '1.5.1-ESP32-preview',
     'reported_esp_app_api_version': '1.0',
     'official_151_app_api_version': '88.2',
-    'scope': 'ESP32-S3 source port based on selected Flipper 1.5.1 core, GUI, storage, loader, CLI, RPC, USB HID, toolbox and date/time example; peripheral and full application SDK parity are incomplete',
+    'port_author': 'm4145',
+    'port_credit': 'Port dan adaptasi ESP32-S3 DIY240 oleh m4145',
+    'upstream_credit': 'Sor3nt/Flipper-Zero-ESP32-Port @ e6ec11972a8e025d7ab686a6ef3016cf52360834',
+    'scope': 'Port dan adaptasi ESP32-S3 DIY240 oleh m4145, berbasis Sor3nt ESP32 port dengan perubahan terpilih Flipper 1.5.1; periferal dan kesetaraan penuh SDK aplikasi belum tersedia',
     'official_flipper_151_source': 'flipperdevices/flipperzero-firmware@1.5.1 (9e810dc399e027e48ce07751df72168abbb19065)',
     'native_ui_profile': 'Native 160x128 home, primary menu, and selected settings lists; unsupported views retain compatibility rendering',
     'native_ui_source': 'patch/native160/integration/native160_integration_only.patch',
@@ -61,7 +64,7 @@ for old in ('FLASH.md', 'HARDWARE.md', 'INSTALL_WINDOWS.md'):
     (out / old).unlink()
 
 manifest = {
-    'name': 'Flipper 1.5.1 ESP32-S3 ST7735S Native160 port preview',
+    'name': 'Flipper 1.5.1 ESP32-S3 ST7735S Native160 port by m4145',
     'version': '1.5.1-esp32-native160-preview.20261119',
     'new_install_prompt_erase': False,
     'builds': [{'chipFamily': 'ESP32-S3', 'parts': [
@@ -74,7 +77,7 @@ manifest = {
 <title>Flipper 1.5.1 ESP32-S3 ST7735S flasher</title>
 <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
 <style>body{font-family:system-ui;background:#101720;color:#edf4f4;max-width:45rem;margin:8vh auto;padding:1.5rem;line-height:1.6}button{padding:.9rem 1.3rem;font-size:1rem}p{color:#c7d3d3}</style>
-<h1>Flipper 1.5.1 port untuk ESP32-S3</h1><p>Home, menu utama, dan daftar pengaturan memakai tata letak native 160×128. Tampilan yang belum didukung tetap memakai render kompatibilitas.</p>
+<h1>Flipper 1.5.1 port untuk ESP32-S3</h1><p class="small">Port &amp; adaptasi Native160 oleh <strong>m4145</strong>, berbasis port ESP32 dari <a href="https://github.com/Sor3nt/Flipper-Zero-ESP32-Port">Sor3nt</a>.</p><p>Home, menu utama, dan daftar pengaturan memakai tata letak native 160×128. Tampilan yang belum didukung tetap memakai render kompatibilitas.</p>
 <p>Ini port sumber untuk ESP32-S3 yang membawa perubahan inti terpilih dari Flipper 1.5.1. Firmware resmi Flipper tidak dapat langsung dipasang ke ESP32; fitur periferal dan kesetaraan penuh API aplikasi belum tersedia.</p>
 <p>Sambungkan ESP32 menggunakan kabel USB data, tutup qFlipper/serial monitor, lalu pilih port ESP32-S3.</p>
 <esp-web-install-button manifest="./manifest.json"><button slot="activate">Hubungkan dan flash</button>
@@ -82,8 +85,9 @@ manifest = {
 <span slot="not-allowed">Buka melalui localhost atau HTTPS.</span></esp-web-install-button></html>''')
 (out / 'BACA_DULU.txt').write_text('''FIRMWARE FLIPPER 1.5.1 PORT - ESP32-S3 ST7735S / UI NATIVE 160x128
 
-Ini port sumber khusus ESP32-S3, bukan binary resmi Flipper. Sumber ESP32
-berasal dari Sor3nt e6ec119 dan membawa perubahan terpilih dari Flipper 1.5.1
+Port dan adaptasi Native160 DIY240 oleh m4145, berbasis
+Sor3nt/Flipper-Zero-ESP32-Port commit e6ec119. Ini port sumber khusus ESP32-S3,
+bukan binary resmi Flipper, dan membawa perubahan terpilih dari Flipper 1.5.1
 (tag 1.5.1, commit 9e810dc). Home, menu utama, dan daftar pengaturan tertentu
 menggunakan UI native 160x128. Build juga memasukkan perubahan GUI, loader,
 CLI, RPC, USB HID, toolbox, dan contoh tanggal/waktu. Ini belum setara penuh

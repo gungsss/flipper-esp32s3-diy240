@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b1820">
-<title>ST7735S Native160 | DIY240 Flasher</title>
+<title>Flipper 1.5.1 port by m4145 | DIY240 Flasher</title>
 <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#0b1820;color:#e9f4f2;font:16px/1.55 system-ui,sans-serif}
@@ -27,9 +27,9 @@ code{display:block;overflow-wrap:anywhere;padding:10px 12px;border-radius:8px;ba
 <main>
 <nav><a href="/">← DIY240 Flasher</a><span>ESP32-S3 · ST7735S</span></nav>
 <section class="card">
-<span class="eyebrow">Native160 · Build preview · 19 November 2026</span>
+<span class="eyebrow">Flipper 1.5.1 port · Native160 · by m4145</span>
 <h1>ST7735S,<br>penuh 160×128.</h1>
-<p>Beranda, menu utama, dan daftar pengaturan terpilih memakai tata letak native sesuai resolusi layar landscape. Tampilan lain yang belum dipindahkan tetap memakai renderer kompatibilitas.</p>
+<p>Port ESP32-S3 dan adaptasi Native160 untuk layar 160×128 oleh <strong>m4145</strong>, berbasis port ESP32 dari <a href="https://github.com/Sor3nt/Flipper-Zero-ESP32-Port">Sor3nt</a>. Beranda, menu utama, dan daftar pengaturan terpilih memakai tata letak native sesuai resolusi layar landscape.</p><p>Tampilan lain yang belum dipindahkan tetap memakai renderer kompatibilitas.</p>
 <span class="tag"><span class="dot"></span> Build, checksum, dan offset flash terverifikasi · belum diuji boot pada board fisik</span>
 </section>
 <section class="card">
@@ -60,7 +60,7 @@ code{display:block;overflow-wrap:anywhere;padding:10px 12px;border-radius:8px;ba
 </section>
 <section class="card warning">
 <h2>Catatan versi</h2>
-<p>Build ini untuk ESP32-S3 N16R8 dan ST7735S 160×128 landscape. Dasar upstream melaporkan versi Flipper 1.4.3; sebagian perubahan core, GUI, storage, loader, CLI, RPC, USB HID, dan toolbox dari 1.5.1 sudah diintegrasikan. <strong>Ini belum port 1.5.1 lengkap.</strong></p>
+<p>Port &amp; adaptasi ESP32-S3 DIY240 oleh <strong>m4145</strong>, berbasis port ESP32 Sor3nt e6ec119 yang melaporkan basis 1.4.3, dengan perubahan terpilih dari Flipper 1.5.1. <strong>Ini belum port 1.5.1 lengkap.</strong></p>
 <p>Firmware lolos kompilasi ESP-IDF, pemeriksaan image/offset, dan tes render di host. Orientasi, tombol, microSD, dan boot tetap perlu dicoba pada board.</p>
 <p class="small"><a href="/flipper-st7735/">Buka firmware ST7735S portrait</a> · <a href="https://github.com/gungsss/flipper-esp32s3-diy240/tree/work/esp32s3-basic-151-preview" target="_blank" rel="noopener noreferrer">Source dan build CI</a></p>
 </section>

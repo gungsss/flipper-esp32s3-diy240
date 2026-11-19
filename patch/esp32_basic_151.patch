@@ -3620,4 +3620,4 @@ diff --git a/components/toolbox/version.c b/components/toolbox/version.c
 +    .version = "1.5.1-ESP32-preview",
 @@ -25 +25 @@
 -    .firmware_origin = "ESP32 Port",
-+    .firmware_origin = "Flipper 1.5.1 ESP32-S3 port (DIY240)",
++    .firmware_origin = "DIY240 by m4145",

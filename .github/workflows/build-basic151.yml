@@ -3,14 +3,13 @@ on:
   push:
     branches: [work/esp32s3-basic-151-preview]
     paths:
-      - 'patch/esp32_basic_151.patch'
-      - 'patch/native160/**'
-      - 'scripts/apply_native160.py'
+      - 'patch/**'
+      - 'variants/st7735/**'
+      - 'scripts/**'
       - 'tests/native160/**'
       - 'tests/basic151/**'
-      - 'scripts/audit_basic_build.py'
-      - 'scripts/check_official151_core.py'
-      - 'scripts/package_basic_build.py'
+      - 'web/tools/publish_st7735_preview.py'
+      - 'web/public/flipper-st7735-landscape/index.html'
       - '.github/workflows/build-basic151.yml'
 permissions:
   contents: read
@@ -123,10 +122,66 @@ jobs:
         run: |
           python3 scripts/audit_basic_build.py .work/upstream
           python3 scripts/package_basic_build.py .work/upstream dist/esp32-native160-preview
-      - name: Upload experimental test bundle
+      - name: Prepare Vercel assets from verified build
+        run: python3 web/tools/publish_st7735_preview.py --input dist/esp32-native160-preview --output dist/vercel-native160-release --index-html web/public/flipper-st7735-landscape/index.html
+      - name: Upload flash-ready firmware bundle
         uses: actions/upload-artifact@v4
         with:
           name: esp32s3-st7735-native160-151-preview
           path: dist/esp32-native160-preview/
           if-no-files-found: error
           retention-days: 14
+      - name: Upload Vercel production snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-native160-release
+          path: dist/vercel-native160-release/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-vercel:
+    name: Publish successful firmware to Vercel
+    needs: build
+    if: success() && github.ref == 'refs/heads/work/esp32s3-basic-151-preview'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Download verified release snapshot
+        uses: actions/download-artifact@v4
+        with:
+          name: vercel-native160-release
+          path: ${{ runner.temp }}/vercel-release
+      - name: Checkout Vercel production branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: site
+          persist-credentials: true
+      - name: Update production flasher assets
+        env:
+          RELEASE_DIR: ${{ runner.temp }}/vercel-release
+          SITE_DIR: ${{ github.workspace }}/site
+        run: |
+          set -euo pipefail
+          target="$SITE_DIR/web/public/flipper-st7735-landscape"
+          test -f "$RELEASE_DIR/manifest.json"
+          mkdir -p "$target/firmware"
+          cp "$RELEASE_DIR/index.html" "$target/index.html"
+          cp "$RELEASE_DIR/manifest.json" "$target/manifest.json"
+          cp "$RELEASE_DIR/release.json" "$target/release.json"
+          cp "$RELEASE_DIR/build-info.json" "$target/build-info.json"
+          cp "$RELEASE_DIR/ESP32S3_ST7735S_Native160_151_Compatibility_Preview_FLASH_READY.zip" "$target/ESP32S3_ST7735S_Native160_151_Compatibility_Preview_FLASH_READY.zip"
+          cp "$RELEASE_DIR/firmware/"*.bin "$target/firmware/"
+          git -C "$SITE_DIR" add web/public/flipper-st7735-landscape
+          if git -C "$SITE_DIR" diff --cached --quiet; then
+            echo "Vercel production already has this firmware release."
+            exit 0
+          fi
+          git -C "$SITE_DIR" config user.name "github-actions[bot]"
+          git -C "$SITE_DIR" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$SITE_DIR" commit -m "build(web): publish Flipper 1.5.1 ESP32 firmware by m4145"
+          git -C "$SITE_DIR" fetch origin main
+          git -C "$SITE_DIR" rebase origin/main
+          git -C "$SITE_DIR" push origin HEAD:main
