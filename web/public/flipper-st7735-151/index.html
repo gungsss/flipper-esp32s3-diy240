@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1820">
+  <title>Flipper 1.5.1 untuk ESP32-S3 ST7735S | DIY240</title>
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#0b1820;color:#e9f4f2;font:16px/1.55 system-ui,sans-serif}
+    main{width:min(100% - 32px,760px);margin:36px auto 56px}a{color:#83ead2}
+    .card{margin:18px 0;padding:clamp(20px,4vw,28px);background:#11242c;border:1px solid #29414a;border-radius:16px}
+    .eyebrow{color:#83ead2;font-size:13px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:8px 0 14px;font-size:clamp(29px,6vw,42px);line-height:1.12}h2{font-size:20px;margin:0 0 10px}
+    p{margin:10px 0;color:#c0d2d0}strong{color:#f5fbfa}.status{padding:14px 16px;background:#203439;border-radius:10px}
+    .warning{background:#342a19;border-color:#795f32}label{display:flex;gap:10px;align-items:flex-start;margin:20px 0}
+    input{width:20px;height:20px;flex:0 0 auto;margin:3px 0 0;accent-color:#73e4c9}button{border:0;border-radius:10px;background:#79e8cd;padding:14px 20px;color:#08231c;font-size:16px;font-weight:750;cursor:pointer}
+    [hidden]{display:none!important}ol{padding-left:23px;color:#d8e7e5}li{margin:10px 0}
+    table{width:100%;border-collapse:collapse}th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #29414a}th{color:#9bb5b2;font-size:14px}.small{font-size:14px;color:#a8bfbd}
+  </style>
+</head>
+<body>
+<main>
+  <a href="/">&larr; Kembali ke DIY240 Flasher</a>
+  <section class="card">
+    <span class="eyebrow">Port komunitas · ESP32-S3 N16R8</span>
+    <h1>Flipper 1.5.1 untuk ST7735S</h1>
+    <p>Firmware untuk layar ST7735S 160 × 128 dalam posisi landscape. Beberapa fitur yang memerlukan perangkat tambahan dapat dinonaktifkan.</p>
+    <p id="release-status" class="status" role="status">Memeriksa firmware…</p>
+    <p id="release-detail" class="small" hidden></p>
+  </section>
+  <section class="card">
+    <h2>Sebelum memasang</h2>
+    <ol>
+      <li>Gunakan Chrome atau Edge di komputer dan kabel USB yang mendukung data. Tutup aplikasi lain yang sedang memakai port ESP32.</li>
+      <li>Pastikan rangkaian cocok dengan tabel di bawah. Lepaskan USB sebelum mengubah kabel.</li>
+      <li>Centang konfirmasi, klik tombol flash, pilih port ESP32-S3, lalu ikuti petunjuk di layar.</li>
+      <li>Setelah selesai, tekan RESET/EN jika perangkat tidak memulai ulang otomatis.</li>
+    </ol>
+    <p class="small">microSD bersifat terpisah dari firmware. Jika dibutuhkan oleh aplikasi, siapkan kartu dan isi datanya secara terpisah.</p>
+  </section>
+  <section class="card warning">
+    <h2>Pemasangan mengganti firmware</h2>
+    <p>Area flash yang ditulis akan ditimpa. Cadangkan data yang diperlukan. Jika ada pilihan <strong>Erase device</strong>, biarkan tidak dicentang jika tidak ingin menghapus seluruh isi flash.</p>
+    <label><input id="confirm" type="checkbox" disabled><span>Saya memakai ESP32-S3 N16R8 dan ST7735S dengan sambungan yang sesuai, serta memahami bahwa firmware lama akan ditimpa.</span></label>
+    <esp-web-install-button id="install" manifest="./manifest.json" hidden><button slot="activate" type="button">Hubungkan dan flash</button><span slot="unsupported">Gunakan Chrome atau Edge komputer dengan Web Serial.</span><span slot="not-allowed">Buka halaman ini melalui HTTPS.</span></esp-web-install-button>
+    <a id="download" href="#" download hidden>Unduh firmware .bin</a>
+    <p id="browser-note" class="small" hidden>Flashing USB memerlukan HTTPS dan browser yang mendukung Web Serial.</p>
+  </section>
+  <section class="card">
+    <h2>Sambungan perangkat</h2>
+    <table><thead><tr><th>ST7735S</th><th>ESP32-S3</th></tr></thead><tbody>
+      <tr><td>GND / VDD</td><td>GND / 3V3</td></tr><tr><td>SCL / SDA</td><td>GPIO12 / GPIO11</td></tr>
+      <tr><td>RST / DC</td><td>GPIO16 / GPIO15</td></tr><tr><td>CS</td><td>GND</td></tr>
+      <tr><td>BLK</td><td>Seperti saat tes layar berhasil</td></tr>
+    </tbody></table>
+    <p class="small">microSD: CLK 40, MOSI 39, MISO 38, CS 14. Tombol: UP 4, DWN 5, LET 6, RHT 17, MID 8, SET 18 dan COM ke GND.</p>
+  </section>
+</main>
+<script type="module" src="./installer.js"></script>
+</body>
+</html>
