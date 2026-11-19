@@ -38,4 +38,17 @@ must_reject(wrong_path)
 duplicate = copy.deepcopy(original)
 duplicate['files'].append(copy.deepcopy(duplicate['files'][0]))
 must_reject(duplicate)
-print('Provenance check rejects altered commits, hashes, paths, and duplicate records.')
+
+tree = {'sha': check.OFFICIAL_TREE, 'truncated': False,
+        'tree': [{'type': 'blob', 'path': row['official'], 'sha': row['blob']} for row in original['files']]}
+with tempfile.TemporaryDirectory(prefix='esp-tree-') as directory:
+    path = Path(directory) / 'tree.json'
+    tree['tree'][0]['sha'] = '0' * 40
+    path.write_text(json.dumps(tree))
+    try:
+        check.verify_manifest(source, project / 'tests/basic151/official151_core_manifest.json', tree_json=path)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('Altered official Git tree was accepted')
+print('Provenance check rejects altered commits, hashes, paths, duplicate records and Git trees.')

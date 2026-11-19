@@ -12,6 +12,7 @@ import subprocess
 from pathlib import Path, PurePosixPath
 
 OFFICIAL_COMMIT = '9e810dc399e027e48ce07751df72168abbb19065'
+OFFICIAL_TREE = '520fb70571ea6882103542d60a6444215b12ce31'
 BASE_COMMIT = 'e6ec11972a8e025d7ab686a6ef3016cf52360834'
 GROUPS = {
     'gui': ('applications/services/gui', ('components/gui',)),
@@ -69,7 +70,7 @@ def create_manifest(source, official):
     return {'official_commit': OFFICIAL_COMMIT, 'esp_base_commit': BASE_COMMIT, 'files': records}
 
 
-def verify_manifest(source, manifest, official=None):
+def verify_manifest(source, manifest, official=None, tree_json=None):
     data = json.loads(manifest.read_text())
     if data.get('official_commit') != OFFICIAL_COMMIT or data.get('esp_base_commit') != BASE_COMMIT:
         raise ValueError('source commit identity does not match')
@@ -102,6 +103,14 @@ def verify_manifest(source, manifest, official=None):
         for row in records:
             if entries.get(row['official']) != row['blob']:
                 raise ValueError(f'official tree mismatch: {row["official"]}')
+    if tree_json is not None:
+        tree = json.loads(tree_json.read_text())
+        if tree.get('sha') != OFFICIAL_TREE or tree.get('truncated') is not False:
+            raise ValueError('official Git tree response is incomplete or incorrect')
+        entries = {row['path']: row['sha'] for row in tree['tree'] if row.get('type') == 'blob'}
+        for row in records:
+            if entries.get(row['official']) != row['blob']:
+                raise ValueError(f'official GitHub tree mismatch: {row["official"]}')
     print(f'Verified {len(records)} byte-identical supported core files against the 1.5.1 manifest.')
 
 
@@ -110,13 +119,14 @@ def main():
     parser.add_argument('source', type=Path)
     parser.add_argument('--manifest', type=Path, default=Path('tests/basic151/official151_core_manifest.json'))
     parser.add_argument('--official-repo', type=Path)
+    parser.add_argument('--tree-json', type=Path)
     parser.add_argument('--write', action='store_true')
     args = parser.parse_args()
     if args.write:
         if args.official_repo is None:
             parser.error('--write requires --official-repo')
         args.manifest.write_text(json.dumps(create_manifest(args.source, args.official_repo), indent=2) + '\n')
-    verify_manifest(args.source, args.manifest, args.official_repo)
+    verify_manifest(args.source, args.manifest, args.official_repo, args.tree_json)
 
 
 if __name__ == '__main__':

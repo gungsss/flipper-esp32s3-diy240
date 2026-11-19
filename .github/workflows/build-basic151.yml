@@ -6,6 +6,7 @@ on:
       - 'patch/esp32_basic_151.patch'
       - 'tests/basic151/**'
       - 'scripts/audit_basic_build.py'
+      - 'scripts/check_official151_core.py'
       - 'scripts/package_basic_build.py'
       - '.github/workflows/build-basic151.yml'
 permissions:
@@ -52,9 +53,15 @@ jobs:
           python3 tests/basic151/check_elf_target.py .work/upstream
           python3 tests/basic151/check_browser_callback.py .work/upstream
           python3 tests/basic151/check_date_time_input.py .work/upstream
+          python3 tests/basic151/check_151_gui_apis.py .work/upstream
+          python3 tests/basic151/check_151_storage_events.py .work/upstream
           python3 tests/basic151/check_hid_output.py .work/upstream
           python3 tests/basic151/check_151_example.py .work/upstream
-          python3 scripts/check_official151_core.py .work/upstream
+          curl -fLsS --retry 3 -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            'https://api.github.com/repos/flipperdevices/flipperzero-firmware/git/trees/520fb70571ea6882103542d60a6444215b12ce31?recursive=1' \
+            -o "$RUNNER_TEMP/official151-tree.json"
+          python3 scripts/check_official151_core.py .work/upstream --tree-json "$RUNNER_TEMP/official151-tree.json"
           python3 tests/basic151/check_official151_manifest.py .work/upstream
           python3 tests/basic151/check_external_cli.py .work/upstream
           python3 tests/basic151/check_vcp_compat.py .work/upstream
