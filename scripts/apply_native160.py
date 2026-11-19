@@ -9,7 +9,7 @@ OVERLAY = REPO / "patch" / "native160"
 
 def verify_hashes(root: Path, manifest_path: Path) -> None:
     document = json.loads(manifest_path.read_text(encoding="utf-8"))
-    entries = document.get("sha256")
+    entries = document.get("sha256", document)
     if not isinstance(entries, dict) or not entries:
         raise SystemExit(f"Invalid checksum manifest: {manifest_path}")
     mismatches = []
