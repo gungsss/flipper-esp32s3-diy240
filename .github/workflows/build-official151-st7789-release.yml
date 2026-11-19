@@ -9,6 +9,7 @@ on:
       - 'patch/loader_cli_151_port.patch'
       - 'patch/patch_flipper.py'
       - 'scripts/package_artifacts.py'
+      - 'tests/compat151/check_ota_profile_image.py'
       - 'scripts/flash_package.sh'
       - 'scripts/flash_windows.ps1'
       - 'web/public/flipper-st7789-151-preview/index.html'
