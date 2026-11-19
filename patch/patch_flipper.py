@@ -39,8 +39,8 @@ def patch_generator(s: str) -> str:
     s = replace_one(s,
         'for k in spi:\n    if p[k] in seen: sys.exit(f"Conflict: {k} and {seen[p[k]]} both use GPIO{p[k]}")',
         'spi_seen = {}\nfor k in sorted(spi):\n    if p[k] < 0: sys.exit(f"{k}: SPI signal must have a GPIO")\n    if p[k] in seen: sys.exit(f"Conflict: {k} and {seen[p[k]]} both use GPIO{p[k]}")\n    if p[k] in spi_seen: sys.exit(f"Conflict: {k} and {spi_seen[p[k]]} both use GPIO{p[k]}")\n    spi_seen[p[k]] = k', tag)
-    s = replace_one(s, '#define BOARD_OTA_PROFILE_ST7789 1\n#define BOARD_LCD_H_RES 240\n#define BOARD_LCD_V_RES 240',
-        '#define BOARD_LCD_H_RES 240\n#define BOARD_LCD_V_RES 240', tag)
+    s = replace_one(s, '#define BOARD_LCD_H_RES 320\n#define BOARD_LCD_V_RES 172',
+        '#define BOARD_OTA_PROFILE_ST7789 1\n#define BOARD_LCD_H_RES 240\n#define BOARD_LCD_V_RES 240', tag)
     s = replace_one(s, '#define BOARD_LCD_SPI_FREQ_HZ (40 * 1000 * 1000)',
         '#define BOARD_LCD_SPI_FREQ_HZ (20 * 1000 * 1000)', tag)
     s = replace_one(s, '#define BOARD_LCD_SWAP_XY true', '#define BOARD_LCD_SWAP_XY false', tag)
