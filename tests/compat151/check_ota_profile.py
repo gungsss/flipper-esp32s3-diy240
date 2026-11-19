@@ -36,6 +36,7 @@ with tempfile.TemporaryDirectory(prefix='esp151-ota-profile-') as directory:
         subprocess.run([
             'gcc', '-std=gnu11', '-Wall', '-Wextra', '-Werror',
             '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
+            f'-D{macro}=1',
             '-I', str(temp), '-I', str(root),
             str(Path(__file__).with_name('ota_profile_regression.c')),
             str(root / 'fw_ota_profile.c'), '-o', str(exe),
