@@ -15,5 +15,19 @@ expected = struct.pack(
 )
 assert len(image) >= offset + len(expected), 'application image too small'
 assert image[0] == 0xe9 and image[12:14] == b'\x09\x00', 'image is not ESP32-S3'
-assert image[offset:offset + len(expected)] == expected, 'missing or incorrect OTA board profile'
+actual = image[offset:offset + len(expected)]
+if actual != expected:
+    marker = b'DIYOTA1\\0'
+    markers = []
+    start = 0
+    while True:
+        position = image.find(marker, start)
+        if position < 0:
+            break
+        markers.append(position)
+        start = position + 1
+    print(f'OTA profile diagnostic: expected_offset={offset}, marker_offsets={markers}')
+    print(f'OTA profile bytes at expected offset: {actual.hex()}')
+    print(f'OTA profile expected bytes:          {expected.hex()}')
+assert actual == expected, 'missing or incorrect OTA board profile'
 print(f'ESP32-S3 image contains the expected display {display_controller}/SD/button wiring profile.')
