@@ -17,7 +17,7 @@ assert len(image) >= offset + len(expected), 'application image too small'
 assert image[0] == 0xe9 and image[12:14] == b'\x09\x00', 'image is not ESP32-S3'
 actual = image[offset:offset + len(expected)]
 if actual != expected:
-    marker = b'DIYOTA1\\0'
+    marker = b'DIYOTA1\0'
     markers = []
     start = 0
     while True:
