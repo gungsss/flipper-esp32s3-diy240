@@ -2530,6 +2530,53 @@ index fe5cca7..ce50252 100644
 @@ -79 +79 @@ bool args_read_probably_quoted_string_and_trim(FuriString* args, FuriString* wor
 -        if(second_quote_pos == 0) {
 +        if(second_quote_pos == FURI_STRING_FAILURE) {
+diff --git a/components/toolbox/cli/shell/cli_shell.c b/components/toolbox/cli/shell/cli_shell.c
+index dde5cc3..920aeb4 100644
+--- a/components/toolbox/cli/shell/cli_shell.c
++++ b/components/toolbox/cli/shell/cli_shell.c
+@@ -11,0 +12 @@
++#include <flipper_application/plugins/plugin_manager.h>
+@@ -14,0 +16,2 @@
++extern const ElfApiInterface* const firmware_api_interface;
++
+@@ -163,0 +167 @@ void cli_shell_execute_command(CliShell* cli_shell, FuriString* command) {
++    PluginManager* plugin_manager = NULL;
+@@ -179,3 +183,30 @@ void cli_shell_execute_command(CliShell* cli_shell, FuriString* command) {
+-            printf(
+-                ANSI_FG_RED "external CLI commands are not supported on this build" ANSI_RESET);
+-            break;
++            const CliCommandExternalConfig* config = cli_shell->ext_config;
++            if(!config || !config->appid || !config->search_directory || !config->fal_prefix) {
++                printf(ANSI_FG_RED "external CLI command configuration missing" ANSI_RESET);
++                break;
++            }
++            plugin_manager = plugin_manager_alloc(
++                config->appid, CLI_PLUGIN_API_VERSION, firmware_api_interface);
++            FuriString* path = furi_string_alloc_printf(
++                "%s/%s%s.fal",
++                config->search_directory,
++                config->fal_prefix,
++                furi_string_get_cstr(command_name));
++            uint32_t plugin_index = plugin_manager_get_count(plugin_manager);
++            PluginManagerError error =
++                plugin_manager_load_single(plugin_manager, furi_string_get_cstr(path));
++            furi_string_free(path);
++            if(error != PluginManagerErrorNone) {
++                printf(ANSI_FG_RED "failed to load external command" ANSI_RESET);
++                break;
++            }
++            const CliCommandDescriptor* plugin = plugin_manager_get_ep(plugin_manager, plugin_index);
++            if(!plugin || !plugin->name || !plugin->execute_callback ||
++               furi_string_cmp_str(command_name, plugin->name) != 0 ||
++               (plugin->flags & CliCommandFlagUseShellThread)) {
++                printf(ANSI_FG_RED "invalid external command descriptor" ANSI_RESET);
++                break;
++            }
++            command_data.execute_callback = plugin->execute_callback;
++            command_data.flags = plugin->flags | CliCommandFlagExternal;
++            command_data.stack_depth = plugin->stack_depth;
+@@ -222,0 +254 @@ void cli_shell_execute_command(CliShell* cli_shell, FuriString* command) {
++    if(plugin_manager) plugin_manager_free(plugin_manager);
 diff --git a/components/toolbox/tar/tar_archive.c b/components/toolbox/tar/tar_archive.c
 index db1d517..01b23c2 100644
 --- a/components/toolbox/tar/tar_archive.c

@@ -15,6 +15,8 @@ architecture validation, and archive/bit-reading fixes.
 The original upstream 1.5.1 date/time example is also compiled for ESP32;
 its files are verified byte for byte. USB HID has both input and output
 endpoints and accepts keyboard LED reports through either USB transport.
+The CLI can load compatible Xtensa command plugins from storage; the loader
+continues to reject plugins compiled for incompatible architectures.
 The checked-in tests verify the resolver and compare these exported function
 signatures with the 1.5.1 SDK. Signature checks do not establish complete
 behavioral or binary compatibility with Flipper applications.
