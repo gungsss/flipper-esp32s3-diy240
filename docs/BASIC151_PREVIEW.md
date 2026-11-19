@@ -21,6 +21,9 @@ metadata must pass before packaging. This is not an official ARM FAP and
 has not yet been tested on physical hardware.
 The CLI can load compatible Xtensa command plugins from storage; the loader
 continues to reject plugins compiled for incompatible architectures.
+The application loader resolves external app names and file paths, rejects
+plugin-only modules without terminating the firmware, reports preload and
+link failures separately, and holds the app's power state until it stops.
 Desktop RPC lock status and subscriptions are included; remote unlocking of
 a locked device is disabled because this port permits BLE RPC while locked.
 The checked-in tests verify the resolver and compare these exported function

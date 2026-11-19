@@ -42,6 +42,9 @@ jobs:
           ASAN_OPTIONS: detect_leaks=0
         run: |
           python3 tests/basic151/check_loader_cli.py .work/upstream
+          python3 tests/basic151/check_loader_app_runtime.py .work/upstream
+          python3 tests/basic151/check_loader_app_resolution.py .work/upstream
+          python3 tests/basic151/check_loader_dialogs.py .work/upstream
           python3 tests/basic151/check_rpc_start.py .work/upstream
           python3 tests/basic151/check_rpc_desktop.py .work/upstream
           python3 tests/basic151/check_core_api.py .work/upstream
