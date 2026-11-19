@@ -1,0 +1,42 @@
+{
+  "version": "1.5.1-ESP32-preview",
+  "official_flipper_tag": "1.5.1",
+  "official_flipper_commit": "9e810dc399e027e48ce07751df72168abbb19065",
+  "upstream_esp32_port": "Sor3nt/Flipper-Zero-ESP32-Port",
+  "upstream_esp32_commit": "e6ec11972a8e025d7ab686a6ef3016cf52360834",
+  "board": "DIY ESP32-S3 N16R8",
+  "lcd": "ST7789 240x240 7-pin, no CS",
+  "images": [
+    {
+      "file": "firmware/bootloader.bin",
+      "offset": "0x0",
+      "offset_bytes": 0,
+      "size_bytes": 20848,
+      "sha256": "fdeb4238434b800edd07f779b2a2bbcea28f1bfd3b9574a0971ccc34f8f8d81e"
+    },
+    {
+      "file": "firmware/partition-table.bin",
+      "offset": "0x8000",
+      "offset_bytes": 32768,
+      "size_bytes": 3072,
+      "sha256": "9170702b52423ec0ec06f98cb832e73d147b29bf04b47665c0b04574ddd5443e"
+    },
+    {
+      "file": "firmware/furi_esp32.bin",
+      "offset": "0x10000",
+      "offset_bytes": 65536,
+      "size_bytes": 3318080,
+      "sha256": "b847ca486297fbeda9a622d71b72240c607b51ffc0fb93b78e871ab8c32779ff"
+    },
+    {
+      "file": "firmware/ota_data_initial.bin",
+      "offset": "0xbf0000",
+      "offset_bytes": 12517376,
+      "size_bytes": 8192,
+      "sha256": "7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f"
+    }
+  ],
+  "scope": "Selected portable Flipper 1.5.1 changes and ESP32 adaptations; not complete official source, SDK, runtime, or hardware parity.",
+  "hardware_validation": "Firmware compiled and flash offsets verified in CI; physical ESP32-S3 validation remains pending.",
+  "artifact_created_at_utc": "2026-11-19T18:27:32+00:00"
+}
