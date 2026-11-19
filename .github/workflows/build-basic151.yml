@@ -51,6 +51,7 @@ jobs:
           python3 tests/basic151/check_hid_output.py .work/upstream
           python3 tests/basic151/check_151_example.py .work/upstream
           python3 tests/basic151/check_external_cli.py .work/upstream
+          python3 tests/basic151/check_vcp_compat.py .work/upstream
           if command -v node >/dev/null 2>&1; then
             node tests/basic151/check_js_upload.cjs .work/upstream
           else
@@ -66,6 +67,13 @@ jobs:
           source /opt/esp/idf/export.sh
           cd .work/upstream
           ./build_diy.sh --build-only
+      - name: Save generated SDK configuration for application builds
+        uses: actions/upload-artifact@v4
+        with:
+          name: esp32s3-basic151-sdk-config
+          path: .work/upstream/build_diy/config/
+          if-no-files-found: error
+          retention-days: 7
       - name: Build official 1.5.1 example as native ESP32 application
         run: |
           source /opt/esp/idf/export.sh

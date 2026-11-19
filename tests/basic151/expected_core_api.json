@@ -1515,6 +1515,11 @@
     "params": ""
   },
   {
+    "name": "furi_hal_rtc_get_locale_timeformat",
+    "type": "FuriHalRtcLocaleTimeFormat",
+    "params": ""
+  },
+  {
     "name": "furi_kernel_get_tick_frequency",
     "type": "uint32_t",
     "params": ""
