@@ -1090,6 +1090,56 @@
     "params": "Stream*, const char*, FS_AccessMode, FS_OpenMode"
   },
   {
+    "name": "flipper_application_alloc_thread",
+    "type": "FuriThread*",
+    "params": "FlipperApplication*, const char*"
+  },
+  {
+    "name": "flipper_application_get_manifest",
+    "type": "const FlipperApplicationManifest*",
+    "params": "FlipperApplication*"
+  },
+  {
+    "name": "flipper_application_load_name_and_icon",
+    "type": "_Bool",
+    "params": "FuriString*, Storage*, uint8_t**, FuriString*"
+  },
+  {
+    "name": "flipper_application_load_status_to_string",
+    "type": "const char*",
+    "params": "FlipperApplicationLoadStatus"
+  },
+  {
+    "name": "flipper_application_manifest_is_target_compatible",
+    "type": "_Bool",
+    "params": "const FlipperApplicationManifest*"
+  },
+  {
+    "name": "flipper_application_manifest_is_too_new",
+    "type": "_Bool",
+    "params": "const FlipperApplicationManifest*, const ElfApiInterface*"
+  },
+  {
+    "name": "flipper_application_manifest_is_too_old",
+    "type": "_Bool",
+    "params": "const FlipperApplicationManifest*, const ElfApiInterface*"
+  },
+  {
+    "name": "flipper_application_manifest_is_valid",
+    "type": "_Bool",
+    "params": "const FlipperApplicationManifest*"
+  },
+  {
+    "name": "flipper_application_preload_manifest",
+    "type": "FlipperApplicationPreloadStatus",
+    "params": "FlipperApplication*, const char*"
+  },
+  {
+    "name": "flipper_application_preload_status_to_string",
+    "type": "const char*",
+    "params": "FlipperApplicationPreloadStatus"
+  },
+  {
     "name": "flipper_format_buffered_file_alloc",
     "type": "FlipperFormat*",
     "params": "Storage*"
@@ -2743,6 +2793,91 @@
     "name": "path_extract_filename_no_ext",
     "type": "void",
     "params": "const char*, FuriString*"
+  },
+  {
+    "name": "pb_decode_bool",
+    "type": "_Bool",
+    "params": "pb_istream_t*, _Bool*"
+  },
+  {
+    "name": "pb_decode_ex",
+    "type": "_Bool",
+    "params": "pb_istream_t*, const pb_msgdesc_t*, void*, unsigned int"
+  },
+  {
+    "name": "pb_decode_fixed32",
+    "type": "_Bool",
+    "params": "pb_istream_t*, void*"
+  },
+  {
+    "name": "pb_decode_fixed64",
+    "type": "_Bool",
+    "params": "pb_istream_t*, void*"
+  },
+  {
+    "name": "pb_decode_svarint",
+    "type": "_Bool",
+    "params": "pb_istream_t*, int64_t*"
+  },
+  {
+    "name": "pb_decode_tag",
+    "type": "_Bool",
+    "params": "pb_istream_t*, pb_wire_type_t*, uint32_t*, _Bool*"
+  },
+  {
+    "name": "pb_decode_varint",
+    "type": "_Bool",
+    "params": "pb_istream_t*, uint64_t*"
+  },
+  {
+    "name": "pb_decode_varint32",
+    "type": "_Bool",
+    "params": "pb_istream_t*, uint32_t*"
+  },
+  {
+    "name": "pb_encode_ex",
+    "type": "_Bool",
+    "params": "pb_ostream_t*, const pb_msgdesc_t*, const void*, unsigned int"
+  },
+  {
+    "name": "pb_encode_fixed32",
+    "type": "_Bool",
+    "params": "pb_ostream_t*, const void*"
+  },
+  {
+    "name": "pb_encode_fixed64",
+    "type": "_Bool",
+    "params": "pb_ostream_t*, const void*"
+  },
+  {
+    "name": "pb_encode_string",
+    "type": "_Bool",
+    "params": "pb_ostream_t*, const pb_byte_t*, size_t"
+  },
+  {
+    "name": "pb_encode_submessage",
+    "type": "_Bool",
+    "params": "pb_ostream_t*, const pb_msgdesc_t*, const void*"
+  },
+  {
+    "name": "pb_encode_svarint",
+    "type": "_Bool",
+    "params": "pb_ostream_t*, int64_t"
+  },
+  {
+    "name": "pb_encode_tag",
+    "type": "_Bool",
+    "params": "pb_ostream_t*, pb_wire_type_t, uint32_t"
+  },
+  {
+    "name": "pb_encode_tag_for_field",
+    "type": "_Bool",
+    "params": "pb_ostream_t*, const pb_field_iter_t*"
+  },
+  {
+    "name": "pb_encode_varint",
+    "type": "_Bool",
+    "params": "pb_ostream_t*, uint64_t"
   },
   {
     "name": "pipe_alloc",

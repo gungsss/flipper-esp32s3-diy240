@@ -43,6 +43,7 @@ jobs:
         run: |
           python3 tests/basic151/check_loader_cli.py .work/upstream
           python3 tests/basic151/check_rpc_start.py .work/upstream
+          python3 tests/basic151/check_rpc_desktop.py .work/upstream
           python3 tests/basic151/check_core_api.py .work/upstream
           python3 tests/basic151/check_js_timer.py .work/upstream
           python3 tests/basic151/check_elf_target.py .work/upstream
