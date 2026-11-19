@@ -960,6 +960,21 @@
     "params": "Canvas*, int32_t, int32_t, size_t, size_t, Align, Align, const char*, _Bool"
   },
   {
+    "name": "empty_screen_alloc",
+    "type": "EmptyScreen*",
+    "params": ""
+  },
+  {
+    "name": "empty_screen_free",
+    "type": "void",
+    "params": "EmptyScreen*"
+  },
+  {
+    "name": "empty_screen_get_view",
+    "type": "View*",
+    "params": "EmptyScreen*"
+  },
+  {
     "name": "file_browser_alloc",
     "type": "FileBrowser*",
     "params": "FuriString*"
@@ -2710,6 +2725,21 @@
     "params": "LocaleTimeFormat"
   },
   {
+    "name": "name_generator_make_auto",
+    "type": "void",
+    "params": "char*, size_t, const char*"
+  },
+  {
+    "name": "name_generator_make_detailed",
+    "type": "void",
+    "params": "char*, size_t, const char*"
+  },
+  {
+    "name": "name_generator_make_random",
+    "type": "void",
+    "params": "char*, size_t"
+  },
+  {
     "name": "notification_internal_message",
     "type": "void",
     "params": "NotificationApp*, const NotificationSequence*"
@@ -3928,6 +3958,41 @@
     "name": "text_input_set_validator",
     "type": "void",
     "params": "TextInput*, TextInputValidatorCallback, void*"
+  },
+  {
+    "name": "validator_is_file_alloc_init",
+    "type": "ValidatorIsFile*",
+    "params": "const char*, const char*, const char*"
+  },
+  {
+    "name": "validator_is_file_callback",
+    "type": "_Bool",
+    "params": "const char*, FuriString*, void*"
+  },
+  {
+    "name": "validator_is_file_free",
+    "type": "void",
+    "params": "ValidatorIsFile*"
+  },
+  {
+    "name": "value_index_bool",
+    "type": "size_t",
+    "params": "const _Bool, const _Bool[], size_t"
+  },
+  {
+    "name": "value_index_float",
+    "type": "size_t",
+    "params": "const float, const float[], size_t"
+  },
+  {
+    "name": "value_index_int32",
+    "type": "size_t",
+    "params": "const int32_t, const int32_t[], size_t"
+  },
+  {
+    "name": "value_index_uint32",
+    "type": "size_t",
+    "params": "const uint32_t, const uint32_t[], size_t"
   },
   {
     "name": "variable_item_get_context",
