@@ -4,9 +4,10 @@ This experimental variant starts with Sor3nt/Flipper-Zero-ESP32-Port commit
 `e6ec11972a8e025d7ab686a6ef3016cf52360834` and incorporates selected changes
 from the official Flipper Zero `1.4.3` to `1.5.1` source comparison. It is not
 the stock Flipper Zero binary, nor is every 1.5.1 feature available on ESP32.
-The reported Flipper compatibility version is deliberately left at 1.4.3 until
-the full compatibility implications are established; changing that string
-would not by itself upgrade the firmware.
+The firmware reports `1.5.1-ESP32-preview` internally and through BLE Device
+Information so the phone app no longer identifies it as 1.4.3. The actual build
+date remains compiler-generated with `__DATE__`. These labels identify the
+compatibility target; they do not by themselves provide full 1.5.1 parity.
 
 The patch adds or adapts upstream changes to RPC instance validation, GUI
 APIs, CLI quoted arguments, bit extraction bounds checks, NFC protocol

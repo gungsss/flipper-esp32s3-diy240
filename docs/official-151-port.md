@@ -2,10 +2,11 @@
 
 ## Status
 
-This is **not yet a complete Flipper 1.5.1 ESP32 port**. Do not use a 1.5.1
-identity or publish a build as complete until the remaining source and hardware
-differences have been resolved and tested. The existing ST7735 web flasher is
-kept separately for recovery.
+This is an experimental ESP32-S3 compatibility port based on the official
+Flipper Devices firmware tag `1.5.1`. The firmware identifies itself as
+`1.5.1-ESP32-preview` so companion apps can distinguish it from the old 1.4.3
+base. That version label does not claim complete source, SDK, runtime, or
+hardware parity with the official Flipper Zero build.
 
 The authoritative source is Flipper Devices firmware tag `1.5.1`, commit
 `9e810dc399e027e48ce07751df72168abbb19065`. The ESP32 adaptation can reuse an
@@ -23,7 +24,11 @@ review.
 
 ## Target and constraints
 
-- ESP32-S3 N16R8, 128x160 ST7735S, current tested wiring and landscape layout.
+This branch maintains separate display profiles: the ST7789 240x240 DIY240
+profile is the main hardware release target, while ST7735S 160x128 Native160
+is served from a separate preview route. Never flash one profile to the other.
+
+- ESP32-S3 N16R8, ST7789 240x240 (7-pin, no CS) for the main DIY240 release.
 - SD module on an independent SPI bus; the panel's CS is permanently low.
 - USB-serial flashing and qFlipper USB, BLE, input buttons, display and SD need
   regression tests. User settings/data must not be silently erased.
@@ -104,6 +109,7 @@ review.
   on the host, including malformed and non-keyboard reports. These tests do not
   replace testing an ESP32 or a USB host.
 
-The published 1.5.1-backport flasher is an earlier experiment and is not the
-result of this branch. No new binary from this branch has been verified on the
-physical device.
+The ST7789 240x240 preview is built from this branch by
+`.github/workflows/build-official151-st7789-release.yml`. Its CI build does not
+replace testing on the owner's physical board. The separate ST7735 Native160
+flasher remains a different display profile.

@@ -12,6 +12,8 @@ Proyek ini adalah **repositori integrasi/patch**, bukan salinan penuh source ups
 
 **[Buka DIY240 Web Flasher](https://diy240.vercel.app)**
 
+**[Firmware Flipper 1.5.1 ESP32 preview untuk ST7789 240x240](https://diy240.vercel.app/flipper-st7789-151-preview/)** — build eksperimen, bukan firmware resmi lengkap; periksa profil hardware sebelum flash.
+
 Situs menyediakan flashing USB berbasis [ESP Web Tools](https://esphome.github.io/esp-web-tools/) pada browser yang kompatibel, file merged `.bin`, perintah esptool manual, diagram wiring, serta panduan Windows/Linux/macOS/Android/iOS.
 
 - Profil firmware: **ESP32-S3 N16R8**, ST7789 240×240 tanpa CS, microSD SPI3, enam tombol.

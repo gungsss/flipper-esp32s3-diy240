@@ -1,0 +1,199 @@
+name: Build and publish Flipper 1.5.1 ESP32-S3 ST7789 preview
+on:
+  push:
+    branches:
+      - work/flipper-1.5.1-official-port
+    paths:
+      - 'patch/flipper_1_5_1_port.patch'
+      - 'patch/loader_151_port.patch'
+      - 'patch/loader_cli_151_port.patch'
+      - 'patch/patch_flipper.py'
+      - 'scripts/package_artifacts.py'
+      - 'scripts/flash_package.sh'
+      - 'scripts/flash_windows.ps1'
+      - 'web/public/flipper-st7789-151-preview/index.html'
+      - '.github/workflows/build-official151-st7789-release.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flipper-151-st7789-preview
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    container: espressif/idf:v5.4.1
+    defaults:
+      run:
+        shell: bash
+    env:
+      ESP_IDF_EXPORT_SCRIPT: /opt/esp/idf/export.sh
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch the pinned ESP32-S3 port
+        run: bash scripts/fetch_upstream.sh
+      - name: Apply Flipper 1.5.1 and DIY240 adaptations
+        run: |
+          set -euo pipefail
+          for patch in patch/flipper_1_5_1_port.patch patch/loader_151_port.patch patch/loader_cli_151_port.patch; do
+            git -C .work/upstream apply --check "$GITHUB_WORKSPACE/$patch"
+            git -C .work/upstream apply "$GITHUB_WORKSPACE/$patch"
+          done
+          python3 patch/patch_flipper.py .work/upstream
+          grep -F '1.5.1-ESP32-preview' .work/upstream/components/toolbox/version.c
+          grep -F '1.5.1-ESP32-preview' .work/upstream/components/ble_serial/ble_serial.c
+      - name: Compile ESP32-S3 ST7789 firmware
+        run: |
+          source /opt/esp/idf/export.sh
+          cd .work/upstream
+          ./build_diy.sh --build-only
+      - name: Check the compiled flash inputs
+        run: |
+          python3 tests/compat151/check_diy_build_inputs.py .work/upstream/build_diy/compile_commands.json
+          python3 tests/compat151/check_ota_profile_image.py .work/upstream/build_diy/furi_esp32.bin
+      - name: Verify offsets and package the flash images
+        run: python3 scripts/package_artifacts.py --source .work/upstream --output "$RUNNER_TEMP/verified-build"
+      - name: Create web release bundle
+        run: |
+          python3 - "$RUNNER_TEMP/verified-build" "$GITHUB_WORKSPACE/release-out" "$GITHUB_WORKSPACE/web/public/flipper-st7789-151-preview/index.html" <<'PY'
+          from datetime import datetime, timezone
+          from pathlib import Path
+          from zipfile import ZIP_DEFLATED, ZipFile
+          import hashlib
+          import json
+          import shutil
+          import sys
+
+          package = Path(sys.argv[1])
+          release = Path(sys.argv[2])
+          page = Path(sys.argv[3])
+          release.mkdir(parents=True, exist_ok=True)
+          (release / "firmware").mkdir(exist_ok=True)
+          shutil.copy2(page, release / "index.html")
+
+          image_map = [
+              ("bootloader/bootloader.bin", "bootloader.bin", 0x000000),
+              ("partition_table/partition-table.bin", "partition-table.bin", 0x008000),
+              ("furi_esp32.bin", "furi_esp32.bin", 0x010000),
+              ("ota_data_initial.bin", "ota_data_initial.bin", 0xBF0000),
+          ]
+          records = []
+          for source_name, web_name, offset in image_map:
+              source = package / source_name
+              target = release / "firmware" / web_name
+              if not source.is_file():
+                  raise SystemExit(f"Missing flash image: {source}")
+              shutil.copy2(source, target)
+              data = target.read_bytes()
+              records.append({
+                  "file": f"firmware/{web_name}",
+                  "offset": f"0x{offset:x}",
+                  "offset_bytes": offset,
+                  "size_bytes": len(data),
+                  "sha256": hashlib.sha256(data).hexdigest(),
+              })
+
+          version = "1.5.1-ESP32-preview"
+          official_commit = "9e810dc399e027e48ce07751df72168abbb19065"
+          created = datetime.now(timezone.utc).isoformat(timespec="seconds")
+          info = json.loads((package / "BUILD_INFO.json").read_text())
+          info.update({
+              "reported_flipper_version": version,
+              "reported_ble_software_revision": version,
+              "firmware_build_date": "Compiler-generated from __DATE__ at build time",
+              "official_flipper_tag": "1.5.1",
+              "official_flipper_commit": official_commit,
+              "esp_app_api_version": "1.0 (ESP32 port)",
+              "official_app_api_version": "88.2",
+              "board": "DIY ESP32-S3 N16R8",
+              "lcd": "ST7789 240x240 7-pin, no CS",
+              "artifact_created_at_utc": created,
+              "scope": "Selected portable Flipper 1.5.1 changes and ESP32 adaptations; not complete official source, SDK, runtime, or hardware parity.",
+              "hardware_validation": "Firmware compiled and flash offsets verified in CI; physical ESP32-S3 validation remains pending."
+          })
+          info["images"] = records
+          (release / "build-info.json").write_text(json.dumps(info, indent=2) + chr(10))
+          (package / "BUILD_INFO.json").write_text(json.dumps(info, indent=2) + chr(10))
+
+          release_info = {
+              "version": version,
+              "official_flipper_tag": "1.5.1",
+              "official_flipper_commit": official_commit,
+              "upstream_esp32_port": info["upstream_repository"],
+              "upstream_esp32_commit": info["upstream_commit"],
+              "board": info["board"],
+              "lcd": info["lcd"],
+              "images": records,
+              "scope": info["scope"],
+              "hardware_validation": info["hardware_validation"],
+              "artifact_created_at_utc": created,
+          }
+          (release / "release.json").write_text(json.dumps(release_info, indent=2) + chr(10))
+          manifest = {
+              "name": "Flipper 1.5.1 ESP32-S3 ST7789 preview",
+              "version": version,
+              "new_install_prompt_erase": True,
+              "builds": [{
+                  "chipFamily": "ESP32-S3",
+                  "parts": [
+                      {"path": "firmware/bootloader.bin", "offset": 0},
+                      {"path": "firmware/partition-table.bin", "offset": 32768},
+                      {"path": "firmware/furi_esp32.bin", "offset": 65536},
+                      {"path": "firmware/ota_data_initial.bin", "offset": 12517376},
+                  ],
+              }],
+          }
+          (release / "manifest.json").write_text(json.dumps(manifest, indent=2) + chr(10))
+
+          archive = release / "Flipper_1.5.1_ESP32S3_ST7789_240x240_Preview_FLASH_READY.zip"
+          with ZipFile(archive, "w", ZIP_DEFLATED, compresslevel=9) as zip_file:
+              for item in sorted(package.rglob("*")):
+                  if item.is_file():
+                      zip_file.write(item, item.relative_to(package))
+              for name in ("manifest.json", "release.json", "build-info.json"):
+                  zip_file.write(release / name, name)
+          print(f"Release bundle ready: {archive.stat().st_size} bytes")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flipper-151-esp32-st7789-preview
+          path: release-out/
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: flipper-151-esp32-st7789-preview
+          path: vercel-release
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: site
+          persist-credentials: true
+      - name: Publish only the verified ST7789 preview
+        run: |
+          set -euo pipefail
+          target="$GITHUB_WORKSPACE/site/web/public/flipper-st7789-151-preview"
+          mkdir -p "$target"
+          cp -a "$GITHUB_WORKSPACE/vercel-release/." "$target/"
+          git -C "$GITHUB_WORKSPACE/site" add web/public/flipper-st7789-151-preview
+          if git -C "$GITHUB_WORKSPACE/site" diff --cached --quiet; then
+            echo "Published ST7789 preview already matches the successful build."
+            exit 0
+          fi
+          git -C "$GITHUB_WORKSPACE/site" diff --cached --check
+          git -C "$GITHUB_WORKSPACE/site" config user.name "github-actions[bot]"
+          git -C "$GITHUB_WORKSPACE/site" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$GITHUB_WORKSPACE/site" commit -m "build: publish Flipper 1.5.1 ESP32-S3 ST7789 preview"
+          git -C "$GITHUB_WORKSPACE/site" push origin HEAD:main

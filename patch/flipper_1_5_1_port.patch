@@ -269,7 +269,8 @@ index 75aafe7..9164143 100644
  static const char dis_manufacturer[] = "Flipper Devices Inc.";
 -static const char dis_hw_revision[] = "ESP32-C6 1.0";
 +static const char dis_hw_revision[] = BLE_SERIAL_HW_REVISION;
- static const char dis_sw_revision[] = "1.4.3";
+-static const char dis_sw_revision[] = "1.4.3";
++static const char dis_sw_revision[] = "1.5.1-ESP32-preview";
  /* API version format: "major.minor" — pulled from the protobuf header so it
   * stays in sync with rpc_system. Anything < 0.6 makes the Flipper iOS app
 diff --git a/components/ble_serial/ble_serial_device_info.h b/components/ble_serial/ble_serial_device_info.h
@@ -4191,3 +4192,16 @@ index ee029bf..1a5e0d8 100644
      instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
      instance->encoder.is_running = false;
      return instance;
+diff --git a/components/toolbox/version.c b/components/toolbox/version.c
+--- a/components/toolbox/version.c
++++ b/components/toolbox/version.c
+@@ -22,3 +22,3 @@ static Version firmware_version = {
+     .build_date = __DATE__,
+-    .version = "1.4.3",
++    .version = "1.5.1-ESP32-preview",
+     .custom_name = NULL,
+@@ -24,3 +24,3 @@ static Version firmware_version = {
+     .custom_name = NULL,
+-    .firmware_origin = "ESP32 Port",
++    .firmware_origin = "Flipper 1.5.1 ESP32 preview",
+     .git_origin = "local",
