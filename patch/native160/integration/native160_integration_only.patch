@@ -1,0 +1,533 @@
+--- a/components/gui/CMakeLists.txt
++++ b/components/gui/CMakeLists.txt
+@@ -16,6 +16,13 @@
+         "gui.c"
+         "momentum_settings.c"
+         "canvas.c"
++        "native160/graphics160.c"
++        "native160/home160.c"
++        "native160/list160.c"
++        "native160/menu160.c"
++        "native160/present160.c"
++        "native160/frame160.c"
++        "native160/native160_canvas.c"
+         "icon.c"
+         "icon_animation.c"
+         "elements.c"
+@@ -54,7 +61,7 @@
+         "modules/widget_elements/widget_element_text_box.c"
+         "modules/widget_elements/widget_element_text_scroll.c"
+     INCLUDE_DIRS "." "modules" "modules/widget_elements"
+-    REQUIRES furi furi_hal u8g2 toolbox input notification assets mlib datetime storage
++    REQUIRES furi furi_hal u8g2 toolbox input notification assets mlib datetime storage heap
+ )
+ 
+ target_compile_definitions(${COMPONENT_LIB} PRIVATE ESP32_HAS_STORAGE=1)
+--- a/components/gui/canvas.c
++++ b/components/gui/canvas.c
+@@ -1,11 +1,13 @@
+ #include "canvas_i.h"
+ #include "canvas.h"
+ #include "icon_animation_i.h"
++#include "native160/native160_canvas.h"
+ 
+ #include <furi.h>
+ #include <furi_hal.h>
+ #include <stdint.h>
+ #include <u8g2_glue.h>
++#include <esp_heap_caps.h>
+ 
+ const CanvasFontParameters canvas_font_params[FontTotalNumber] = {
+     [FontPrimary] = {.leading_default = 12, .leading_min = 11, .height = 8, .descender = 2},
+@@ -17,6 +19,10 @@
+ 
+ Canvas* canvas_init(void) {
+     Canvas* canvas = malloc(sizeof(Canvas));
++    canvas->native160_dma = NULL;
++    canvas->native160_home_pending = false;
++    canvas->native160_menu_presented = false;
++    canvas->native160_snapshot_valid = false;
+     canvas->compress_icon = compress_icon_alloc(ICON_DECOMPRESSOR_BUFFER_SIZE);
+ 
+     // Initialize mutex
+@@ -42,6 +48,7 @@
+ 
+ void canvas_free(Canvas* canvas) {
+     furi_check(canvas);
++    if(canvas->native160_dma) heap_caps_free(canvas->native160_dma);
+     compress_icon_free(canvas->compress_icon);
+     CanvasCallbackPairArray_clear(canvas->canvas_callback_pair);
+     furi_mutex_free(canvas->mutex);
+@@ -61,6 +68,10 @@
+ void canvas_reset(Canvas* canvas) {
+     furi_check(canvas);
+ 
++    canvas->native160_home_pending = false;
++    canvas->native160_menu_presented = false;
++    canvas->native160_snapshot_valid = false;
++
+     canvas_clear(canvas);
+ 
+     canvas_set_color(canvas, ColorBlack);
+@@ -76,7 +87,11 @@
+     uint8_t* buf = canvas_get_buffer(canvas);
+     size_t buf_size = canvas_get_buffer_size(canvas);
+ 
+-    furi_hal_display_commit(buf, buf_size);
++    /* An explicitly marked home scene is composed after all legacy layers
++     * have drawn; callbacks still receive the normal framebuffer for RPC.
++     * If native transport fails, redraw the legacy frame rather than leaving
++     * a partially updated panel. */
++    native160_canvas_commit(canvas, buf, buf_size);
+ 
+     // Iterate over callbacks
+     canvas_lock(canvas);
+--- a/components/gui/canvas_i.h
++++ b/components/gui/canvas_i.h
+@@ -47,6 +47,12 @@
+     CompressIcon* compress_icon;
+     CanvasCallbackPairArray_t canvas_callback_pair;
+     FuriMutex* mutex;
++    /* Native UI is only used during a GUI-thread redraw on a 160x128 panel. */
++    uint16_t* native160_dma;
++    bool native160_home_pending;
++    bool native160_menu_presented;
++    bool native160_snapshot_valid;
++    uint8_t native160_view_snapshot[128u * 64u / 8u];
+ };
+ 
+ /** Allocate memory and initialize canvas
+--- a/components/gui/modules/menu.c
++++ b/components/gui/modules/menu.c
+@@ -4,6 +4,7 @@
+ #include "../icon_animation_i.h"
+ #include "../icon_i.h"
+ #include "../canvas_i.h"
++#include "../native160/native160_canvas.h"
+ #include <assets_icons.h>
+ #include <furi.h>
+ #include <furi_hal.h>
+@@ -152,6 +153,7 @@
+ struct Menu {
+     View* view;
+     FuriTimer* scroll_timer;
++    bool native160_enabled;
+ };
+ 
+ typedef struct {
+@@ -171,8 +173,19 @@
+     size_t position;
+     size_t scroll_counter;
+     size_t vertical_offset;
++    bool native160_enabled;
+ } MenuModel;
+ 
++static MenuStyle menu_effective_style(bool native160_enabled) {
++    return native160_enabled && native160_panel_supported() ? MenuStyleList : menu_get_style();
++}
++
++static const char* menu_native160_label(void* context, size_t index) {
++    MenuModel* model = context;
++    if(index >= MenuItemArray_size(model->items)) return NULL;
++    return MenuItemArray_get(model->items, index)->label;
++}
++
+ static void menu_process_up(Menu* menu);
+ static void menu_process_down(Menu* menu);
+ static void menu_process_left(Menu* menu);
+@@ -254,7 +267,7 @@
+         MenuItem* item;
+         size_t shift_position;
+         FuriString* name = furi_string_alloc();
+-        switch(menu_get_style()) {
++        switch(menu_effective_style(model->native160_enabled)) {
+         case MenuStyleList: {
+             for(uint8_t i = 0; i < 3; i++) {
+                 canvas_set_font(canvas, i == 1 ? FontPrimary : FontSecondary);
+@@ -663,6 +676,19 @@
+         canvas_draw_str(canvas, 2, 32, "Empty");
+         elements_scrollbar(canvas, 0, 0);
+     }
++
++    /* The model is locked throughout this synchronous draw. Preserve the
++     * legacy framebuffer for RPC and as a fallback if DMA or SPI fails. */
++    if(model->native160_enabled) {
++        const Menu160Model native_model = {
++            .title = "MENU",
++            .count = items_count,
++            .selected = position,
++            .label = menu_native160_label,
++            .context = model,
++        };
++        native160_canvas_present_menu(canvas, &native_model);
++    }
+ }
+ 
+ static bool menu_input_callback(InputEvent* event, void* context) {
+@@ -670,7 +696,7 @@
+     bool consumed = true;
+ 
+     /* Vertical style rotates the screen; swap Left/Right when hand-oriented. */
+-    if(menu_get_style() == MenuStyleVertical &&
++    if(menu_effective_style(menu->native160_enabled) == MenuStyleVertical &&
+        furi_hal_rtc_is_flag_set(FuriHalRtcFlagHandOrient)) {
+         if(event->key == InputKeyLeft) {
+             event->key = InputKeyRight;
+@@ -739,7 +765,7 @@
+      * change made in Settings takes effect as soon as the menu is shown again. */
+     view_set_input_mode(
+         menu->view,
+-        menu_style_is_horizontal(menu_get_style()) ? ViewInputModeLeftRight :
++        menu_style_is_horizontal(menu_effective_style(menu->native160_enabled)) ? ViewInputModeLeftRight :
+                                                       ViewInputModeUpDown);
+     with_view_model(
+         menu->view,
+@@ -772,6 +798,7 @@
+ 
+ Menu* menu_alloc(void) {
+     Menu* menu = malloc(sizeof(Menu));
++    menu->native160_enabled = false;
+     menu->view = view_alloc();
+     view_set_context(menu->view, menu);
+     view_allocate_model(menu->view, ViewModelTypeLocking, sizeof(MenuModel));
+@@ -793,12 +820,19 @@
+             model->position = 0;
+             model->scroll_counter = 0;
+             model->vertical_offset = 0;
++            model->native160_enabled = false;
+         },
+         true);
+ 
+     return menu;
+ }
+ 
++void menu_set_native160(Menu* menu, bool enabled) {
++    furi_check(menu);
++    menu->native160_enabled = enabled;
++    with_view_model(menu->view, MenuModel* model, { model->native160_enabled = enabled; }, true);
++}
++
+ void menu_free(Menu* menu) {
+     furi_check(menu);
+ 
+@@ -904,7 +938,7 @@
+             position = model->position;
+             size_t count = MenuItemArray_size(model->items);
+ 
+-            switch(menu_get_style()) {
++            switch(menu_effective_style(menu->native160_enabled)) {
+             case MenuStyleList:
+             case MenuStyleMNTM:
+             case MenuStyleC64:
+@@ -939,7 +973,7 @@
+             position = model->position;
+             size_t count = MenuItemArray_size(model->items);
+ 
+-            switch(menu_get_style()) {
++            switch(menu_effective_style(menu->native160_enabled)) {
+             case MenuStyleList:
+             case MenuStyleMNTM:
+             case MenuStyleC64:
+@@ -974,7 +1008,7 @@
+             position = model->position;
+             size_t count = MenuItemArray_size(model->items);
+ 
+-            switch(menu_get_style()) {
++            switch(menu_effective_style(menu->native160_enabled)) {
+             case MenuStyleWii:
+                 if(position < 2) {
+                     if(count % 2) {
+@@ -1035,7 +1069,7 @@
+             position = model->position;
+             size_t count = MenuItemArray_size(model->items);
+ 
+-            switch(menu_get_style()) {
++            switch(menu_effective_style(menu->native160_enabled)) {
+             case MenuStyleWii:
+                 if(count % 2) {
+                     if(position == count - 1) {
+@@ -1106,4 +1140,4 @@
+     if(item && item->callback) {
+         item->callback(item->callback_context, item->index);
+     }
+-}
+\ No newline at end of file
++}
+--- a/components/gui/modules/menu.h
++++ b/components/gui/modules/menu.h
+@@ -23,6 +23,9 @@
+  */
+ Menu* menu_alloc(void);
+ 
++/* Opt this menu into the dedicated 160x128 native list on a supported panel. */
++void menu_set_native160(Menu* menu, bool enabled);
++
+ /** Free menu
+  *
+  * @param      menu  Menu instance
+--- a/components/loader/loader_menu.c
++++ b/components/loader/loader_menu.c
+@@ -1278,6 +1278,7 @@
+     app->dialogs = furi_record_open(RECORD_DIALOGS);
+     app->view_dispatcher = view_dispatcher_alloc();
+     app->primary_menu = menu_alloc();
++    menu_set_native160(app->primary_menu, true);
+     app->settings_menu = submenu_alloc();
+     app->interface_menu = submenu_alloc();
+     app->interface_main_list = variable_item_list_alloc();
+--- a/applications/services/desktop/views/desktop_view_main.c
++++ b/applications/services/desktop/views/desktop_view_main.c
+@@ -2,6 +2,7 @@
+ #include <gui/view.h>
+ #include <gui/elements.h>
+ #include <gui/canvas.h>
++#include <gui/native160/native160_canvas.h>
+ #include <furi.h>
+ #include <input/input.h>
+ #include <dolphin/dolphin.h>
+@@ -18,6 +19,13 @@
+ 
+ #define DESKTOP_MAIN_VIEW_POWEROFF_TIMEOUT 1300
+ 
++/* The remaining stacked views draw the animation and any lock overlay after
++ * this marker. The GUI composes their final framebuffer at commit time. */
++static void desktop_main_native_draw(Canvas* canvas, void* model) {
++    UNUSED(model);
++    native160_canvas_mark_home(canvas);
++}
++
+ static void desktop_main_poweroff_timer_callback(void* context) {
+     DesktopMainView* main_view = context;
+     main_view->callback(DesktopMainEventOpenPowerOff, main_view->context);
+@@ -128,6 +136,7 @@
+ 
+     main_view->view = view_alloc();
+     view_set_context(main_view->view, main_view);
++    view_set_draw_callback(main_view->view, desktop_main_native_draw);
+     view_set_input_callback(main_view->view, desktop_main_input_callback);
+ 
+     main_view->poweroff_timer =
+--- a/components/furi_hal/furi_hal_display.c
++++ b/components/furi_hal/furi_hal_display.c
+@@ -2,7 +2,7 @@
+  * @file furi_hal_display.c
+  * Display HAL — board-driven configuration via boards/board.h
+  *
+- * Flipper GUI: 128x64 mono → aspect-fit scaled and centered on display
++ * Flipper GUI: 128x64 mono. On the 160x128 panel it is never scaled.
+  */
+ 
+ #include "furi_hal_display.h"
+@@ -11,6 +11,7 @@
+ #include "furi_hal_resources.h"
+ #include "furi_hal_spi_bus.h"
+ #include "boards/board.h"
++#include "display_geometry.h"
+ 
+ #include <string.h>
+ #include <esp_log.h>
+@@ -33,42 +34,6 @@
+  * that stops responding to buttons entirely. */
+ #define DISPLAY_BUS_LOCK_TIMEOUT_MS 30
+ 
+-/* Display dimensions from board config */
+-#define LCD_H_RES BOARD_LCD_H_RES
+-#define LCD_V_RES BOARD_LCD_V_RES
+-
+-/* Flipper framebuffer dimensions */
+-#define FB_WIDTH  128
+-#define FB_HEIGHT 64
+-
+-/* Always-on left/right inset (in physical LCD pixels) kept as plain background
+- * color so the UI never sits flush against the screen's left/right edges. A
+- * board may override this in its board.h; otherwise this default applies
+- * everywhere. Set to 0 to disable. */
+-#ifndef BOARD_LCD_SIDE_MARGIN
+-#define BOARD_LCD_SIDE_MARGIN 4
+-#endif
+-#define DISPLAY_SIDE_MARGIN BOARD_LCD_SIDE_MARGIN
+-
+-/* Horizontal resolution actually available to the UI after reserving the
+- * left/right margins. The aspect-fit below scales into this, then the result
+- * is centered across the full LCD resolution — so the leftover on each side
+- * is always >= the margin and is painted with the background color. */
+-#define USABLE_H_RES (LCD_H_RES - 2 * DISPLAY_SIDE_MARGIN)
+-
+-/* Scale the 128x64 framebuffer to the largest centered size that keeps aspect ratio. */
+-#if (USABLE_H_RES * FB_HEIGHT) <= (LCD_V_RES * FB_WIDTH)
+-#define SCALED_WIDTH  USABLE_H_RES
+-#define SCALED_HEIGHT ((USABLE_H_RES * FB_HEIGHT) / FB_WIDTH)
+-#else
+-#define SCALED_HEIGHT LCD_V_RES
+-#define SCALED_WIDTH  ((LCD_V_RES * FB_WIDTH) / FB_HEIGHT)
+-#endif
+-
+-/* Centering margins */
+-#define MARGIN_X ((LCD_H_RES - SCALED_WIDTH) / 2)
+-#define MARGIN_Y ((LCD_V_RES - SCALED_HEIGHT) / 2)
+-
+ /* Colors from board config — both are set at runtime so the user can pick
+  * UI Background (fg_color, the field that fills "unset" mono pixels) and
+  * UI Foreground (bg_color, what fills "set" pixels = drawn UI elements). */
+@@ -326,8 +291,7 @@
+ }
+ 
+ void furi_hal_display_commit(const uint8_t* data, uint32_t size) {
+-    UNUSED(size);
+-    if(!panel_handle || !rgb565_buf || !data) return;
++    if(!panel_handle || !rgb565_buf || !data || size < sizeof(fb_shadow)) return;
+ 
+     /*
+      * Stripe-based rendering: render STRIPE_HEIGHT lines into the small DMA
+--- a/components/gui/modules/submenu.c
++++ b/components/gui/modules/submenu.c
+@@ -2,6 +2,7 @@
+ 
+ #include <assets_icons.h>
+ #include "../elements.h"
++#include "../native160/native160_canvas.h"
+ #include <furi.h>
+ #include <m-array.h>
+ #include <u8g2_glue.h>
+@@ -33,6 +34,7 @@
+     item->index = 0;
+     item->callback = NULL;
+     item->callback_context = NULL;
++    item->has_extended_events = false;
+     item->locked = false;
+     item->is_separator = false;
+     item->centered = false;
+@@ -44,6 +46,7 @@
+     item->index = src->index;
+     item->callback = src->callback;
+     item->callback_context = src->callback_context;
++    item->has_extended_events = src->has_extended_events;
+     item->locked = src->locked;
+     item->is_separator = src->is_separator;
+     item->centered = src->centered;
+@@ -55,6 +58,7 @@
+     item->index = src->index;
+     item->callback = src->callback;
+     item->callback_context = src->callback_context;
++    item->has_extended_events = src->has_extended_events;
+     item->locked = src->locked;
+     item->is_separator = src->is_separator;
+     item->centered = src->centered;
+@@ -85,6 +89,19 @@
+     bool header_centered;
+ } SubmenuModel;
+ 
++static bool submenu_native160_item(void* context, size_t index, List160Item* out) {
++    SubmenuModel* model = context;
++    if(!model || !out || index >= SubmenuItemArray_size(model->items)) return false;
++    const SubmenuItem* item = SubmenuItemArray_cget(model->items, index);
++    *out = (List160Item){
++        .label = furi_string_get_cstr(item->label),
++        .locked = item->locked,
++        .separator = item->is_separator,
++        .centered = item->centered,
++    };
++    return true;
++}
++
+ static void submenu_process_up(Submenu* submenu);
+ static void submenu_process_down(Submenu* submenu);
+ static void submenu_process_ok(Submenu* submenu, InputType input_type);
+@@ -211,6 +228,19 @@
+             furi_string_get_cstr(
+                 SubmenuItemArray_get(model->items, model->position)->locked_message));
+     }
++
++    /* Keep the original locked dialog, vertical views, and text the native
++     * font cannot faithfully show on the compatibility path. */
++    if(!model->locked_message_visible && !model->is_vertical) {
++        const List160Model native = {
++            .title = furi_string_empty(model->header) ? "MENU" : furi_string_get_cstr(model->header),
++            .count = SubmenuItemArray_size(model->items),
++            .selected = model->position,
++            .get_item = submenu_native160_item,
++            .context = model,
++        };
++        native160_canvas_present_list(canvas, &native);
++    }
+ }
+ 
+ static bool submenu_view_input_callback(InputEvent* event, void* context) {
+@@ -284,6 +314,9 @@
+             model->position = 0;
+             model->window_position = 0;
+             model->header = furi_string_alloc();
++            model->locked_message_visible = false;
++            model->is_vertical = false;
++            model->header_centered = false;
+         },
+         true);
+ 
+--- a/components/gui/modules/variable_item_list.c
++++ b/components/gui/modules/variable_item_list.c
+@@ -1,6 +1,7 @@
+ #include "variable_item_list.h"
+ #include "../elements.h"
+ #include "../canvas.h"
++#include "../native160/native160_canvas.h"
+ #include <furi.h>
+ #include <assets_icons.h>
+ #include <boards/board.h>
+@@ -38,6 +39,23 @@
+     bool editing; // true when user has pressed Ok to edit the selected item's value
+ } VariableItemListModel;
+ 
++static bool variable_item_list_native160_item(void* context, size_t index, List160Item* out) {
++    VariableItemListModel* model = context;
++    if(!model || !out || index >= VariableItemArray_size(model->items)) return false;
++    const VariableItem* item = VariableItemArray_cget(model->items, index);
++    const char* value = furi_string_get_cstr(item->current_value_text);
++    *out = (List160Item){
++        .label = item->label,
++        .value = value,
++        .has_value = value && (*value || item->values_count > 1 || item->current_value_index > 0),
++        .locked = item->locked,
++        .can_decrease = item->current_value_index > 0,
++        .can_increase = item->values_count > 0 &&
++                        (unsigned)item->current_value_index + 1u < item->values_count,
++    };
++    return true;
++}
++
+ static uint8_t variable_item_list_items_on_screen(const VariableItemListModel* model) {
+     size_t res = 4;
+     return (uint8_t)((furi_string_empty(model->header)) ? res : res - 1);
+@@ -160,6 +178,18 @@
+             furi_string_get_cstr(
+                 VariableItemArray_get(model->items, model->position)->locked_message));
+     }
++
++    if(!model->locked_message_visible) {
++        const List160Model native = {
++            .title = furi_string_empty(model->header) ? "OPTIONS" : furi_string_get_cstr(model->header),
++            .count = VariableItemArray_size(model->items),
++            .selected = model->position,
++            .editing = model->editing,
++            .get_item = variable_item_list_native160_item,
++            .context = model,
++        };
++        native160_canvas_present_list(canvas, &native);
++    }
+ }
+ 
+ void variable_item_list_set_selected_item(VariableItemList* variable_item_list, uint8_t index) {
+@@ -501,6 +531,7 @@
+             model->header = furi_string_alloc();
+             model->scroll_counter = 0;
+             model->editing = false;
++            model->locked_message_visible = false;
+         },
+         true);
+     variable_item_list->scroll_timer = furi_timer_alloc(
+@@ -658,4 +689,4 @@
+ void* variable_item_get_context(VariableItem* item) {
+     furi_check(item);
+     return item->context;
+-}   
+\ No newline at end of file
++}   

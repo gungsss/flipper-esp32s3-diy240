@@ -1,9 +1,12 @@
-name: Build ESP32-S3 basic 1.5.1 compatibility preview
+name: Build ESP32-S3 native160 1.5.1 compatibility preview
 on:
   push:
     branches: [work/esp32s3-basic-151-preview]
     paths:
       - 'patch/esp32_basic_151.patch'
+      - 'patch/native160/**'
+      - 'scripts/apply_native160.py'
+      - 'tests/native160/**'
       - 'tests/basic151/**'
       - 'scripts/audit_basic_build.py'
       - 'scripts/check_official151_core.py'
@@ -38,6 +41,10 @@ jobs:
           fi
           git -C .work/upstream apply --unidiff-zero --check "$GITHUB_WORKSPACE/patch/esp32_basic_151.patch"
           git -C .work/upstream apply --unidiff-zero "$GITHUB_WORKSPACE/patch/esp32_basic_151.patch"
+      - name: Integrate native 160x128 UI and verify render logic
+        run: |
+          python3 scripts/apply_native160.py .work/upstream
+          bash tests/native160/run_host_tests.sh .work/upstream
       - name: Test compatibility changes
         env:
           ASAN_OPTIONS: detect_leaks=0
@@ -115,11 +122,11 @@ jobs:
       - name: Check inputs and package flashable images
         run: |
           python3 scripts/audit_basic_build.py .work/upstream
-          python3 scripts/package_basic_build.py .work/upstream dist/esp32-basic-preview
+          python3 scripts/package_basic_build.py .work/upstream dist/esp32-native160-preview
       - name: Upload experimental test bundle
         uses: actions/upload-artifact@v4
         with:
-          name: esp32s3-st7735-basic-151-preview
+          name: esp32s3-st7735-native160-151-preview
           path: dist/esp32-basic-preview/
           if-no-files-found: error
           retention-days: 14

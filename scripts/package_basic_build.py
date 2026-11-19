@@ -20,7 +20,9 @@ info.update({
     'reported_esp_app_api_version': '1.0',
     'official_151_app_api_version': '88.2',
     'scope': 'ESP32 port with selected 1.5.1 core, GUI, storage, loader, CLI, RPC, USB HID, toolbox and date/time example; not a complete 1.5.1 port',
-    'hardware_validation': 'This particular build has not been tested on the physical board',
+    'native_ui_profile': 'Native 160x128 home, primary menu, and selected settings lists; unsupported views retain compatibility rendering',
+    'native_ui_source': 'patch/native160/integration/native160_integration_only.patch',
+    'hardware_validation': 'Landscape orientation, panel colors, buttons, and SD behavior still require confirmation on the physical board',
 })
 
 native_example = root / 'build_diy/fap/example_date_time_input.fap'
@@ -58,8 +60,8 @@ for old in ('FLASH.md', 'HARDWARE.md', 'INSTALL_WINDOWS.md'):
     (out / old).unlink()
 
 manifest = {
-    'name': 'ESP32-S3 ST7735S: experimental 1.5.1 compatibility',
-    'version': '2.0.0-esp-compat-151-dev',
+    'name': 'ESP32-S3 ST7735S Landscape Native160 (1.5.1 compatibility preview)',
+    'version': '2.0.0-st7735s-native160-151-dev.20261119',
     'new_install_prompt_erase': False,
     'builds': [{'chipFamily': 'ESP32-S3', 'parts': [
         {'path': row['file'], 'offset': int(row['offset'], 16)} for row in records
@@ -71,18 +73,19 @@ manifest = {
 <title>Flasher ESP32-S3 ST7735S</title>
 <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
 <style>body{font-family:system-ui;background:#101720;color:#edf4f4;max-width:45rem;margin:8vh auto;padding:1.5rem;line-height:1.6}button{padding:.9rem 1.3rem;font-size:1rem}p{color:#c7d3d3}</style>
-<h1>Firmware uji ESP32-S3</h1><p>Layar ST7735S landscape, tombol, microSD, dan Bluetooth.</p>
+<h1>Firmware ESP32-S3 ST7735S Landscape</h1><p>Home, menu utama, dan daftar pengaturan memakai tata letak native 160×128. Tampilan yang belum didukung tetap memakai render kompatibilitas.</p>
 <p>Ini build pengembangan dengan sebagian perubahan 1.5.1. Versi dasar yang dilaporkan masih 1.4.3.</p>
 <p>Sambungkan ESP32 menggunakan kabel USB data, tutup qFlipper/serial monitor, lalu pilih port ESP32-S3.</p>
 <esp-web-install-button manifest="./manifest.json"><button slot="activate">Hubungkan dan flash</button>
 <span slot="unsupported">Gunakan Chrome atau Edge di komputer.</span>
 <span slot="not-allowed">Buka melalui localhost atau HTTPS.</span></esp-web-install-button></html>''')
-(out / 'BACA_DULU.txt').write_text('''FIRMWARE UJI ESP32-S3 - ST7735S LANDSCAPE
+(out / 'BACA_DULU.txt').write_text('''FIRMWARE ESP32-S3 - ST7735S LANDSCAPE / UI NATIVE 160x128
 
 Dasar: Sor3nt ESP32 port e6ec119 (versi Flipper yang dilaporkan 1.4.3).
-Build ini membawa beberapa perubahan GUI, loader, CLI, RPC, USB HID, toolbox,
-dan contoh aplikasi tanggal/waktu dari Flipper 1.5.1. Ini BELUM port 1.5.1
-lengkap dan belum diuji pada perangkat fisik.
+Build ini memakai UI native 160x128 untuk beranda, menu utama, dan daftar
+pengaturan tertentu. Build juga membawa sebagian perubahan GUI, loader, CLI,
+RPC, USB HID, toolbox, dan contoh tanggal/waktu dari Flipper 1.5.1. Ini BELUM
+port 1.5.1 lengkap dan orientasi landscape belum diuji di papan fisik.
 Versi API aplikasi ESP masih 1.0, sedangkan API resmi 1.5.1 adalah 88.2.
 Aplikasi FAP resmi berbasis ARM tidak dapat langsung berjalan pada ESP32.
 NFC dan modul lain yang tidak terpasang tidak menjadi target build ini.

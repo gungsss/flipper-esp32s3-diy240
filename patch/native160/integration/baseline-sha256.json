@@ -1,0 +1,12 @@
+{
+  "components/gui/CMakeLists.txt": "f922f16018d202741f28d1b26d460d5d98d24348bda65d4448f95d32ee97aaf8",
+  "components/gui/canvas.c": "4476d12c2250b2806b5fc87e3899ffd62c8da286961e0b8210a2d9528e059518",
+  "components/gui/canvas_i.h": "d999dd62c8365c904c5db9166d3f6a8165b93f8437dcc84df9f875a7122689fd",
+  "components/gui/modules/menu.c": "ca43da74a5eedd01db4946c939c0a1b036f927ce68164cbc7b1797eb03a52c1a",
+  "components/gui/modules/menu.h": "542222bb765238015e5e495ee5dd685b95b48fb5a759b3658c9a4e63d2fe6101",
+  "components/loader/loader_menu.c": "ae16d59cd2637c8f70ca84574a1ee232793dfc95df2ae0f52654d3c05ae96dc7",
+  "applications/services/desktop/views/desktop_view_main.c": "e80bb56c1d68d058177c5fa95d6dd56cce244b543649bea291d379214d8974e8",
+  "components/furi_hal/furi_hal_display.c": "256a46e98fb4a42a82765507b65dd2df3756d5fb33f103390806a39138ccbe4f",
+  "components/gui/modules/submenu.c": "6f72546e03a62e5a7cf664df9eed82eda0a260a6d4dab782ee1acefc8c384a66",
+  "components/gui/modules/variable_item_list.c": "2ca34bb24de05c9d1891fdb958861f7a7ce7817b9e31e0b3a886b03f9142207e"
+}
