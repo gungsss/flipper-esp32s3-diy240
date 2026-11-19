@@ -27,6 +27,8 @@ behavioral or binary compatibility with Flipper applications.
 The export set includes the ten APIs newly introduced by the 1.5.1 SDK and
 additional data, archive, command-line, and pipe APIs. Unsupported hardware
 APIs and official ARM application binaries remain outside this preview.
+The storage directory check, clock and locale setters, and dolphin service
+APIs have also been added to the ESP resolver with 1.5.1 signature checks.
 The ESP `cli_vcp_disable` legacy application symbol returns a status used by
 the USB-UART bridge. The 1.5.1 source signature is `void`: new ESP apps can
 opt into that signature through `components/compat/cli_vcp_151.h`, while the

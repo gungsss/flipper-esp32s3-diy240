@@ -810,6 +810,51 @@
     "params": "DirWalk*, _Bool"
   },
   {
+    "name": "dolphin_deed_get_app",
+    "type": "DolphinApp",
+    "params": "DolphinDeed"
+  },
+  {
+    "name": "dolphin_deed_get_app_limit",
+    "type": "uint8_t",
+    "params": "DolphinApp"
+  },
+  {
+    "name": "dolphin_deed_get_weight",
+    "type": "uint8_t",
+    "params": "DolphinDeed"
+  },
+  {
+    "name": "dolphin_flush",
+    "type": "void",
+    "params": "Dolphin*"
+  },
+  {
+    "name": "dolphin_get_pubsub",
+    "type": "FuriPubSub*",
+    "params": "Dolphin*"
+  },
+  {
+    "name": "dolphin_get_settings",
+    "type": "void",
+    "params": "Dolphin*, DolphinSettings*"
+  },
+  {
+    "name": "dolphin_set_settings",
+    "type": "void",
+    "params": "Dolphin*, DolphinSettings*"
+  },
+  {
+    "name": "dolphin_stats",
+    "type": "DolphinStats",
+    "params": "Dolphin*"
+  },
+  {
+    "name": "dolphin_upgrade_level",
+    "type": "void",
+    "params": "Dolphin*"
+  },
+  {
     "name": "elements_bold_rounded_frame",
     "type": "void",
     "params": "Canvas*, int32_t, int32_t, size_t, size_t"
@@ -1018,6 +1063,11 @@
     "name": "file_browser_worker_set_long_load_callback",
     "type": "void",
     "params": "BrowserWorker*, BrowserWorkerLongLoadCallback"
+  },
+  {
+    "name": "file_info_is_dir",
+    "type": "_Bool",
+    "params": "const FileInfo*"
   },
   {
     "name": "file_stream_alloc",
@@ -1515,9 +1565,34 @@
     "params": ""
   },
   {
+    "name": "furi_hal_rtc_get_locale_dateformat",
+    "type": "FuriHalRtcLocaleDateFormat",
+    "params": ""
+  },
+  {
     "name": "furi_hal_rtc_get_locale_timeformat",
     "type": "FuriHalRtcLocaleTimeFormat",
     "params": ""
+  },
+  {
+    "name": "furi_hal_rtc_set_datetime",
+    "type": "void",
+    "params": "DateTime*"
+  },
+  {
+    "name": "furi_hal_rtc_set_locale_dateformat",
+    "type": "void",
+    "params": "FuriHalRtcLocaleDateFormat"
+  },
+  {
+    "name": "furi_hal_rtc_set_locale_timeformat",
+    "type": "void",
+    "params": "FuriHalRtcLocaleTimeFormat"
+  },
+  {
+    "name": "furi_hal_rtc_set_locale_units",
+    "type": "void",
+    "params": "FuriHalRtcLocaleUnits"
   },
   {
     "name": "furi_kernel_get_tick_frequency",
