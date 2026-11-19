@@ -30,8 +30,10 @@ link failures separately, and holds the app's power state until it stops.
 Desktop RPC lock status and subscriptions are included; remote unlocking of
 a locked device is disabled because this port permits BLE RPC while locked.
 The 1.5.1 internal-backup and archive RPC handlers are enabled for testing;
-archive paths are checked before extraction. These operations have host tests
-but have not yet been exercised with qFlipper or a physical microSD card.
+archive paths are checked before extraction. Backup covers files under `/int`
+on the microSD, but does not include settings stored only in the ESP's NVS.
+These operations have host tests but have not yet been exercised with qFlipper
+or a physical microSD card and are not a complete device backup.
 The checked-in tests verify the resolver and compare these exported function
 signatures with the 1.5.1 SDK. Signature checks do not establish complete
 behavioral or binary compatibility with Flipper applications.

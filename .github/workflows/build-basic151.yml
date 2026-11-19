@@ -58,6 +58,7 @@ jobs:
           python3 tests/basic151/check_rpc_storage_backup.py .work/upstream
           python3 tests/basic151/check_tar_safe_names.py .work/upstream
           python3 tests/basic151/check_tar_partial_write.py .work/upstream
+          python3 tests/basic151/check_archive_integration.py .work/upstream
           python3 tests/basic151/check_hid_output.py .work/upstream
           python3 tests/basic151/check_151_example.py .work/upstream
           curl -fLsS --retry 3 -H 'Accept: application/vnd.github+json' \
