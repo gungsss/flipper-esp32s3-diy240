@@ -9,8 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import subprocess
-import sys
+import shutil
 from pathlib import Path
 
 FLIPPER_151_COMMIT = '9e810dc399e027e48ce07751df72168abbb19065'
@@ -20,6 +19,12 @@ IMAGES = {
     'partition_table/partition-table.bin': 0x8000,
     'furi_esp32.bin': 0x10000,
     'ota_data_initial.bin': 0xBF0000,
+}
+WEB_NAMES = {
+    'bootloader/bootloader.bin': 'bootloader.bin',
+    'partition_table/partition-table.bin': 'partition-table.bin',
+    'furi_esp32.bin': 'furi_esp32.bin',
+    'ota_data_initial.bin': 'ota_data_initial.bin',
 }
 
 
@@ -68,29 +73,23 @@ def validate(source: Path) -> dict:
 def prepare(source: Path, target: Path) -> None:
     info = validate(source)
     target.mkdir(parents=True, exist_ok=True)
-    image = target / 'esp32s3-st7735-151-merged.bin'
-    cmd = [sys.executable, '-m', 'esptool', '--chip', 'esp32s3', 'merge_bin',
-           '-o', str(image), '--flash_mode', 'dio', '--flash_freq', '80m', '--flash_size', '16MB']
+    images = []
     for name, offset in IMAGES.items():
-        cmd.extend((hex(offset), str(source / name)))
-    subprocess.run(cmd, check=True)
-    data = image.read_bytes()
-    if len(data) > MAX_FLASH or len(data) < max(offset + (source / name).stat().st_size for name, offset in IMAGES.items()):
-        raise ValueError('Invalid merged image size')
-    for name, offset in IMAGES.items():
-        original = (source / name).read_bytes()
-        skip = 16 if name.startswith('bootloader/') else 0
-        if data[offset + skip:offset + len(original)] != original[skip:]:
-            raise ValueError(f'Merged image mismatch at {hex(offset)}')
+        output = target / WEB_NAMES[name]
+        shutil.copyfile(source / name, output)
+        data = output.read_bytes()
+        original = next(row for row in info['images'] if row['file'] == name)
+        if hashlib.sha256(data).hexdigest() != original['sha256']:
+            raise ValueError(f'Staged image checksum mismatch: {name}')
+        images.append({'file': output.name, 'offset': offset, 'size_bytes': len(data),
+                       'sha256': original['sha256']})
     release = {
         'source_version': '1.5.1',
         'reported_flipper_version': info['reported_flipper_version'],
         'source_commit': FLIPPER_151_COMMIT,
         'board': info['board'],
         'lcd': info['lcd'],
-        'filename': image.name,
-        'size_bytes': len(data),
-        'sha256': hashlib.sha256(data).hexdigest(),
+        'images': images,
         'hardware_validation': info.get('hardware_validation', 'not specified'),
         'disabled_features': info.get('disabled_features', []),
     }
@@ -98,11 +97,12 @@ def prepare(source: Path, target: Path) -> None:
         'name': 'ESP32-S3 ST7735S - Flipper 1.5.1 port',
         'version': info['reported_flipper_version'],
         'new_install_prompt_erase': False,
-        'builds': [{'chipFamily': 'ESP32-S3', 'parts': [{'path': image.name, 'offset': 0}]}],
+        'builds': [{'chipFamily': 'ESP32-S3',
+                    'parts': [{'path': row['file'], 'offset': row['offset']} for row in images]}],
     }
     (target / 'release.json').write_text(json.dumps(release, indent=2) + '\n')
     (target / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
-    print('Prepared web image:', image.name, release['sha256'])
+    print('Prepared four separately addressed images for the web flasher.')
 
 
 def main() -> None:
@@ -112,7 +112,7 @@ def main() -> None:
     args = parser.parse_args()
     try:
         prepare(args.input.resolve(), args.output.resolve())
-    except (ValueError, KeyError, OSError, subprocess.CalledProcessError) as error:
+    except (ValueError, KeyError, OSError) as error:
         raise SystemExit(f'Cannot publish firmware: {error}') from error
 
 

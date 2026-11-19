@@ -3025,6 +3025,96 @@
     "params": "Popup*, uint32_t"
   },
   {
+    "name": "rpc_session_close",
+    "type": "void",
+    "params": "RpcSession*"
+  },
+  {
+    "name": "rpc_session_feed",
+    "type": "size_t",
+    "params": "RpcSession*, const uint8_t*, size_t, uint32_t"
+  },
+  {
+    "name": "rpc_session_get_available_size",
+    "type": "size_t",
+    "params": "RpcSession*"
+  },
+  {
+    "name": "rpc_session_get_owner",
+    "type": "RpcOwner",
+    "params": "RpcSession*"
+  },
+  {
+    "name": "rpc_session_open",
+    "type": "RpcSession*",
+    "params": "Rpc*, RpcOwner"
+  },
+  {
+    "name": "rpc_session_set_buffer_is_empty_callback",
+    "type": "void",
+    "params": "RpcSession*, RpcBufferIsEmptyCallback"
+  },
+  {
+    "name": "rpc_session_set_close_callback",
+    "type": "void",
+    "params": "RpcSession*, RpcSessionClosedCallback"
+  },
+  {
+    "name": "rpc_session_set_context",
+    "type": "void",
+    "params": "RpcSession*, void*"
+  },
+  {
+    "name": "rpc_session_set_send_bytes_callback",
+    "type": "void",
+    "params": "RpcSession*, RpcSendBytesCallback"
+  },
+  {
+    "name": "rpc_session_set_terminated_callback",
+    "type": "void",
+    "params": "RpcSession*, RpcSessionTerminatedCallback"
+  },
+  {
+    "name": "rpc_system_app_confirm",
+    "type": "void",
+    "params": "RpcAppSystem*, _Bool"
+  },
+  {
+    "name": "rpc_system_app_error_reset",
+    "type": "void",
+    "params": "RpcAppSystem*"
+  },
+  {
+    "name": "rpc_system_app_exchange_data",
+    "type": "void",
+    "params": "RpcAppSystem*, const uint8_t*, size_t"
+  },
+  {
+    "name": "rpc_system_app_send_exited",
+    "type": "void",
+    "params": "RpcAppSystem*"
+  },
+  {
+    "name": "rpc_system_app_send_started",
+    "type": "void",
+    "params": "RpcAppSystem*"
+  },
+  {
+    "name": "rpc_system_app_set_callback",
+    "type": "void",
+    "params": "RpcAppSystem*, RpcAppSystemCallback, void*"
+  },
+  {
+    "name": "rpc_system_app_set_error_code",
+    "type": "void",
+    "params": "RpcAppSystem*, uint32_t"
+  },
+  {
+    "name": "rpc_system_app_set_error_text",
+    "type": "void",
+    "params": "RpcAppSystem*, const char*"
+  },
+  {
     "name": "saved_struct_get_metadata",
     "type": "_Bool",
     "params": "const char*, uint8_t*, uint8_t*, size_t*"

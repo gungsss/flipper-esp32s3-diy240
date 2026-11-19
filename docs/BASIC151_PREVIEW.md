@@ -33,6 +33,7 @@ The storage directory check, clock and locale setters, and dolphin service
 APIs have also been added to the ESP resolver with 1.5.1 signature checks.
 The ESP application loader and Protocol Buffers encoding/decoding functions
 are additionally exported to compatible native ESP applications.
+RPC application and session interfaces are also exposed to native ESP apps.
 The ESP `cli_vcp_disable` legacy application symbol returns a status used by
 the USB-UART bridge. The 1.5.1 source signature is `void`: new ESP apps can
 opt into that signature through `components/compat/cli_vcp_151.h`, while the

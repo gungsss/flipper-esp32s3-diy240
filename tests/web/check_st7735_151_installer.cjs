@@ -8,16 +8,20 @@ const path = require('node:path');
   const script = await readFile(path.join(__dirname, '../../web/public/flipper-st7735-151/installer.js'), 'utf8');
   const binary = new Uint8Array([0xe9, 0, 0, 0, 9]);
   const digest = Buffer.from(await webcrypto.subtle.digest('SHA-256', binary)).toString('hex');
+  const parts = [
+    {path: 'bootloader.bin', offset: 0}, {path: 'partition-table.bin', offset: 0x8000},
+    {path: 'furi_esp32.bin', offset: 0x10000}, {path: 'ota_data_initial.bin', offset: 0xbf0000},
+  ];
   const good = {
     source_version: '1.5.1', source_commit: '9e810dc399e027e48ce07751df72168abbb19065',
     reported_flipper_version: '1.5.1-esp', board: 'DIY ESP32-S3 N16R8',
-    lcd: 'ST7735S landscape 160x128', filename: 'esp32s3-st7735-151-merged.bin',
-    size_bytes: binary.length, sha256: digest, hardware_validation: 'belum diuji',
+    lcd: 'ST7735S landscape 160x128', hardware_validation: 'belum diuji',
+    images: parts.map(part => ({file: part.path, offset: part.offset, size_bytes: binary.length, sha256: digest})),
   };
-  const manifest = {version: '1.5.1-esp', builds: [{chipFamily: 'ESP32-S3', parts: [{path: good.filename, offset: 0}]}]};
+  const manifest = {version: '1.5.1-esp', builds: [{chipFamily: 'ESP32-S3', parts}]};
 
   async function run(release, available = true, serial = true) {
-    const elements = Object.fromEntries(['release-status','release-detail','confirm','install','download','browser-note'].map(id => [id, {
+    const elements = Object.fromEntries(['release-status','release-detail','confirm','install','browser-note'].map(id => [id, {
       hidden: true, disabled: true, checked: false, textContent: '', addEventListener(_, callback) {this.onchange = callback;},
     }]));
     const context = {
@@ -37,7 +41,8 @@ const path = require('node:path');
   for(const bad of [
     await run(good, false),
     await run({...good, reported_flipper_version: '1.4.3'}),
-    await run({...good, sha256: '0'.repeat(64)}),
+    await run({...good, images: good.images.map((item, i) => i === 2 ? {...item, sha256: '0'.repeat(64)} : item)}),
+    await run({...good, images: good.images.map((item, i) => i === 1 ? {...item, offset: 0} : item)}),
     await run({...good, board: 'wrong board'}),
   ]) {
     assert.equal(bad.confirm.disabled, true, 'invalid firmware must never enable the installer');
@@ -50,7 +55,6 @@ const path = require('node:path');
   valid.confirm.checked = true;
   valid.confirm.onchange();
   assert.equal(valid.install.hidden, false);
-  assert.equal(valid.download.hidden, false);
   const unsupported = await run(good, true, false);
   unsupported.confirm.checked = true;
   unsupported.confirm.onchange();

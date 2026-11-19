@@ -52,6 +52,16 @@ with tempfile.TemporaryDirectory(prefix='esp151-publish-') as directory:
     manifest = candidate / 'BUILD_INFO.json'
     manifest.write_text(json.dumps(metadata))
     assert module.validate(candidate)['flipper_source_version'] == '1.5.1'
+    staged = directory / 'staged'
+    module.prepare(candidate, staged)
+    release = json.loads((staged / 'release.json').read_text())
+    web_manifest = json.loads((staged / 'manifest.json').read_text())
+    parts = web_manifest['builds'][0]['parts']
+    assert len(parts) == 4
+    for (original, offset), part, row in zip(module.IMAGES.items(), parts, release['images']):
+        assert part == {'path': module.WEB_NAMES[original], 'offset': offset}
+        assert row['offset'] == offset
+        assert (staged / part['path']).read_bytes() == (candidate / original).read_bytes()
 
     metadata['reported_flipper_version'] = '1.4.3'
     manifest.write_text(json.dumps(metadata))
