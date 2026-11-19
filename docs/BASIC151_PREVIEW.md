@@ -57,8 +57,10 @@ the USB-UART bridge. The 1.5.1 source signature is `void`: new ESP apps can
 opt into that signature through `components/compat/cli_vcp_151.h`, while the
 legacy resolver keeps its old behavior. This is an adapter for one API, not a
 claim of complete official 88.2 ABI compatibility.
-The firmware base still reports version **1.4.3** and the ESP application API
-is not the complete official 88.2 SDK.
+The pinned upstream source started with software revision **1.4.3**. This preview
+now reports **1.5.1-ESP32-preview** through BLE Device Information and the internal
+firmware version. The compiler continues to set the build date with `__DATE__`.
+The ESP application API is not the complete official 88.2 SDK.
 These changes do not constitute a complete port of 1.5.1; do not label this
 build as such or offer an official Flipper update for it.
 

@@ -3621,3 +3621,10 @@ diff --git a/components/toolbox/version.c b/components/toolbox/version.c
 @@ -25 +25 @@
 -    .firmware_origin = "ESP32 Port",
 +    .firmware_origin = "DIY240 by m4145",
+
+diff --git a/components/ble_serial/ble_serial.c b/components/ble_serial/ble_serial.c
+--- a/components/ble_serial/ble_serial.c
++++ b/components/ble_serial/ble_serial.c
+@@ -369 +369 @@
+-static const char dis_sw_revision[] = "1.4.3";
++static const char dis_sw_revision[] = "1.5.1-ESP32-preview";
