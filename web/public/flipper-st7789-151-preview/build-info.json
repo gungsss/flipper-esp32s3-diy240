@@ -10,7 +10,7 @@
       "offset": "0x0",
       "offset_bytes": 0,
       "size_bytes": 20848,
-      "sha256": "fdeb4238434b800edd07f779b2a2bbcea28f1bfd3b9574a0971ccc34f8f8d81e"
+      "sha256": "e0664c8be36d89959d94ec31733150e0e952711b9739a4b5f2127c96543b20ec"
     },
     {
       "file": "firmware/partition-table.bin",
@@ -24,7 +24,7 @@
       "offset": "0x10000",
       "offset_bytes": 65536,
       "size_bytes": 3318080,
-      "sha256": "b847ca486297fbeda9a622d71b72240c607b51ffc0fb93b78e871ab8c32779ff"
+      "sha256": "1fc333e4469aaf9d997905bd85c697b51151a21e8869ae9d8c48f54d98f81fa4"
     },
     {
       "file": "firmware/ota_data_initial.bin",
@@ -41,7 +41,7 @@
   "official_flipper_commit": "9e810dc399e027e48ce07751df72168abbb19065",
   "esp_app_api_version": "1.0 (ESP32 port)",
   "official_app_api_version": "88.2",
-  "artifact_created_at_utc": "2026-11-19T18:27:32+00:00",
+  "artifact_created_at_utc": "2026-11-19T18:36:49+00:00",
   "scope": "Selected portable Flipper 1.5.1 changes and ESP32 adaptations; not complete official source, SDK, runtime, or hardware parity.",
   "hardware_validation": "Firmware compiled and flash offsets verified in CI; physical ESP32-S3 validation remains pending."
 }
