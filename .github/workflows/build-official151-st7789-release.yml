@@ -53,7 +53,7 @@ jobs:
       - name: Check the compiled flash inputs
         run: |
           python3 tests/compat151/check_diy_build_inputs.py .work/upstream/build_diy/compile_commands.json
-          python3 tests/compat151/check_ota_profile_image.py .work/upstream/build_diy/furi_esp32.bin
+          python3 tests/compat151/check_ota_profile_image.py .work/upstream/build_diy/furi_esp32.bin 7789
       - name: Verify offsets and package the flash images
         run: python3 scripts/package_artifacts.py --source .work/upstream --output "$RUNNER_TEMP/verified-build"
       - name: Create web release bundle

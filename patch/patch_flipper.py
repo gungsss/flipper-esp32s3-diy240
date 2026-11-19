@@ -144,9 +144,18 @@ def main():
     print('Running upstream DIY board generator...')
     subprocess.run([sys.executable, str(root/'tools/gen_diy_board.py'), str(root/'Pinout.txt')],
                    cwd=root, check=True)
-    hdr = (root/'components/furi_hal/boards/board_DIY.h').read_text(encoding='utf-8')
+    header_path = root/'components/furi_hal/boards/board_DIY.h'
+    hdr = header_path.read_text(encoding='utf-8')
+    ota_profile = '#define BOARD_OTA_PROFILE_ST7789 1'
+    if ota_profile not in hdr:
+        anchor = '#define BOARD_LCD_H_RES 240'
+        if hdr.count(anchor) != 1:
+            sys.exit('ERROR: could not select the ST7789 OTA profile in board_DIY.h')
+        hdr = hdr.replace(anchor, ota_profile + '\\n' + anchor, 1)
+        header_path.write_text(hdr, encoding='utf-8')
     expected = {
         '#define BOARD_LCD_H_RES 240', '#define BOARD_LCD_V_RES 240',
+        '#define BOARD_OTA_PROFILE_ST7789 1',
         '#define BOARD_PIN_LCD_CS   UINT16_MAX',
         '#define BOARD_SD_BUS_NOT_SHARED 1', '#define BOARD_SD_SPI_HOST SPI3_HOST',
         '#define BOARD_PIN_SD_MISO2 38', '#define BOARD_PIN_SD_MOSI  39',
@@ -157,7 +166,7 @@ def main():
     missing = [s for s in sorted(expected) if s not in hdr]
     if missing:
         sys.exit('ERROR: generated board header mismatch: ' + repr(missing))
-    print('PASSED: generated header has no-CS 240x240 LCD + independent SPI3 microSD.')
+    print('PASSED: generated header has ST7789 OTA identity, no-CS 240x240 LCD + independent SPI3 microSD.')
     print('Next: ./build_diy.sh --clean --build-only (requires ESP-IDF 5.4.1)')
 
 

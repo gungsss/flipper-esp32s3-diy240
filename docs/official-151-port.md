@@ -75,8 +75,8 @@ is served from a separate preview route. Never flash one profile to the other.
   protocol and GPIO exports, with C signature checks for 98 selected functions.
 - BLE Device Information identifies the actual selected ESP32 target rather
   than advertising an ESP32-C6 on S3. Bluetooth pairing on hardware is untested.
-- Added a custom ESP image descriptor for the ST7735 DIY wiring and check it in
-  the shared OTA flash path and RPC inspection. Host tests use the real source
+- Added custom ESP image descriptors for ST7735 and ST7789 DIY wiring and
+  check them in the shared OTA flash path and RPC inspection. Host tests use the real source
   with mocked storage/IDF to check wrong-chip, wrong-project, wrong-board and
   truncated images before any erase. The real ESP image layout is checked in CI.
 - Aligned the Elplast encoder's buffer size and repeat default with the 1.5.1

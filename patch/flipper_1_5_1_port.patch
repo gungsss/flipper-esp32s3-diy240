@@ -2898,7 +2898,7 @@ index 52c1b3c..69e6f4a 100644
 +static FwOtaImageStatus fw_ota_inspect_open_file(File* f, FwOtaImageInfo* out) {
 +    uint8_t hdr[sizeof(esp_image_header_t) + sizeof(esp_image_segment_header_t) +
 +                sizeof(esp_app_desc_t)
-+#if defined(BOARD_OTA_PROFILE_ST7735) && BOARD_OTA_PROFILE_ST7735
++#if (defined(BOARD_OTA_PROFILE_ST7735) && BOARD_OTA_PROFILE_ST7735) || (defined(BOARD_OTA_PROFILE_ST7789) && BOARD_OTA_PROFILE_ST7789)
 +                + sizeof(FwOtaBoardProfile)
 +#endif
 +    ];
@@ -2928,7 +2928,7 @@ index 52c1b3c..69e6f4a 100644
 +    if(ih->chip_id != CONFIG_IDF_FIRMWARE_CHIP_ID) return FwOtaImageChipMismatch;
 +    if(!have_desc || strncmp(ad->project_name, FW_OTA_PROJECT_NAME, sizeof(ad->project_name)) != 0)
 +        return FwOtaImageWrongProject;
-+#if defined(BOARD_OTA_PROFILE_ST7735) && BOARD_OTA_PROFILE_ST7735
++#if (defined(BOARD_OTA_PROFILE_ST7735) && BOARD_OTA_PROFILE_ST7735) || (defined(BOARD_OTA_PROFILE_ST7789) && BOARD_OTA_PROFILE_ST7789)
 +    const size_t profile_offset = sizeof(esp_image_header_t) +
 +                                  sizeof(esp_image_segment_header_t) + sizeof(esp_app_desc_t);
 +    if(!fw_ota_profile_matches(hdr + profile_offset, sizeof(hdr) - profile_offset))
@@ -3005,7 +3005,7 @@ index 52c1b3c..69e6f4a 100644
              fw_ota_set_err(err, err_size, "open bin failed");
              break;
          }
-+#if defined(BOARD_OTA_PROFILE_ST7735) && BOARD_OTA_PROFILE_ST7735
++#if (defined(BOARD_OTA_PROFILE_ST7735) && BOARD_OTA_PROFILE_ST7735) || (defined(BOARD_OTA_PROFILE_ST7789) && BOARD_OTA_PROFILE_ST7789)
 +        /* Wi-Fi also calls this directly. Reject a wrong board before erase. */
 +        const FwOtaImageStatus image_status = fw_ota_inspect_open_file(f, NULL);
 +        if(image_status != FwOtaImageOk) {
@@ -3048,7 +3048,7 @@ new file mode 100644
 index 0000000..6fe84c5
 --- /dev/null
 +++ b/components/fw_ota/fw_ota_profile.c
-@@ -0,0 +1,32 @@
+@@ -0,0 +1,36 @@
 +#include "fw_ota_profile.h"
 +#include <board.h>
 +#include <string.h>
@@ -3058,10 +3058,14 @@ index 0000000..6fe84c5
 +/* The section and forced linker reference give this a stable image offset. */
 +const __attribute__((section(".rodata_custom_desc"), used)) FwOtaBoardProfile
 +    fw_ota_board_profile = {
-+#if defined(BOARD_OTA_PROFILE_ST7735) && BOARD_OTA_PROFILE_ST7735
++#if (defined(BOARD_OTA_PROFILE_ST7735) && BOARD_OTA_PROFILE_ST7735) || (defined(BOARD_OTA_PROFILE_ST7789) && BOARD_OTA_PROFILE_ST7789)
 +        .magic = {'D', 'I', 'Y', 'O', 'T', 'A', '1', 0},
 +        .schema = 1,
++#if defined(BOARD_OTA_PROFILE_ST7789) && BOARD_OTA_PROFILE_ST7789
++        .display_controller = 7789,
++#else
 +        .display_controller = 7735,
++#endif
 +        .pins = {
 +            BOARD_PIN_LCD_MOSI, BOARD_PIN_LCD_SCLK, BOARD_PIN_LCD_DC,
 +            BOARD_PIN_LCD_RST, BOARD_PIN_LCD_CS, BOARD_PIN_LCD_BL,

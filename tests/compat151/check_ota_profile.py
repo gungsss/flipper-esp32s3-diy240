@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise the actual board-profile comparator with target pin settings."""
+"""Exercise both DIY display-board profiles with the real OTA comparator."""
 import os
 import subprocess
 import sys
@@ -7,10 +7,7 @@ import tempfile
 from pathlib import Path
 
 port = Path(sys.argv[1]).resolve()
-with tempfile.TemporaryDirectory(prefix='esp151-ota-profile-') as directory:
-    temp = Path(directory)
-    (temp / 'board.h').write_text('''#pragma once
-#define BOARD_OTA_PROFILE_ST7735 1
+pins = '''#pragma once
 #define BOARD_PIN_LCD_MOSI 11
 #define BOARD_PIN_LCD_SCLK 12
 #define BOARD_PIN_LCD_DC 15
@@ -27,15 +24,20 @@ with tempfile.TemporaryDirectory(prefix='esp151-ota-profile-') as directory:
 #define BOARD_PIN_BTN_RIGHT 17
 #define BOARD_PIN_BTN_OK 8
 #define BOARD_PIN_BTN_BACK 18
-''')
+'''
+profiles = (('BOARD_OTA_PROFILE_ST7735', 7735), ('BOARD_OTA_PROFILE_ST7789', 7789))
+with tempfile.TemporaryDirectory(prefix='esp151-ota-profile-') as directory:
+    temp = Path(directory)
     root = port / 'components/fw_ota'
-    exe = temp / 'profile-test'
-    subprocess.run([
-        'gcc', '-std=gnu11', '-Wall', '-Wextra', '-Werror',
-        '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
-        '-I', str(temp), '-I', str(root),
-        str(Path(__file__).with_name('ota_profile_regression.c')),
-        str(root / 'fw_ota_profile.c'), '-o', str(exe),
-    ], check=True)
-    subprocess.run([str(exe)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=0'}, check=True)
-print('OTA board profile matches correct wiring and rejects altered/truncated profiles.')
+    for macro, controller in profiles:
+        (temp / 'board.h').write_text(pins.replace('#pragma once', f'#pragma once\\n#define {macro} 1', 1))
+        exe = temp / f'profile-test-{controller}'
+        subprocess.run([
+            'gcc', '-std=gnu11', '-Wall', '-Wextra', '-Werror',
+            '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
+            '-I', str(temp), '-I', str(root),
+            str(Path(__file__).with_name('ota_profile_regression.c')),
+            str(root / 'fw_ota_profile.c'), '-o', str(exe),
+        ], check=True)
+        subprocess.run([str(exe)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=0'}, check=True)
+        print(f'OTA profile {controller} matches its wiring and rejects altered/truncated profiles.')
