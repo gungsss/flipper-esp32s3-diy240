@@ -127,6 +127,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: esp32s3-st7735-native160-151-preview
-          path: dist/esp32-basic-preview/
+          path: dist/esp32-native160-preview/
           if-no-files-found: error
           retention-days: 14
