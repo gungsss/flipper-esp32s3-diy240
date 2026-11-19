@@ -15,7 +15,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: esp32s3-st7735-basic-151-preview
-          run-id: 44422610859
+          run-id: 44425561222
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: firmware
       - name: Verify files and assemble virtual flash
