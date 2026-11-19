@@ -49,6 +49,7 @@ jobs:
           python3 tests/basic151/check_rpc_start.py .work/upstream
           python3 tests/basic151/check_rpc_desktop.py .work/upstream
           python3 tests/basic151/check_core_api.py .work/upstream
+          python3 tests/basic151/check_bit_buffer_varint.py .work/upstream
           python3 tests/basic151/check_js_timer.py .work/upstream
           python3 tests/basic151/check_elf_target.py .work/upstream
           python3 tests/basic151/check_browser_callback.py .work/upstream

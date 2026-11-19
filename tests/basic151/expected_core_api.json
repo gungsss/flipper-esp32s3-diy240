@@ -1,5 +1,15 @@
 [
   {
+    "name": "aligned_free",
+    "type": "void",
+    "params": "void*"
+  },
+  {
+    "name": "aligned_malloc",
+    "type": "void*",
+    "params": "size_t, size_t"
+  },
+  {
     "name": "args_char_to_hex",
     "type": "_Bool",
     "params": "char, char, uint8_t*"
@@ -43,6 +53,121 @@
     "name": "args_read_string_and_trim",
     "type": "_Bool",
     "params": "FuriString*, FuriString*"
+  },
+  {
+    "name": "bit_buffer_append",
+    "type": "void",
+    "params": "BitBuffer*, const BitBuffer*"
+  },
+  {
+    "name": "bit_buffer_append_bit",
+    "type": "void",
+    "params": "BitBuffer*, _Bool"
+  },
+  {
+    "name": "bit_buffer_append_right",
+    "type": "void",
+    "params": "BitBuffer*, const BitBuffer*, size_t"
+  },
+  {
+    "name": "bit_buffer_copy",
+    "type": "void",
+    "params": "BitBuffer*, const BitBuffer*"
+  },
+  {
+    "name": "bit_buffer_copy_bits",
+    "type": "void",
+    "params": "BitBuffer*, const uint8_t*, size_t"
+  },
+  {
+    "name": "bit_buffer_copy_bytes",
+    "type": "void",
+    "params": "BitBuffer*, const uint8_t*, size_t"
+  },
+  {
+    "name": "bit_buffer_copy_bytes_with_parity",
+    "type": "void",
+    "params": "BitBuffer*, const uint8_t*, size_t"
+  },
+  {
+    "name": "bit_buffer_copy_left",
+    "type": "void",
+    "params": "BitBuffer*, const BitBuffer*, size_t"
+  },
+  {
+    "name": "bit_buffer_copy_right",
+    "type": "void",
+    "params": "BitBuffer*, const BitBuffer*, size_t"
+  },
+  {
+    "name": "bit_buffer_get_byte",
+    "type": "uint8_t",
+    "params": "const BitBuffer*, size_t"
+  },
+  {
+    "name": "bit_buffer_get_byte_from_bit",
+    "type": "uint8_t",
+    "params": "const BitBuffer*, size_t"
+  },
+  {
+    "name": "bit_buffer_get_capacity_bytes",
+    "type": "size_t",
+    "params": "const BitBuffer*"
+  },
+  {
+    "name": "bit_buffer_get_parity",
+    "type": "const uint8_t*",
+    "params": "const BitBuffer*"
+  },
+  {
+    "name": "bit_buffer_get_size",
+    "type": "size_t",
+    "params": "const BitBuffer*"
+  },
+  {
+    "name": "bit_buffer_has_partial_byte",
+    "type": "_Bool",
+    "params": "const BitBuffer*"
+  },
+  {
+    "name": "bit_buffer_set_byte",
+    "type": "void",
+    "params": "BitBuffer*, size_t, uint8_t"
+  },
+  {
+    "name": "bit_buffer_set_byte_with_parity",
+    "type": "void",
+    "params": "BitBuffer*, size_t, uint8_t, _Bool"
+  },
+  {
+    "name": "bit_buffer_set_size",
+    "type": "void",
+    "params": "BitBuffer*, size_t"
+  },
+  {
+    "name": "bit_buffer_set_size_bytes",
+    "type": "void",
+    "params": "BitBuffer*, size_t"
+  },
+  {
+    "name": "bit_buffer_starts_with_byte",
+    "type": "_Bool",
+    "params": "const BitBuffer*, uint8_t"
+  },
+  {
+    "name": "bit_buffer_write_bytes",
+    "type": "void",
+    "params": "const BitBuffer*, void*, size_t"
+  },
+  {
+    "name": "bit_buffer_write_bytes_mid",
+    "type": "void",
+    "params": "const BitBuffer*, void*, size_t, size_t"
+  },
+  {
+    "name": "bit_buffer_write_bytes_with_parity",
+    "type": "void",
+    "params": "const BitBuffer*, void*, size_t, size_t*"
   },
   {
     "name": "bit_lib_add_parity",
@@ -1105,6 +1230,11 @@
     "params": "Stream*, const char*, FS_AccessMode, FS_OpenMode"
   },
   {
+    "name": "filesystem_api_error_get_desc",
+    "type": "const char*",
+    "params": "FS_Error"
+  },
+  {
     "name": "flipper_application_alloc_thread",
     "type": "FuriThread*",
     "params": "FlipperApplication*, const char*"
@@ -1458,6 +1588,11 @@
     "name": "flipper_format_write_uint32",
     "type": "_Bool",
     "params": "FlipperFormat*, const char*, const uint32_t*, const uint16_t"
+  },
+  {
+    "name": "float_is_equal",
+    "type": "_Bool",
+    "params": "float, float"
   },
   {
     "name": "furi_delay_ms",
@@ -2595,6 +2730,21 @@
     "params": "Gui*, ViewPort*"
   },
   {
+    "name": "hex_char_to_hex_nibble",
+    "type": "_Bool",
+    "params": "char, uint8_t*"
+  },
+  {
+    "name": "hex_chars_to_uint64",
+    "type": "_Bool",
+    "params": "const char*, uint64_t*"
+  },
+  {
+    "name": "hex_chars_to_uint8",
+    "type": "_Bool",
+    "params": "const char*, uint8_t*"
+  },
+  {
     "name": "icon_animation_alloc",
     "type": "IconAnimation*",
     "params": "const Icon*"
@@ -2723,6 +2873,46 @@
     "name": "locale_set_time_format",
     "type": "void",
     "params": "LocaleTimeFormat"
+  },
+  {
+    "name": "memmgr_get_minimum_free_heap",
+    "type": "size_t",
+    "params": ""
+  },
+  {
+    "name": "memmgr_get_total_heap",
+    "type": "size_t",
+    "params": ""
+  },
+  {
+    "name": "menu_add_item",
+    "type": "void",
+    "params": "Menu*, const char*, const Icon*, uint32_t, MenuItemCallback, void*"
+  },
+  {
+    "name": "menu_alloc",
+    "type": "Menu*",
+    "params": ""
+  },
+  {
+    "name": "menu_free",
+    "type": "void",
+    "params": "Menu*"
+  },
+  {
+    "name": "menu_get_view",
+    "type": "View*",
+    "params": "Menu*"
+  },
+  {
+    "name": "menu_reset",
+    "type": "void",
+    "params": "Menu*"
+  },
+  {
+    "name": "menu_set_selected_item",
+    "type": "void",
+    "params": "Menu*, uint32_t"
   },
   {
     "name": "name_generator_make_auto",
@@ -3960,6 +4150,11 @@
     "params": "TextInput*, TextInputValidatorCallback, void*"
   },
   {
+    "name": "uint8_to_hex_chars",
+    "type": "void",
+    "params": "const uint8_t*, uint8_t*, int"
+  },
+  {
     "name": "validator_is_file_alloc_init",
     "type": "ValidatorIsFile*",
     "params": "const char*, const char*, const char*"
@@ -4063,6 +4258,36 @@
     "name": "variable_item_set_values_count",
     "type": "void",
     "params": "VariableItem*, uint8_t"
+  },
+  {
+    "name": "varint_int32_length",
+    "type": "size_t",
+    "params": "int32_t"
+  },
+  {
+    "name": "varint_int32_pack",
+    "type": "size_t",
+    "params": "int32_t, uint8_t*"
+  },
+  {
+    "name": "varint_int32_unpack",
+    "type": "size_t",
+    "params": "int32_t*, const uint8_t*, size_t"
+  },
+  {
+    "name": "varint_uint32_length",
+    "type": "size_t",
+    "params": "uint32_t"
+  },
+  {
+    "name": "varint_uint32_pack",
+    "type": "size_t",
+    "params": "uint32_t, uint8_t*"
+  },
+  {
+    "name": "varint_uint32_unpack",
+    "type": "size_t",
+    "params": "uint32_t*, const uint8_t*, size_t"
   },
   {
     "name": "version_get",

@@ -873,18 +873,6 @@
       "blob": "bcd3024acd847283944308e48db30618f3dd8cb9"
     },
     {
-      "group": "toolbox",
-      "official": "lib/toolbox/varint.c",
-      "source": "lib/toolbox/varint.c",
-      "blob": "79777c4ba5818300cbe15b3a6fcb8469c2c057b3"
-    },
-    {
-      "group": "toolbox",
-      "official": "lib/toolbox/varint.h",
-      "source": "lib/toolbox/varint.h",
-      "blob": "997c4d9d8bc372c481bf9de86c3e0b7d098d8f33"
-    },
-    {
       "group": "javascript",
       "official": "applications/system/js_app/js_app.c",
       "source": "applications/system/js_app/js_app.c",
