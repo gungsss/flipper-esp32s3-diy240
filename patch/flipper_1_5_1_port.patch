@@ -2866,7 +2866,7 @@ index 41deae3..e7ff2dc 100644
 +    REQUIRES furi furi_hal storage toolbox app_update esp_partition esp_app_format bootloader_support esp_system soc
  )
 +
-+target_link_options(${COMPONENT_LIB} INTERFACE "LINKER:--undefined=fw_ota_board_profile")
++target_link_libraries(${COMPONENT_LIB} "-u fw_ota_board_profile")
 diff --git a/components/fw_ota/fw_ota.c b/components/fw_ota/fw_ota.c
 index 52c1b3c..69e6f4a 100644
 --- a/components/fw_ota/fw_ota.c
