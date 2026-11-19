@@ -2894,14 +2894,101 @@ index 0000000..f80073f
 + */
 +void loader_queue_clear(LoaderLaunchQueue* queue);
 diff --git a/components/rpc/CMakeLists.txt b/components/rpc/CMakeLists.txt
-index 6145dc9..5ebb33a 100644
+index 6145dc9..b63f256 100644
 --- a/components/rpc/CMakeLists.txt
 +++ b/components/rpc/CMakeLists.txt
-@@ -8,0 +9 @@ idf_component_register(
+@@ -5,0 +6 @@ idf_component_register(
++        "int_backup.c"
+@@ -8,0 +10 @@ idf_component_register(
 +        "rpc_desktop.c"
-@@ -10 +11 @@ idf_component_register(
+@@ -10 +12 @@ idf_component_register(
 -    REQUIRES furi furi_hal toolbox storage nanopb flipper_protobuf notification btshim datetime gui loader input assets fw_ota
 +    REQUIRES furi furi_hal toolbox storage nanopb flipper_protobuf notification btshim datetime gui loader input assets fw_ota desktop
+diff --git a/components/rpc/int_backup.c b/components/rpc/int_backup.c
+new file mode 100644
+index 0000000..6ef3a4a
+--- /dev/null
++++ b/components/rpc/int_backup.c
+@@ -0,0 +1,55 @@
++#include "int_backup.h"
++
++#include <furi.h>
++#include <string.h>
++#include <toolbox/tar/tar_archive.h>
++
++#include "../btshim/bt_settings_filename.h"
++#include "../btshim/bt_keys_filename.h"
++#include "../../applications/services/dolphin/helpers/dolphin_state_filename.h"
++#include "../../applications/services/desktop/helpers/slideshow_filename.h"
++#include "../../applications/services/desktop/desktop_settings_filename.h"
++
++/* The ESP notification service uses the same on-disk filename. */
++#define NOTIFICATION_SETTINGS_FILE_NAME ".notification.settings"
++
++#define INT_BACKUP_DEFAULT_LOCATION EXT_PATH(INT_BACKUP_DEFAULT_FILENAME)
++
++static void backup_name_converter(FuriString* filename) {
++    if(furi_string_empty(filename) || (furi_string_get_char(filename, 0) == '.')) {
++        return;
++    }
++
++    /* Filenames are already prefixed with '.' */
++    const char* const names[] = {
++        BT_SETTINGS_FILE_NAME,
++        BT_KEYS_STORAGE_FILE_NAME,
++        DESKTOP_SETTINGS_FILE_NAME,
++        NOTIFICATION_SETTINGS_FILE_NAME,
++        SLIDESHOW_FILE_NAME,
++        DOLPHIN_STATE_FILE_NAME,
++    };
++
++    for(size_t i = 0; i < COUNT_OF(names); i++) {
++        if(furi_string_equal(filename, &names[i][1])) {
++            furi_string_set(filename, names[i]);
++            return;
++        }
++    }
++}
++
++bool int_backup_create(Storage* storage, const char* destination) {
++    const char* final_destination =
++        destination && strlen(destination) ? destination : INT_BACKUP_DEFAULT_LOCATION;
++    return storage_int_backup(storage, final_destination) == FSE_OK;
++}
++
++bool int_backup_exists(Storage* storage, const char* source) {
++    const char* final_source = source && strlen(source) ? source : INT_BACKUP_DEFAULT_LOCATION;
++    return storage_common_stat(storage, final_source, NULL) == FSE_OK;
++}
++
++bool int_backup_unpack(Storage* storage, const char* source) {
++    const char* final_source = source && strlen(source) ? source : INT_BACKUP_DEFAULT_LOCATION;
++    return storage_int_restore(storage, final_source, backup_name_converter) == FSE_OK;
++}
+diff --git a/components/rpc/int_backup.h b/components/rpc/int_backup.h
+new file mode 100644
+index 0000000..168efda
+--- /dev/null
++++ b/components/rpc/int_backup.h
+@@ -0,0 +1,18 @@
++#pragma once
++
++#include <stdbool.h>
++#include <storage/storage.h>
++
++#define INT_BACKUP_DEFAULT_FILENAME "backup.tar"
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++bool int_backup_create(Storage* storage, const char* destination);
++bool int_backup_exists(Storage* storage, const char* source);
++bool int_backup_unpack(Storage* storage, const char* source);
++
++#ifdef __cplusplus
++}
++#endif
 diff --git a/components/rpc/rpc.c b/components/rpc/rpc.c
 index a303940..a8d826a 100644
 --- a/components/rpc/rpc.c
@@ -3186,6 +3273,32 @@ index b2d2822..07cc667 100644
 @@ -38,0 +40,2 @@ void* rpc_system_property_alloc(RpcSession* session);
 +void* rpc_desktop_alloc(RpcSession* session);
 +void rpc_desktop_free(void* context);
+diff --git a/components/rpc/rpc_storage.c b/components/rpc/rpc_storage.c
+index daeca50..77219be 100644
+--- a/components/rpc/rpc_storage.c
++++ b/components/rpc/rpc_storage.c
+@@ -9,0 +10,2 @@
++#include <toolbox/tar/tar_archive.h>
++#include "int_backup.h"
+@@ -652 +653,0 @@ static void rpc_system_storage_rename_process(const PB_Main* request, void* cont
+-#if 0 /* Backup/tar not ported to ESP32 yet */
+@@ -711,0 +713,4 @@ static void rpc_system_storage_tar_extract_process(const PB_Main* request, void*
++        if(!tar_path || !*tar_path || !out_path || !*out_path) {
++            status = PB_CommandStatus_ERROR_STORAGE_INVALID_PARAMETER;
++            break;
++        }
+@@ -735 +739,0 @@ static void rpc_system_storage_tar_extract_process(const PB_Main* request, void*
+-#endif /* backup/tar */
+@@ -781 +785,8 @@ void* rpc_system_storage_alloc(RpcSession* session) {
+-    /* Backup/tar not ported to ESP32 yet */
++    rpc_handler.message_handler = rpc_system_storage_backup_create_process;
++    rpc_add_handler(session, PB_Main_storage_backup_create_request_tag, &rpc_handler);
++
++    rpc_handler.message_handler = rpc_system_storage_backup_restore_process;
++    rpc_add_handler(session, PB_Main_storage_backup_restore_request_tag, &rpc_handler);
++
++    rpc_handler.message_handler = rpc_system_storage_tar_extract_process;
++    rpc_add_handler(session, PB_Main_storage_tar_extract_request_tag, &rpc_handler);
 diff --git a/components/toolbox/args.c b/components/toolbox/args.c
 index fe5cca7..ce50252 100644
 --- a/components/toolbox/args.c
@@ -3244,14 +3357,59 @@ index dde5cc3..5fb360d 100644
 @@ -222,0 +254 @@ void cli_shell_execute_command(CliShell* cli_shell, FuriString* command) {
 +    if(plugin_manager) plugin_manager_free(plugin_manager);
 diff --git a/components/toolbox/tar/tar_archive.c b/components/toolbox/tar/tar_archive.c
-index db1d517..01b23c2 100644
+index db1d517..5f76b2a 100644
 --- a/components/toolbox/tar/tar_archive.c
 +++ b/components/toolbox/tar/tar_archive.c
-@@ -317,0 +318 @@ static bool archive_extract_current_file(TarArchive* archive, const char* dst_pa
+@@ -7,0 +8 @@
++#include <ctype.h>
+@@ -317,0 +319 @@ static bool archive_extract_current_file(TarArchive* archive, const char* dst_pa
 +            // mtar_read_data() returns a negative MTAR_* error code on failure
-@@ -319 +320 @@ static bool archive_extract_current_file(TarArchive* archive, const char* dst_pa
+@@ -319 +321 @@ static bool archive_extract_current_file(TarArchive* archive, const char* dst_pa
 -            if(!readcnt || !storage_file_write(out_file, readbuf, readcnt)) {
 +            if((readcnt <= 0) || !storage_file_write(out_file, readbuf, readcnt)) {
+@@ -330,0 +333,22 @@ static bool archive_extract_current_file(TarArchive* archive, const char* dst_pa
++/* Archive entries must stay within the requested output directory. */
++static bool archive_entry_name_is_safe(const char* name) {
++    if(!name || !*name || *name == '/' || strchr(name, '\\') || strchr(name, ':')) return false;
++    /* path_append trims the whole suffix; do not validate a different name. */
++    size_t length = strlen(name);
++    if(isspace((unsigned char)name[0]) || isspace((unsigned char)name[length - 1])) return false;
++
++    const char* part = name;
++    for(const char* cursor = name;; ++cursor) {
++        if(*cursor && iscntrl((unsigned char)*cursor)) return false;
++        if(*cursor == '/' || *cursor == '\0') {
++            size_t part_length = cursor - part;
++            if(part_length && isspace((unsigned char)part[part_length - 1])) return false;
++            /* FAT file systems can ignore trailing dots; only the single-dot
++             * relative directory component is accepted. */
++            if(part_length > 1 && part[part_length - 1] == '.') return false;
++            if(*cursor == '\0') return true;
++            part = cursor + 1;
++        }
++    }
++}
++
+@@ -335,0 +360,7 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header,
++    /* Some valid archives include a root directory entry. */
++    if(header->type == MTAR_TDIR && strcmp(header->name, "/") == 0) return 0;
++    if(!archive_entry_name_is_safe(header->name)) {
++        FURI_LOG_W(TAG, "Unsafe archive entry");
++        return MTAR_EFAILURE;
++    }
++
+@@ -349,5 +379,0 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header,
+-        // Skip "/" entry since concat would leave it dangling, also want caller to mkdir destination
+-        if(strcmp(header->name, "/") == 0) {
+-            return 0;
+-        }
+-
+@@ -374,0 +401,5 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header,
++    if(!archive_entry_name_is_safe(furi_string_get_cstr(converted_fname))) {
++        furi_string_free(converted_fname);
++        return MTAR_EFAILURE;
++    }
++
 diff --git a/fam_config.py b/fam_config.py
 index 030cfb2..2f6a807 100644
 --- a/fam_config.py
