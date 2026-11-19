@@ -6,6 +6,7 @@ on:
       - 'patch/flipper_1_5_1_port.patch'
       - 'patch/loader_151_port.patch'
       - 'patch/loader_cli_151_port.patch'
+      - 'patch/patch_flipper.py'
       - 'tests/compat151/**'
       - 'scripts/audit_official_151.py'
       - '.github/workflows/build-official151-port.yml'
