@@ -1,7 +1,7 @@
 {
-  "name": "Flipper ESP32-S3 ST7735S Landscape",
-  "version": "2.0.0-st7735s-landscape.20261117",
-  "new_install_prompt_erase": true,
+  "name": "ESP32-S3 ST7735S Landscape Native160 (1.5.1 compatibility preview)",
+  "version": "2.0.0-st7735s-native160-151-dev.20261119",
+  "new_install_prompt_erase": false,
   "builds": [
     {
       "chipFamily": "ESP32-S3",

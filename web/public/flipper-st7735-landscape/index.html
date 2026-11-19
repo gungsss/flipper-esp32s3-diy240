@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1820">
+<title>ST7735S Native160 | DIY240 Flasher</title>
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b1820;color:#e9f4f2;font:16px/1.55 system-ui,sans-serif}
+main{width:min(100% - 32px,760px);margin:26px auto 56px}a{color:#83ead2}
+nav{display:flex;justify-content:space-between;gap:16px;color:#9bb5b2;font-size:13px}nav a{text-decoration:none;font-weight:700}
+.card{margin:18px 0;padding:clamp(20px,4vw,30px);background:#11242c;border:1px solid #29414a;border-radius:16px}
+.eyebrow{color:#83ead2;font-size:12px;font-weight:750;letter-spacing:.09em;text-transform:uppercase}
+h1{margin:9px 0 14px;font-size:clamp(34px,8vw,54px);line-height:1.03;letter-spacing:-.035em}
+h2{font-size:20px;margin:0 0 10px}p{margin:10px 0;color:#c0d2d0}strong{color:#f5fbfa}
+.tag{display:inline-flex;gap:8px;align-items:center;margin-top:10px;padding:6px 10px;border:1px solid #596344;border-radius:999px;color:#e7daa9;font-size:13px}
+.dot{width:8px;height:8px;border-radius:50%;background:#e1bd60}
+table{width:100%;border-collapse:collapse}th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #29414a}th{color:#9bb5b2;font-size:14px}
+.warning{background:#342a19;border-color:#795f32}label{display:flex;gap:10px;align-items:flex-start;margin:20px 0}
+input{width:20px;height:20px;flex:0 0 auto;margin:3px 0 0;accent-color:#73e4c9}
+button{border:0;border-radius:10px;background:#79e8cd;padding:14px 20px;color:#08231c;font-size:16px;font-weight:750;cursor:pointer}
+[hidden]{display:none!important}.small{color:#a8bfbd;font-size:14px}.download{display:inline-block;margin-top:8px;padding:11px 15px;border:1px solid #42645e;border-radius:10px;text-decoration:none;font-weight:700}
+code{display:block;overflow-wrap:anywhere;padding:10px 12px;border-radius:8px;background:#09171d;color:#c5d9d5;font-size:13px}
+</style>
+</head>
+<body>
+<main>
+<nav><a href="/">← DIY240 Flasher</a><span>ESP32-S3 · ST7735S</span></nav>
+<section class="card">
+<span class="eyebrow">Native160 · Build preview · 19 November 2026</span>
+<h1>ST7735S,<br>penuh 160×128.</h1>
+<p>Beranda, menu utama, dan daftar pengaturan terpilih memakai tata letak native sesuai resolusi layar landscape. Tampilan lain yang belum dipindahkan tetap memakai renderer kompatibilitas.</p>
+<span class="tag"><span class="dot"></span> Build, checksum, dan offset flash terverifikasi · belum diuji boot pada board fisik</span>
+</section>
+<section class="card">
+<h2>Flash langsung dari browser</h2>
+<p>Gunakan Chrome atau Edge versi desktop dengan kabel USB data. Pastikan board <strong>ESP32-S3 N16R8</strong> tersambung dan port serial tidak sedang dipakai aplikasi lain.</p>
+<label><input id="confirm" type="checkbox"><span>Saya memastikan board dan layar sesuai, serta memahami firmware, bootloader, dan tabel partisi akan ditulis ulang.</span></label>
+<esp-web-install-button id="install" manifest="./manifest.json" hidden>
+<button slot="activate">Hubungkan dan flash Native160</button>
+<span slot="unsupported">Gunakan Chrome atau Edge desktop yang mendukung Web Serial.</span>
+<span slot="not-allowed">Buka halaman ini melalui HTTPS.</span>
+</esp-web-install-button>
+<p class="small">Simpan data penting terlebih dahulu. Bila perangkat tidak restart otomatis setelah instalasi, tekan tombol RESET/EN.</p>
+</section>
+<section class="card">
+<h2>Flash manual</h2>
+<p>Paket mencakup image terpisah, pemeriksaan SHA256, serta skrip untuk Windows, macOS, dan Linux.</p>
+<a class="download" href="./ESP32S3_ST7735S_Native160_151_Compatibility_Preview_FLASH_READY.zip" download>Unduh paket firmware (.zip) ↓</a>
+<p class="small">Image individual juga tersedia: <a href="./firmware/bootloader.bin" download>bootloader</a>, <a href="./firmware/partition-table.bin" download>partition table</a>, <a href="./firmware/furi_esp32.bin" download>firmware</a>, <a href="./firmware/ota_data_initial.bin" download>OTA data</a>.</p>
+</section>
+<section class="card">
+<h2>Pin ST7735S</h2>
+<table><thead><tr><th>Layar</th><th>ESP32-S3</th></tr></thead><tbody>
+<tr><td>VDD / GND</td><td>3V3 / GND</td></tr><tr><td>SCL / SDA</td><td>GPIO12 / GPIO11</td></tr>
+<tr><td>RST / DC</td><td>GPIO16 / GPIO15</td></tr><tr><td>CS</td><td>GND</td></tr>
+<tr><td>BLK</td><td>Tetap seperti saat tes warna berhasil</td></tr>
+</tbody></table>
+<p class="small">microSD tetap di SPI3: CLK 40, MOSI 39, MISO 38, CS 14. Tombol: UP 4, DWN 5, LET 6, RHT 17, MID 8, SET 18 dan COM ke GND.</p>
+</section>
+<section class="card warning">
+<h2>Catatan versi</h2>
+<p>Build ini untuk ESP32-S3 N16R8 dan ST7735S 160×128 landscape. Dasar upstream melaporkan versi Flipper 1.4.3; sebagian perubahan core, GUI, storage, loader, CLI, RPC, USB HID, dan toolbox dari 1.5.1 sudah diintegrasikan. <strong>Ini belum port 1.5.1 lengkap.</strong></p>
+<p>Firmware lolos kompilasi ESP-IDF, pemeriksaan image/offset, dan tes render di host. Orientasi, tombol, microSD, dan boot tetap perlu dicoba pada board.</p>
+<p class="small"><a href="/flipper-st7735/">Buka firmware ST7735S portrait</a> · <a href="https://github.com/gungsss/flipper-esp32s3-diy240/tree/work/esp32s3-basic-151-preview" target="_blank" rel="noopener noreferrer">Source dan build CI</a></p>
+</section>
+</main>
+<script>document.getElementById('confirm').addEventListener('change',e=>{document.getElementById('install').hidden=!e.target.checked;});</script>
+</body>
+</html>

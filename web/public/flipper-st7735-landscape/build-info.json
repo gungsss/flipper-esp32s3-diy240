@@ -2,14 +2,14 @@
   "upstream_repository": "Sor3nt/Flipper-Zero-ESP32-Port",
   "upstream_commit": "e6ec11972a8e025d7ab686a6ef3016cf52360834",
   "board": "DIY ESP32-S3 N16R8",
-  "lcd": "ST7735S landscape 160x128 (CS tied to GND)",
+  "lcd": "ST7735S landscape 160x128, CS tied to ground",
   "sd": "SPI3_HOST",
   "images": [
     {
       "file": "bootloader/bootloader.bin",
       "offset": "0x0",
       "size_bytes": 20848,
-      "sha256": "38bda37cbe69eb3300cd5c4fa72a59ae8176a7a57ef3336c2d43d32f91c1982c"
+      "sha256": "54776646aaeab7cb216b1a33d1f332fefc1a44d8c7185202b2e4308abb6be6be"
     },
     {
       "file": "partition_table/partition-table.bin",
@@ -20,8 +20,8 @@
     {
       "file": "furi_esp32.bin",
       "offset": "0x10000",
-      "size_bytes": 3289008,
-      "sha256": "6d5db056e938cdfff769a6ec8616f8089a935d01add9b9cedec712556042a19d"
+      "size_bytes": 3331696,
+      "sha256": "3cc07902d4f56742624392c30b8ce75836de50fbdb1863a5a5bb3bc484b834ee"
     },
     {
       "file": "ota_data_initial.bin",
@@ -31,6 +31,18 @@
     }
   ],
   "display_driver": "waveshare/esp_lcd_st7735==2.0.0",
-  "lcd_spi_hz": 5000000,
-  "hardware_validation": "Portrait Flipper firmware and color diagnostic validated by user; landscape build requires hardware test."
+  "reported_flipper_version": "1.4.3",
+  "reported_esp_app_api_version": "1.0",
+  "official_151_app_api_version": "88.2",
+  "scope": "ESP32 port with selected 1.5.1 core, GUI, storage, loader, CLI, RPC, USB HID, toolbox and date/time example; not a complete 1.5.1 port",
+  "native_ui_profile": "Native 160x128 home, primary menu, and selected settings lists; unsupported views retain compatibility rendering",
+  "native_ui_source": "patch/native160/integration/native160_integration_only.patch",
+  "hardware_validation": "Landscape orientation, panel colors, buttons, and SD behavior still require confirmation on the physical board",
+  "native_151_example": {
+    "path": "sdcard/apps/Examples/example_date_time_input.fap",
+    "sha256": "8329d2fc63caca25c74d001ea4e1519c692917409a23f720a143880d0dc25514",
+    "architecture": "Xtensa ESP32-S3",
+    "application_api": "ESP 1.0",
+    "hardware_validation": "not tested on physical device"
+  }
 }
