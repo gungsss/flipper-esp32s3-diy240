@@ -188,7 +188,11 @@ jobs:
           target="$GITHUB_WORKSPACE/site/web/public/flipper-st7789-151-preview"
           mkdir -p "$target"
           cp -a "$GITHUB_WORKSPACE/vercel-release/." "$target/"
+          for image in bootloader.bin partition-table.bin furi_esp32.bin ota_data_initial.bin; do
+            test -s "$target/firmware/$image"
+          done
           git -C "$GITHUB_WORKSPACE/site" add web/public/flipper-st7789-151-preview
+          git -C "$GITHUB_WORKSPACE/site" add -f web/public/flipper-st7789-151-preview/firmware
           if git -C "$GITHUB_WORKSPACE/site" diff --cached --quiet; then
             echo "Published ST7789 preview already matches the successful build."
             exit 0
