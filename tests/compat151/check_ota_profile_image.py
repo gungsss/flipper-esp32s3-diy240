@@ -4,11 +4,12 @@ import struct
 import sys
 from pathlib import Path
 
-image = Path(sys.argv[1]).read_bytes()\ndisplay_controller = int(sys.argv[2]) if len(sys.argv) > 2 else 7735
+image = Path(sys.argv[1]).read_bytes()
+display_controller = int(sys.argv[2]) if len(sys.argv) > 2 else 7735
 # ESP-IDF v5.4: image header (24), first segment header (8), app description (256).
 offset = 24 + 8 + 256
 expected = struct.pack(
-    '<8sHH16H', b'DIYOTA1\0', 1, 7735,
+    '<8sHH16H', b'DIYOTA1\0', 1, display_controller,
     11, 12, 15, 16, 65535, 7,
     40, 39, 38, 14, 4, 5, 6, 17, 8, 18,
 )

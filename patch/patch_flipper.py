@@ -151,7 +151,7 @@ def main():
         anchor = '#define BOARD_LCD_H_RES 240'
         if hdr.count(anchor) != 1:
             sys.exit('ERROR: could not select the ST7789 OTA profile in board_DIY.h')
-        hdr = hdr.replace(anchor, ota_profile + '\\n' + anchor, 1)
+        hdr = hdr.replace(anchor, ota_profile + '\n' + anchor, 1)
         header_path.write_text(hdr, encoding='utf-8')
     expected = {
         '#define BOARD_LCD_H_RES 240', '#define BOARD_LCD_V_RES 240',

@@ -30,7 +30,8 @@ with tempfile.TemporaryDirectory(prefix='esp151-ota-profile-') as directory:
     temp = Path(directory)
     root = port / 'components/fw_ota'
     for macro, controller in profiles:
-        (temp / 'board.h').write_text(pins.replace('#pragma once', f'#pragma once\\n#define {macro} 1', 1))
+        board_text = pins.replace('#pragma once', f'#pragma once\n#define {macro} 1', 1)
+        (temp / 'board.h').write_text(board_text)
         exe = temp / f'profile-test-{controller}'
         subprocess.run([
             'gcc', '-std=gnu11', '-Wall', '-Wextra', '-Werror',
