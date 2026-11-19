@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Prepare a transparently labeled test bundle from verified ESP-IDF outputs."""
+import hashlib
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -20,6 +22,20 @@ info.update({
     'scope': 'ESP32 port with selected 1.5.1 core, GUI, storage, loader, CLI, RPC, USB HID, toolbox and date/time example; not a complete 1.5.1 port',
     'hardware_validation': 'This particular build has not been tested on the physical board',
 })
+
+native_example = root / 'build_diy/fap/example_date_time_input.fap'
+if not native_example.is_file():
+    raise SystemExit('Missing compiled 1.5.1 example application')
+example_destination = out / 'sdcard/apps/Examples/example_date_time_input.fap'
+example_destination.parent.mkdir(parents=True, exist_ok=True)
+shutil.copyfile(native_example, example_destination)
+info['native_151_example'] = {
+    'path': str(example_destination.relative_to(out)),
+    'sha256': hashlib.sha256(example_destination.read_bytes()).hexdigest(),
+    'architecture': 'Xtensa ESP32-S3',
+    'application_api': 'ESP 1.0',
+    'hardware_validation': 'not tested on physical device',
+}
 
 records = info['images']
 intervals = []
@@ -83,5 +99,10 @@ Menjalankan flasher lokal di macOS/Windows/Linux:
 Flashing menulis ulang bootloader, tabel partisi, dan firmware. Simpan dahulu
 data yang diperlukan. Jika memakai microSD, pasang kartu yang sesuai pada
 modulnya sebelum memeriksa fungsi penyimpanan.
+
+Contoh aplikasi Date/Time Input bersumber dari Flipper 1.5.1 dan dikompilasi
+ulang untuk ESP32. Jika ingin mencobanya sebagai aplikasi dari microSD, salin
+isi folder sdcard ke akar kartu; build dan simbolnya sudah diperiksa, tetapi
+aplikasi ini belum diuji pada perangkat fisik.
 ''')
 print('Experimental ST7735S package prepared and image headers/offsets verified.')

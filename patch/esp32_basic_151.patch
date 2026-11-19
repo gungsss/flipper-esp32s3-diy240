@@ -28,6 +28,13 @@ index 2cd1c6a..1e9496c 100644
 -    port.drain();
 +    port.write(appFileBuffer);
 +    await new Promise(resolve => port.drain(resolve));
+diff --git a/buildFap.sh b/buildFap.sh
+index b22e891..944bd10 100755
+--- a/buildFap.sh
++++ b/buildFap.sh
+@@ -308 +308 @@ build_for_target() {
+-        TARGET_CFLAGS+=(-DBOARD_INCLUDE=\"board_lilygo_t_embed_cc1101.h\")
++        TARGET_CFLAGS+=(-DBOARD_INCLUDE=\"${FAP_BOARD_INCLUDE:-board_lilygo_t_embed_cc1101.h}\")
 diff --git a/components/archive/archive/helpers/archive_browser.c b/components/archive/archive/helpers/archive_browser.c
 index de6e0b5..49616fc 100644
 --- a/components/archive/archive/helpers/archive_browser.c

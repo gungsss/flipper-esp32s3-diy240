@@ -15,6 +15,10 @@ architecture validation, and archive/bit-reading fixes.
 The original upstream 1.5.1 date/time example is also compiled for ESP32;
 its files are verified byte for byte. USB HID has both input and output
 endpoints and accepts keyboard LED reports through either USB transport.
+The example is also cross-compiled as a separate Xtensa FAP using the DIY
+board configuration and the port's API 1.0; required imports and its target
+metadata must pass before packaging. This is not an official ARM FAP and
+has not yet been tested on physical hardware.
 The CLI can load compatible Xtensa command plugins from storage; the loader
 continues to reject plugins compiled for incompatible architectures.
 The checked-in tests verify the resolver and compare these exported function

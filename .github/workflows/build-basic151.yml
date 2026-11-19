@@ -66,6 +66,19 @@ jobs:
           source /opt/esp/idf/export.sh
           cd .work/upstream
           ./build_diy.sh --build-only
+      - name: Build official 1.5.1 example as native ESP32 application
+        run: |
+          source /opt/esp/idf/export.sh
+          cd .work/upstream
+          export FAP_FW_BUILD_DIR=build_diy
+          export FAP_BOARD=lilygo_t_embed_cc1101
+          export FAP_BOARD_INCLUDE=board_DIY.h
+          bash ./buildFap.sh applications/examples/example_date_time_input
+          python3 tools/check_fap_symbols.py \
+            components/flipper_application/flipper_application/firmware_api.c \
+            build_diy/fap/objects_example_date_time_input.fap/undef_syms.txt
+          python3 "$GITHUB_WORKSPACE/tests/basic151/check_native_example.py" \
+            build_diy/fap/example_date_time_input.fap
       - name: Check inputs and package flashable images
         run: |
           python3 scripts/audit_basic_build.py .work/upstream
