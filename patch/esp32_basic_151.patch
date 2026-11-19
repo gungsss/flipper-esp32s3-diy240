@@ -3357,17 +3357,18 @@ index dde5cc3..5fb360d 100644
 @@ -222,0 +254 @@ void cli_shell_execute_command(CliShell* cli_shell, FuriString* command) {
 +    if(plugin_manager) plugin_manager_free(plugin_manager);
 diff --git a/components/toolbox/tar/tar_archive.c b/components/toolbox/tar/tar_archive.c
-index db1d517..5f76b2a 100644
+index db1d517..3ee79cf 100644
 --- a/components/toolbox/tar/tar_archive.c
 +++ b/components/toolbox/tar/tar_archive.c
 @@ -7,0 +8 @@
 +#include <ctype.h>
 @@ -317,0 +319 @@ static bool archive_extract_current_file(TarArchive* archive, const char* dst_pa
 +            // mtar_read_data() returns a negative MTAR_* error code on failure
-@@ -319 +321 @@ static bool archive_extract_current_file(TarArchive* archive, const char* dst_pa
+@@ -319 +321,2 @@ static bool archive_extract_current_file(TarArchive* archive, const char* dst_pa
 -            if(!readcnt || !storage_file_write(out_file, readbuf, readcnt)) {
-+            if((readcnt <= 0) || !storage_file_write(out_file, readbuf, readcnt)) {
-@@ -330,0 +333,22 @@ static bool archive_extract_current_file(TarArchive* archive, const char* dst_pa
++            if((readcnt <= 0) ||
++               storage_file_write(out_file, readbuf, (size_t)readcnt) != (size_t)readcnt) {
+@@ -330,0 +334,22 @@ static bool archive_extract_current_file(TarArchive* archive, const char* dst_pa
 +/* Archive entries must stay within the requested output directory. */
 +static bool archive_entry_name_is_safe(const char* name) {
 +    if(!name || !*name || *name == '/' || strchr(name, '\\') || strchr(name, ':')) return false;
@@ -3390,7 +3391,7 @@ index db1d517..5f76b2a 100644
 +    }
 +}
 +
-@@ -335,0 +360,7 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header,
+@@ -335,0 +361,7 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header,
 +    /* Some valid archives include a root directory entry. */
 +    if(header->type == MTAR_TDIR && strcmp(header->name, "/") == 0) return 0;
 +    if(!archive_entry_name_is_safe(header->name)) {
@@ -3398,13 +3399,13 @@ index db1d517..5f76b2a 100644
 +        return MTAR_EFAILURE;
 +    }
 +
-@@ -349,5 +379,0 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header,
+@@ -349,5 +380,0 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header,
 -        // Skip "/" entry since concat would leave it dangling, also want caller to mkdir destination
 -        if(strcmp(header->name, "/") == 0) {
 -            return 0;
 -        }
 -
-@@ -374,0 +401,5 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header,
+@@ -374,0 +402,5 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header,
 +    if(!archive_entry_name_is_safe(furi_string_get_cstr(converted_fname))) {
 +        furi_string_free(converted_fname);
 +        return MTAR_EFAILURE;

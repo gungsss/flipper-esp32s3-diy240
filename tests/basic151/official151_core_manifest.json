@@ -856,12 +856,6 @@
     },
     {
       "group": "toolbox",
-      "official": "lib/toolbox/tar/tar_archive.c",
-      "source": "components/toolbox/tar/tar_archive.c",
-      "blob": "01b23c2d05ec90c00e97c45ee490d73de4b3c5a8"
-    },
-    {
-      "group": "toolbox",
       "official": "lib/toolbox/tar/tar_archive.h",
       "source": "components/toolbox/tar/tar_archive.h",
       "blob": "fd0b28b87f56e207c9d6830710c99c0f98623506"
