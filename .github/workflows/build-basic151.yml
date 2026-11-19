@@ -105,6 +105,13 @@ jobs:
             build_diy/fap/objects_example_date_time_input.fap/undef_syms.txt
           python3 "$GITHUB_WORKSPACE/tests/basic151/check_native_example.py" \
             build_diy/fap/example_date_time_input.fap
+          bash ./buildFap.sh "$GITHUB_WORKSPACE/tests/basic151/sdk_probe"
+          python3 tools/check_fap_symbols.py \
+            components/flipper_application/flipper_application/firmware_api.c \
+            build_diy/fap/objects_generic_sdk_probe.fap/undef_syms.txt
+          python3 "$GITHUB_WORKSPACE/tests/basic151/check_sdk_probe.py" \
+            build_diy/fap/generic_sdk_probe.fap \
+            build_diy/fap/objects_generic_sdk_probe.fap/undef_syms.txt
       - name: Check inputs and package flashable images
         run: |
           python3 scripts/audit_basic_build.py .work/upstream

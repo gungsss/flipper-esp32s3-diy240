@@ -43,6 +43,8 @@ APIs and official ARM application binaries remain outside this preview.
 Forty-five further generic data, memory, menu and formatting functions are
 exported with source-level SDK signature checks; this remains a subset of the
 official application API and uses the ESP application's own architecture.
+The build also cross-compiles a small native SDK probe and validates its
+imports, Xtensa architecture, application metadata and loader relocations.
 The storage directory check, clock and locale setters, and dolphin service
 APIs have also been added to the ESP resolver with 1.5.1 signature checks.
 The ESP application loader and Protocol Buffers encoding/decoding functions

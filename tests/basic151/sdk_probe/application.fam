@@ -1,0 +1,7 @@
+App(
+    appid="generic_sdk_probe",
+    name="Generic SDK Probe",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="generic_sdk_probe",
+    stack_size=4096,
+)
