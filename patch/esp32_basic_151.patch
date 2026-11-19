@@ -3611,3 +3611,13 @@ index 997c4d9..41731dd 100644
 +/** Returns consumed bytes, or 0 for a truncated or out-of-range varint. */
 @@ -28,0 +30 @@ size_t varint_int32_pack(int32_t value, uint8_t* output);
 +/** Returns consumed bytes, or 0 for a truncated or out-of-range varint. */
+
+diff --git a/components/toolbox/version.c b/components/toolbox/version.c
+--- a/components/toolbox/version.c
++++ b/components/toolbox/version.c
+@@ -23 +23 @@
+-    .version = "1.4.3",
++    .version = "1.5.1-ESP32-preview",
+@@ -25 +25 @@
+-    .firmware_origin = "ESP32 Port",
++    .firmware_origin = "Flipper 1.5.1 ESP32-S3 port (DIY240)",
