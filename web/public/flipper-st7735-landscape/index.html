@@ -1,74 +1,70 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b1820">
-  <title>Flipper ST7735S Landscape | DIY240</title>
-  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; background: #0b1820; color: #e9f4f2; font: 16px/1.55 system-ui, sans-serif; }
-    main { width: min(100% - 32px, 720px); margin: 36px auto 56px; }
-    a { color: #83ead2; }
-    .card { margin: 18px 0; padding: clamp(20px, 4vw, 28px); background: #11242c; border: 1px solid #29414a; border-radius: 16px; }
-    .eyebrow { color: #83ead2; font-size: 13px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
-    h1 { margin: 8px 0 14px; font-size: clamp(29px, 6vw, 42px); line-height: 1.12; }
-    h2 { font-size: 20px; margin: 0 0 10px; }
-    p { margin: 10px 0; color: #c0d2d0; }
-    strong { color: #f5fbfa; }
-    ol { padding-left: 23px; color: #d8e7e5; }
-    li { margin: 10px 0; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #29414a; }
-    th { color: #9bb5b2; font-size: 14px; }
-    .warning { background: #342a19; border-color: #795f32; }
-    label { display: flex; gap: 10px; align-items: flex-start; margin: 20px 0; }
-    input { width: 20px; height: 20px; flex: 0 0 auto; margin: 3px 0 0; accent-color: #73e4c9; }
-    button { border: 0; border-radius: 10px; background: #79e8cd; padding: 14px 20px; color: #08231c; font-size: 16px; font-weight: 750; cursor: pointer; }
-    [hidden] { display: none !important; }
-    .small { color: #a8bfbd; font-size: 14px; }
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1820">
+<title>Flipper 1.5.1 port by m4145 | DIY240 Flasher</title>
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b1820;color:#e9f4f2;font:16px/1.55 system-ui,sans-serif}
+main{width:min(100% - 32px,760px);margin:26px auto 56px}a{color:#83ead2}
+nav{display:flex;justify-content:space-between;gap:16px;color:#9bb5b2;font-size:13px}nav a{text-decoration:none;font-weight:700}
+.card{margin:18px 0;padding:clamp(20px,4vw,30px);background:#11242c;border:1px solid #29414a;border-radius:16px}
+.eyebrow{color:#83ead2;font-size:12px;font-weight:750;letter-spacing:.09em;text-transform:uppercase}
+h1{margin:9px 0 14px;font-size:clamp(34px,8vw,54px);line-height:1.03;letter-spacing:-.035em}
+h2{font-size:20px;margin:0 0 10px}p{margin:10px 0;color:#c0d2d0}strong{color:#f5fbfa}
+.tag{display:inline-flex;gap:8px;align-items:center;margin-top:10px;padding:6px 10px;border:1px solid #596344;border-radius:999px;color:#e7daa9;font-size:13px}
+.dot{width:8px;height:8px;border-radius:50%;background:#e1bd60}
+table{width:100%;border-collapse:collapse}th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #29414a}th{color:#9bb5b2;font-size:14px}
+.warning{background:#342a19;border-color:#795f32}label{display:flex;gap:10px;align-items:flex-start;margin:20px 0}
+input{width:20px;height:20px;flex:0 0 auto;margin:3px 0 0;accent-color:#73e4c9}
+button{border:0;border-radius:10px;background:#79e8cd;padding:14px 20px;color:#08231c;font-size:16px;font-weight:750;cursor:pointer}
+[hidden]{display:none!important}.small{color:#a8bfbd;font-size:14px}.download{display:inline-block;margin-top:8px;padding:11px 15px;border:1px solid #42645e;border-radius:10px;text-decoration:none;font-weight:700}
+code{display:block;overflow-wrap:anywhere;padding:10px 12px;border-radius:8px;background:#09171d;color:#c5d9d5;font-size:13px}
+</style>
 </head>
 <body>
 <main>
-  <a href="/">&larr; Kembali ke DIY240 Flasher</a>
-  <section class="card">
-    <span class="eyebrow">Firmware Flipper · ESP32-S3 N16R8</span>
-    <h1>ST7735S dalam posisi landscape</h1>
-    <p>Firmware Flipper untuk layar ST7735S yang dipakai mendatar, dengan sambungan yang sama seperti versi sebelumnya.</p>
-    <p>Firmware ini sudah berhasil dikompilasi. Versi potret sebelumnya sudah menampilkan menu; <strong>orientasi landscape masih perlu dicoba pada perangkat</strong> setelah flash.</p>
-  </section>
-  <section class="card">
-    <h2>Sebelum flash</h2>
-    <ol>
-      <li>Pertahankan sambungan layar yang digunakan saat tes warna berhasil: <strong>CS ke GND</strong> dan BLK tetap seperti saat tes. Jangan mengganti kabel saat USB terhubung.</li>
-      <li>Hubungkan ESP32-S3 melalui kabel USB data. Tutup serial monitor atau aplikasi lain yang memakai port ESP32.</li>
-      <li>Buka halaman ini di Chrome atau Edge komputer, centang kotak di bawah, lalu klik tombol flash dan pilih port ESP32-S3.</li>
-      <li>Setelah instalasi selesai, tunggu perangkat menyala. Jika tidak mulai otomatis, tekan tombol RESET/EN pada board ESP32. Putar layar ke posisi mendatar agar tulisan tegak. Tampilan menggunakan area sekitar 160 × 80 di tengah layar; sedikit ruang kosong atas dan bawah tetap ada agar gambar tidak terdistorsi.</li>
-    </ol>
-    <p class="small">Jika perlu kembali ke posisi tegak, gunakan <a href="/flipper-st7735/">firmware versi potret</a>. Jika menu belum muncul setelah restart, catat tampilan dan log boot.</p>
-  </section>
-  <section class="card warning">
-    <h2>Firmware akan diganti</h2>
-    <p>Pemasangan menimpa firmware yang sekarang terpasang. <strong>Data internal pada area flash yang ditulis dapat hilang.</strong> Cadangkan data penting sebelum memasang.</p>
-    <p>Jika muncul pilihan <strong>Erase device</strong>, biarkan tidak dicentang jika tidak ingin menghapus seluruh isi flash. Firmware tetap akan ditimpa.</p>
-    <label><input id="confirm" type="checkbox"><span>Saya memakai ESP32-S3 N16R8 dan ST7735S sesuai sambungan di bawah, serta memahami bahwa firmware dan area flash yang ditulis akan ditimpa.</span></label>
-    <esp-web-install-button id="install" manifest="./manifest.json" hidden><button slot="activate">Hubungkan dan flash landscape</button><span slot="unsupported">Gunakan Chrome atau Edge pada komputer yang mendukung Web Serial.</span><span slot="not-allowed">Buka halaman ini melalui HTTPS.</span></esp-web-install-button>
-  </section>
-  <section class="card">
-    <h2>Sambungan layar</h2>
-    <table><thead><tr><th>ST7735S</th><th>ESP32-S3</th></tr></thead><tbody>
-      <tr><td>GND / VDD</td><td>GND / 3V3</td></tr>
-      <tr><td>SCL / SDA</td><td>GPIO12 / GPIO11</td></tr>
-      <tr><td>RST / DC</td><td>GPIO16 / GPIO15</td></tr>
-      <tr><td>CS</td><td>GND</td></tr>
-      <tr><td>BLK</td><td>Seperti saat tes warna berhasil</td></tr>
-    </tbody></table>
-    <p class="small">CS ke GND berlaku untuk konfigurasi layar pada SPI2 ini. Layar lain tidak boleh dipasang bersamaan pada bus tersebut.</p>
-    <p class="small">microSD: CLK 40, MOSI 39, MISO 38, CS 14. Tombol: UP 4, DWN 5, LET 6, RHT 17, MID 8, SET 18 dan COM ke GND. microSD dan tombol tidak perlu diubah untuk rotasi layar.</p>
-  </section>
+<nav><a href="/">← DIY240 Flasher</a><span>ESP32-S3 · ST7735S</span></nav>
+<section class="card">
+<span class="eyebrow">Flipper 1.5.1 port · Native160 · by m4145</span>
+<h1>ST7735S,<br>penuh 160×128.</h1>
+<p>Port ESP32-S3 dan adaptasi Native160 untuk layar 160×128 oleh <strong>m4145</strong>, berbasis port ESP32 dari <a href="https://github.com/Sor3nt/Flipper-Zero-ESP32-Port">Sor3nt</a>. Beranda, menu utama, dan daftar pengaturan terpilih memakai tata letak native sesuai resolusi layar landscape.</p><p>Tampilan lain yang belum dipindahkan tetap memakai renderer kompatibilitas.</p>
+<span class="tag"><span class="dot"></span> Build, checksum, dan offset flash terverifikasi · belum diuji boot pada board fisik</span>
+</section>
+<section class="card">
+<h2>Flash langsung dari browser</h2>
+<p>Gunakan Chrome atau Edge versi desktop dengan kabel USB data. Pastikan board <strong>ESP32-S3 N16R8</strong> tersambung dan port serial tidak sedang dipakai aplikasi lain.</p>
+<label><input id="confirm" type="checkbox"><span>Saya memastikan board dan layar sesuai, serta memahami firmware, bootloader, dan tabel partisi akan ditulis ulang.</span></label>
+<esp-web-install-button id="install" manifest="./manifest.json" hidden>
+<button slot="activate">Hubungkan dan flash Native160</button>
+<span slot="unsupported">Gunakan Chrome atau Edge desktop yang mendukung Web Serial.</span>
+<span slot="not-allowed">Buka halaman ini melalui HTTPS.</span>
+</esp-web-install-button>
+<p class="small">Simpan data penting terlebih dahulu. Bila perangkat tidak restart otomatis setelah instalasi, tekan tombol RESET/EN.</p>
+</section>
+<section class="card">
+<h2>Flash manual</h2>
+<p>Paket mencakup image terpisah, pemeriksaan SHA256, serta skrip untuk Windows, macOS, dan Linux.</p>
+<a class="download" href="./ESP32S3_ST7735S_Native160_151_Compatibility_Preview_FLASH_READY.zip" download>Unduh paket firmware (.zip) ↓</a>
+<p class="small">Image individual juga tersedia: <a href="./firmware/bootloader.bin" download>bootloader</a>, <a href="./firmware/partition-table.bin" download>partition table</a>, <a href="./firmware/furi_esp32.bin" download>firmware</a>, <a href="./firmware/ota_data_initial.bin" download>OTA data</a>.</p>
+</section>
+<section class="card">
+<h2>Pin ST7735S</h2>
+<table><thead><tr><th>Layar</th><th>ESP32-S3</th></tr></thead><tbody>
+<tr><td>VDD / GND</td><td>3V3 / GND</td></tr><tr><td>SCL / SDA</td><td>GPIO12 / GPIO11</td></tr>
+<tr><td>RST / DC</td><td>GPIO16 / GPIO15</td></tr><tr><td>CS</td><td>GND</td></tr>
+<tr><td>BLK</td><td>Tetap seperti saat tes warna berhasil</td></tr>
+</tbody></table>
+<p class="small">microSD tetap di SPI3: CLK 40, MOSI 39, MISO 38, CS 14. Tombol: UP 4, DWN 5, LET 6, RHT 17, MID 8, SET 18 dan COM ke GND.</p>
+</section>
+<section class="card warning">
+<h2>Catatan versi</h2>
+<p>Port &amp; adaptasi ESP32-S3 DIY240 oleh <strong>m4145</strong>, berbasis port ESP32 Sor3nt e6ec119 yang melaporkan basis 1.4.3, dengan perubahan terpilih dari Flipper 1.5.1. <strong>Ini belum port 1.5.1 lengkap.</strong></p>
+<p>Firmware lolos kompilasi ESP-IDF, pemeriksaan image/offset, dan tes render di host. Orientasi, tombol, microSD, dan boot tetap perlu dicoba pada board.</p>
+<p class="small"><a href="/flipper-st7735/">Buka firmware ST7735S portrait</a> · <a href="https://github.com/gungsss/flipper-esp32s3-diy240/tree/work/esp32s3-basic-151-preview" target="_blank" rel="noopener noreferrer">Source dan build CI</a></p>
+</section>
 </main>
-<script>document.getElementById('confirm').addEventListener('change', e => { document.getElementById('install').hidden = !e.target.checked; });</script>
+<script>document.getElementById('confirm').addEventListener('change',e=>{document.getElementById('install').hidden=!e.target.checked;});</script>
 </body>
 </html>
