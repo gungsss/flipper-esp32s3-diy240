@@ -54,6 +54,8 @@ jobs:
           python3 tests/basic151/check_date_time_input.py .work/upstream
           python3 tests/basic151/check_hid_output.py .work/upstream
           python3 tests/basic151/check_151_example.py .work/upstream
+          python3 scripts/check_official151_core.py .work/upstream
+          python3 tests/basic151/check_official151_manifest.py .work/upstream
           python3 tests/basic151/check_external_cli.py .work/upstream
           python3 tests/basic151/check_vcp_compat.py .work/upstream
           if command -v node >/dev/null 2>&1; then

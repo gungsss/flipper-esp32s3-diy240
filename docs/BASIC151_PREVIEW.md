@@ -12,6 +12,9 @@ GUI, storage and Furi API exports, file/stream and locale API exports,
 file-browser callback compatibility, 12/24-hour date-input fixes,
 JavaScript timer validation, RPC application context validation, ELF
 architecture validation, and archive/bit-reading fixes.
+The build also verifies a manifest of 190 byte-identical supported core source
+files against the official 1.5.1 tree. Adapted files and unsupported modules
+remain separate work; this file count is not a complete-port claim.
 The original upstream 1.5.1 date/time example is also compiled for ESP32;
 its files are verified byte for byte. USB HID has both input and output
 endpoints and accepts keyboard LED reports through either USB transport.

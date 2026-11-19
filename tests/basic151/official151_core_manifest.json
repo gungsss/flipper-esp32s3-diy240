@@ -1,0 +1,1146 @@
+{
+  "official_commit": "9e810dc399e027e48ce07751df72168abbb19065",
+  "esp_base_commit": "e6ec11972a8e025d7ab686a6ef3016cf52360834",
+  "files": [
+    {
+      "group": "gui",
+      "official": "applications/services/gui/icon.c",
+      "source": "components/gui/icon.c",
+      "blob": "85d640f30cea57a778d18869dae6e08b6705845d"
+    },
+    {
+      "group": "gui",
+      "official": "applications/services/gui/icon_animation_i.h",
+      "source": "components/gui/icon_animation_i.h",
+      "blob": "62858d288c08d384d872a853cf502fa276f9a5a0"
+    },
+    {
+      "group": "gui",
+      "official": "applications/services/gui/icon_i.h",
+      "source": "components/gui/icon_i.h",
+      "blob": "e33cdbf236720ffb6f414f39a3820b9466cddbbf"
+    },
+    {
+      "group": "gui",
+      "official": "applications/services/gui/modules/empty_screen.c",
+      "source": "components/gui/modules/empty_screen.c",
+      "blob": "1efb1d9106f5833e97deaa639779b2650281ba86"
+    },
+    {
+      "group": "gui",
+      "official": "applications/services/gui/modules/widget_elements/widget_element_circle.c",
+      "source": "components/gui/modules/widget_elements/widget_element_circle.c",
+      "blob": "47a952429f8a9896890a1ba637e730784f8612ee"
+    },
+    {
+      "group": "gui",
+      "official": "applications/services/gui/modules/widget_elements/widget_element_icon.c",
+      "source": "components/gui/modules/widget_elements/widget_element_icon.c",
+      "blob": "1340f48f276b68565f4e684d8cff7ea1a8c9c126"
+    },
+    {
+      "group": "gui",
+      "official": "applications/services/gui/modules/widget_elements/widget_element_line.c",
+      "source": "components/gui/modules/widget_elements/widget_element_line.c",
+      "blob": "4cccdc9765a5eab705203f34caeef273f46d525f"
+    },
+    {
+      "group": "gui",
+      "official": "applications/services/gui/modules/widget_elements/widget_element_rect.c",
+      "source": "components/gui/modules/widget_elements/widget_element_rect.c",
+      "blob": "6539f09a8202ca8e28c8f9cf01b1b988d3064c9c"
+    },
+    {
+      "group": "gui",
+      "official": "applications/services/gui/modules/widget_elements/widget_element_string.c",
+      "source": "components/gui/modules/widget_elements/widget_element_string.c",
+      "blob": "4bf7dd693f1a3725c18e458f60364bf98511bb5b"
+    },
+    {
+      "group": "gui",
+      "official": "applications/services/gui/scene_manager_i.h",
+      "source": "components/gui/scene_manager_i.h",
+      "blob": "8bfe469938c148f951f8d8dfb136dbe09a59e4bf"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/animations/animation_storage.h",
+      "source": "applications/services/desktop/animations/animation_storage.h",
+      "blob": "16c0feab4b116e9380f8f0f83e15f0e6d2c8f87d"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/animations/animation_storage_i.h",
+      "source": "applications/services/desktop/animations/animation_storage_i.h",
+      "blob": "cae9cad5b8b50ccb262e364d5b78ee5a010e7924"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/animations/views/one_shot_animation_view.c",
+      "source": "applications/services/desktop/animations/views/one_shot_animation_view.c",
+      "blob": "004fcde7b56727938291ce6129e25d36708c5e35"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/animations/views/one_shot_animation_view.h",
+      "source": "applications/services/desktop/animations/views/one_shot_animation_view.h",
+      "blob": "3f78e6036a4bccc52c9667b685704f851d52685a"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/desktop_settings_filename.h",
+      "source": "applications/services/desktop/desktop_settings_filename.h",
+      "blob": "b9140f24cfc2ac898a67760a4128ed2672366e4b"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/helpers/slideshow.c",
+      "source": "applications/services/desktop/helpers/slideshow.c",
+      "blob": "565449cbbd3c560cfa24cdf88b0112e812ec7344"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/helpers/slideshow.h",
+      "source": "applications/services/desktop/helpers/slideshow.h",
+      "blob": "cd4d2334f5bb107402873f7ead5359749d7d9479"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/helpers/slideshow_filename.h",
+      "source": "applications/services/desktop/helpers/slideshow_filename.h",
+      "blob": "2250d91dd2190f14d579801d6a72101983866041"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/scenes/desktop_scene.c",
+      "source": "applications/services/desktop/scenes/desktop_scene.c",
+      "blob": "8c9b5838daeb92b2e11d18f295e17adbe3e1748b"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/scenes/desktop_scene.h",
+      "source": "applications/services/desktop/scenes/desktop_scene.h",
+      "blob": "34b36eaf63df9823700d70953965281c91a3ce8d"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/scenes/desktop_scene_fault.c",
+      "source": "applications/services/desktop/scenes/desktop_scene_fault.c",
+      "blob": "16683ba745a071e896de0906272c24e34b4aeb62"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/scenes/desktop_scene_hw_mismatch.c",
+      "source": "applications/services/desktop/scenes/desktop_scene_hw_mismatch.c",
+      "blob": "4624b589c4f33b01b4470ab11e61fda5ee5df448"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/scenes/desktop_scene_locked.h",
+      "source": "applications/services/desktop/scenes/desktop_scene_locked.h",
+      "blob": "7d5b6b7bcdcce91708fa17163a975b05e0fdf4e8"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/scenes/desktop_scene_pin_timeout.c",
+      "source": "applications/services/desktop/scenes/desktop_scene_pin_timeout.c",
+      "blob": "ed6f9f12e772f2d517a8e02cd12f2b24bfbe7e32"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/scenes/desktop_scene_secure_enclave.c",
+      "source": "applications/services/desktop/scenes/desktop_scene_secure_enclave.c",
+      "blob": "c08125c709f68994108e8cd74dbbf7e11b080977"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/scenes/desktop_scene_slideshow.c",
+      "source": "applications/services/desktop/scenes/desktop_scene_slideshow.c",
+      "blob": "759924116403dd7cf04a50fce9356b277bd438df"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/views/desktop_view_debug.h",
+      "source": "applications/services/desktop/views/desktop_view_debug.h",
+      "blob": "c594002af9873a732294890446ef595d9e486a83"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/views/desktop_view_locked.h",
+      "source": "applications/services/desktop/views/desktop_view_locked.h",
+      "blob": "233cc8d5dbf1f3c3700def20528a0be296e4005b"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/views/desktop_view_main.h",
+      "source": "applications/services/desktop/views/desktop_view_main.h",
+      "blob": "755d6b2afbce7395a7f68abeab1f77a967d39a9f"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/views/desktop_view_pin_input.c",
+      "source": "applications/services/desktop/views/desktop_view_pin_input.c",
+      "blob": "3c18f166c714850ea9db56907d8466ffde557b94"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/views/desktop_view_pin_input.h",
+      "source": "applications/services/desktop/views/desktop_view_pin_input.h",
+      "blob": "4605b6ff155b1f4aeed1f118ff003b32f49d1fd6"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/views/desktop_view_pin_timeout.c",
+      "source": "applications/services/desktop/views/desktop_view_pin_timeout.c",
+      "blob": "d7e5507a75b60c983481f395c6e11db8177613c7"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/views/desktop_view_pin_timeout.h",
+      "source": "applications/services/desktop/views/desktop_view_pin_timeout.h",
+      "blob": "76d84ba55047b03a773548dd5f04660e1149111f"
+    },
+    {
+      "group": "desktop",
+      "official": "applications/services/desktop/views/desktop_view_slideshow.h",
+      "source": "applications/services/desktop/views/desktop_view_slideshow.h",
+      "blob": "942a0d25a733455e255bc399d5e0bda1f13039a2"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/filesystem_api.c",
+      "source": "applications/services/storage/filesystem_api.c",
+      "blob": "cf3803864a6c57568a51edf0cd02d5f97802881e"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/filesystem_api_defines.h",
+      "source": "applications/services/storage/filesystem_api_defines.h",
+      "blob": "cd24b88253feb2f75c8cc7bc0b9c322f3182728a"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/filesystem_api_internal.h",
+      "source": "applications/services/storage/filesystem_api_internal.h",
+      "blob": "ba98b380e940981827f78df72f73c7b5d3891a9c"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/storage.h",
+      "source": "applications/services/storage/storage.h",
+      "blob": "c28a5e10f5e4b6585c67f689d237176e3f15e32b"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/storage_cli.c",
+      "source": "applications/services/storage/storage_cli.c",
+      "blob": "2dab63e53b170aec730e488c02a7168cb43e651d"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/storage_glue.c",
+      "source": "applications/services/storage/storage_glue.c",
+      "blob": "41da6c3f487ae8f64f7c264631b5241d55523a84"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/storage_glue.h",
+      "source": "applications/services/storage/storage_glue.h",
+      "blob": "7aa66fce036f2dc450ee9503ed69814d2c89b26d"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/storage_i.h",
+      "source": "applications/services/storage/storage_i.h",
+      "blob": "2ad9dcc78e792bb9be588fcf6a00e06ce52af4d5"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/storage_internal_api.c",
+      "source": "applications/services/storage/storage_internal_api.c",
+      "blob": "defab966ce2c4181c1348759c650faa9c0ea614b"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/storage_internal_dirname_i.h",
+      "source": "applications/services/storage/storage_internal_dirname_i.h",
+      "blob": "889bdc49768097a9eb96c2bd1ef381a0d6865f85"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/storage_message.h",
+      "source": "applications/services/storage/storage_message.h",
+      "blob": "ba34aa7c0876da73d38033b68baba4fcdd3cb44a"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/storage_processing.h",
+      "source": "applications/services/storage/storage_processing.h",
+      "blob": "bb779c7a80eecca275c489b2799c52647c14a6ce"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/storage_sd_api.c",
+      "source": "applications/services/storage/storage_sd_api.c",
+      "blob": "9e9ca45ceeb8331b0099acf8ba4cf3252e72ed89"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/storage_sd_api.h",
+      "source": "applications/services/storage/storage_sd_api.h",
+      "blob": "842334d50db797d17d6020bd71bd4ae2af83b7b1"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/storages/sd_notify.c",
+      "source": "applications/services/storage/storages/sd_notify.c",
+      "blob": "25ec67c1df5eeb07e67893e5798d5ddc62270fb0"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/storages/sd_notify.h",
+      "source": "applications/services/storage/storages/sd_notify.h",
+      "blob": "f5aefc74d4eac292afbd2749460c68f1b2d194e6"
+    },
+    {
+      "group": "storage",
+      "official": "applications/services/storage/storages/storage_ext.h",
+      "source": "applications/services/storage/storages/storage_ext.h",
+      "blob": "18d1f7143733a40bda2cae76a46742da6c93c854"
+    },
+    {
+      "group": "loader",
+      "official": "applications/services/loader/loader_applications.h",
+      "source": "components/loader/loader_applications.h",
+      "blob": "57097ba48eb7911f6258aa5403baca13948e4ce5"
+    },
+    {
+      "group": "loader",
+      "official": "applications/services/loader/loader_queue.c",
+      "source": "components/loader/loader_queue.c",
+      "blob": "517dcad75ffda13b73600caa68d097cb468e38e3"
+    },
+    {
+      "group": "dolphin",
+      "official": "applications/services/dolphin/dolphin.c",
+      "source": "applications/services/dolphin/dolphin.c",
+      "blob": "09feee40f9c58a4bb3051dbf4f975f4b2ac40b4b"
+    },
+    {
+      "group": "dolphin",
+      "official": "applications/services/dolphin/dolphin.h",
+      "source": "applications/services/dolphin/dolphin.h",
+      "blob": "95f851a51bedfaf1e019f6bbe81965c76d12054b"
+    },
+    {
+      "group": "dolphin",
+      "official": "applications/services/dolphin/dolphin_i.h",
+      "source": "applications/services/dolphin/dolphin_i.h",
+      "blob": "8e8d40825dd23c66966214b062436df63cda41a4"
+    },
+    {
+      "group": "dolphin",
+      "official": "applications/services/dolphin/helpers/dolphin_deed.c",
+      "source": "applications/services/dolphin/helpers/dolphin_deed.c",
+      "blob": "43f30dced8f8eb8691b7b5a682af5dd3452f06e9"
+    },
+    {
+      "group": "dolphin",
+      "official": "applications/services/dolphin/helpers/dolphin_deed.h",
+      "source": "applications/services/dolphin/helpers/dolphin_deed.h",
+      "blob": "7202dcf07b7d741466ef323b2d9c8b9d2aec4f68"
+    },
+    {
+      "group": "dolphin",
+      "official": "applications/services/dolphin/helpers/dolphin_state.c",
+      "source": "applications/services/dolphin/helpers/dolphin_state.c",
+      "blob": "5cbc5114585b8548c935c0493fcd5d89c432bfda"
+    },
+    {
+      "group": "dolphin",
+      "official": "applications/services/dolphin/helpers/dolphin_state_filename.h",
+      "source": "applications/services/dolphin/helpers/dolphin_state_filename.h",
+      "blob": "86822c0ac70c2896089e6ab725a4c7d8b5646784"
+    },
+    {
+      "group": "cli",
+      "official": "applications/services/cli/cli.h",
+      "source": "applications/services/cli/cli.h",
+      "blob": "ca787d3db61bdcb36dc7e1a28f2be484ba482010"
+    },
+    {
+      "group": "cli",
+      "official": "applications/services/cli/cli_command_gpio.c",
+      "source": "applications/services/cli/cli_command_gpio.c",
+      "blob": "f6337265dc1387d6dc5368485ed852642a762696"
+    },
+    {
+      "group": "cli",
+      "official": "applications/services/cli/cli_command_gpio.h",
+      "source": "applications/services/cli/cli_command_gpio.h",
+      "blob": "c1911fb65794cc9b7cb4bbc098ce2c37de3af99a"
+    },
+    {
+      "group": "cli",
+      "official": "applications/services/cli/cli_main_commands.h",
+      "source": "applications/services/cli/cli_main_commands.h",
+      "blob": "ebee4ba1ed2e48c7bebeb1ae48e357957b13efd1"
+    },
+    {
+      "group": "cli",
+      "official": "applications/services/cli/cli_main_shell.c",
+      "source": "applications/services/cli/cli_main_shell.c",
+      "blob": "ca0ad19c2e01380d2d8a76f97b4d76f146e7cf17"
+    },
+    {
+      "group": "cli",
+      "official": "applications/services/cli/cli_main_shell.h",
+      "source": "applications/services/cli/cli_main_shell.h",
+      "blob": "57683999024cb0347ae402b8fbc593a3ba93b2a7"
+    },
+    {
+      "group": "cli",
+      "official": "applications/services/cli/commands/buzzer.c",
+      "source": "applications/services/cli/commands/buzzer.c",
+      "blob": "5a5f49c420b3f574c1e06838288082184dea41d0"
+    },
+    {
+      "group": "cli",
+      "official": "applications/services/cli/commands/hello_world.c",
+      "source": "applications/services/cli/commands/hello_world.c",
+      "blob": "b77f3e663b0f1bdebb638726651f78c13df1a545"
+    },
+    {
+      "group": "cli",
+      "official": "applications/services/cli/commands/neofetch.c",
+      "source": "applications/services/cli/commands/neofetch.c",
+      "blob": "0e50a0d8d69318ab0ebe3e99c74f4753b331cddc"
+    },
+    {
+      "group": "cli",
+      "official": "applications/services/cli/commands/subshell_demo.c",
+      "source": "applications/services/cli/commands/subshell_demo.c",
+      "blob": "f0013c4a0006d8c72241a8b9c965798e531b625b"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/base.h",
+      "source": "components/furi/core/base.h",
+      "blob": "e89065a7d5837be7c4817272f76fd9601b327e93"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/dangerous_defines.h",
+      "source": "components/furi/core/dangerous_defines.h",
+      "blob": "683df2f611002841467927344cc805db8447347f"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/event_flag.h",
+      "source": "components/furi/core/event_flag.h",
+      "blob": "6408f47bef5260eae83e007f328ee33f0ef6597e"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/event_loop_i.h",
+      "source": "components/furi/core/event_loop_i.h",
+      "blob": "c2f04a3599cff6a66c4264cd3488f75d57649ca6"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/event_loop_link_i.h",
+      "source": "components/furi/core/event_loop_link_i.h",
+      "blob": "4b993390ff1f7a197fc16f525516f8a62e333d90"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/event_loop_thread_flag_interface.h",
+      "source": "components/furi/core/event_loop_thread_flag_interface.h",
+      "blob": "05fcd47dec62cff5558f94b5562cdeb9fcb0cd61"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/event_loop_tick_i.h",
+      "source": "components/furi/core/event_loop_tick_i.h",
+      "blob": "8936e38282f2cce06e36a19b4d0a136e92e6cd0c"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/event_loop_timer.h",
+      "source": "components/furi/core/event_loop_timer.h",
+      "blob": "50fb57389fb9873d8cdba935281171f4f60c9d10"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/event_loop_timer_i.h",
+      "source": "components/furi/core/event_loop_timer_i.h",
+      "blob": "9c6f90cca2c31aea861b17a6dd57fce5215b076e"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/log.h",
+      "source": "components/furi/core/log.h",
+      "blob": "817d9dda350180028bc21a44cf6be738b85d5367"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/message_queue.h",
+      "source": "components/furi/core/message_queue.h",
+      "blob": "4c5b5af3c9095b876c8be59f73731780c474d0de"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/mutex.h",
+      "source": "components/furi/core/mutex.h",
+      "blob": "60372a292997318a1ec929af0560a8fcd3526b1d"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/pubsub.c",
+      "source": "components/furi/core/pubsub.c",
+      "blob": "7c1730632b1edbcda03ce5175a68942d448314d1"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/pubsub.h",
+      "source": "components/furi/core/pubsub.h",
+      "blob": "097ff0190cad7385422f97ce0c8e784f27b361e9"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/record.h",
+      "source": "components/furi/core/record.h",
+      "blob": "1fb20ed6f94a4bf675044b00dbfacf47f65d59b7"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/semaphore.h",
+      "source": "components/furi/core/semaphore.h",
+      "blob": "47a77ed558359cf30b428cf2455b25136a360d93"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/stream_buffer.h",
+      "source": "components/furi/core/stream_buffer.h",
+      "blob": "deca813c7e24ea5171a260c13f2afd0c9db7b4ac"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/string.h",
+      "source": "components/furi/core/furi_string.h",
+      "blob": "0d407356bc66e2ef4c217d3f79b82ec3cb28bd67"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/thread.h",
+      "source": "components/furi/core/thread.h",
+      "blob": "c1f615d16481e331a11a88014fb48be041d78b17"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/thread_i.h",
+      "source": "components/furi/core/thread_i.h",
+      "blob": "c6b12a78027aa5fffa55656a61f667405014926b"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/thread_list.h",
+      "source": "components/furi/core/thread_list.h",
+      "blob": "f51aae8cd469d22e9fa651facd7f8c7eab67bab5"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/thread_list_i.h",
+      "source": "components/furi/core/thread_list_i.h",
+      "blob": "44fe0a9cbcf51a2ab88bd8f0bae8efe83d396a52"
+    },
+    {
+      "group": "furi",
+      "official": "furi/core/timer.h",
+      "source": "components/furi/core/timer.h",
+      "blob": "9d8df3dc620ffe01327770d9913143cb4d0b891b"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/args.h",
+      "source": "components/toolbox/args.h",
+      "blob": "fecf335997b9e8a48c6de111dbce243070a62fa6"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/bit_buffer.h",
+      "source": "components/toolbox/bit_buffer.h",
+      "blob": "bd95ec95ce56946cbd585662adb1a0ce7f8ba7f4"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/buffer_stream.c",
+      "source": "lib/toolbox/buffer_stream.c",
+      "blob": "4ab4a0c5b1d2406924de5c96a07f2d239ead1f39"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/buffer_stream.h",
+      "source": "lib/toolbox/buffer_stream.h",
+      "blob": "5c3dc0a3403b6d3459f6198225cc3d16bccc6779"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/cli/cli_ansi.c",
+      "source": "components/toolbox/cli/cli_ansi.c",
+      "blob": "81167643b4a1bb1fbee96a7cd6a6406ec96ede0d"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/cli/cli_ansi.h",
+      "source": "components/toolbox/cli/cli_ansi.h",
+      "blob": "04b6d7759b7dabf04143e4eeaa14aaf6b327431f"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/cli/cli_command.c",
+      "source": "components/toolbox/cli/cli_command.c",
+      "blob": "60aa351e72503778bad2ef78282d66775603ef16"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/cli/cli_command.h",
+      "source": "components/toolbox/cli/cli_command.h",
+      "blob": "9d341f6d2335f1eb5010b779f532a54eab9b935d"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/cli/cli_registry.c",
+      "source": "components/toolbox/cli/cli_registry.c",
+      "blob": "45661ee90a7a970d18c326e6de51042b475c1ce4"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/cli/cli_registry.h",
+      "source": "components/toolbox/cli/cli_registry.h",
+      "blob": "44650e79bedb00206d929b1f91b8f8cecf41aefa"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/cli/cli_registry_i.h",
+      "source": "components/toolbox/cli/cli_registry_i.h",
+      "blob": "31995832f3b4d642a4eb10ba826075f57aa3e78c"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/cli/shell/cli_shell.h",
+      "source": "components/toolbox/cli/shell/cli_shell.h",
+      "blob": "74f71273e03a3fbe8480529e7e81195dccd263ce"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/cli/shell/cli_shell_completions.c",
+      "source": "components/toolbox/cli/shell/cli_shell_completions.c",
+      "blob": "64133fe93ca0a8b1d46caad288af90b5617b9da0"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/cli/shell/cli_shell_completions.h",
+      "source": "components/toolbox/cli/shell/cli_shell_completions.h",
+      "blob": "d49a1982d2943171fac95594e19870c7b52d180e"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/cli/shell/cli_shell_i.h",
+      "source": "components/toolbox/cli/shell/cli_shell_i.h",
+      "blob": "0b676b7dedbfc92e8b57fac1782dcc60939ea31d"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/cli/shell/cli_shell_line.c",
+      "source": "components/toolbox/cli/shell/cli_shell_line.c",
+      "blob": "4826ba25234b15bc8b940a3575adeff6446d142e"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/cli/shell/cli_shell_line.h",
+      "source": "components/toolbox/cli/shell/cli_shell_line.h",
+      "blob": "e40a12bd6f8ef9f918150872f27e98ba26259dfb"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/hex.c",
+      "source": "components/toolbox/hex.c",
+      "blob": "4b5bd30d3896ca31923368d6234cc79ea11faaf5"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/hex.h",
+      "source": "components/toolbox/hex.h",
+      "blob": "740f23b776ce13ae007269ae0a6572c469c732dd"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/keys_dict.c",
+      "source": "components/toolbox/keys_dict.c",
+      "blob": "c26e9c1e7958ec83c43f8c3cc51a06cd2057e5cf"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/keys_dict.h",
+      "source": "components/toolbox/keys_dict.h",
+      "blob": "df6f49344bc720f60fe90e3e03cdbf632339d44a"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/level_duration.h",
+      "source": "components/toolbox/level_duration.h",
+      "blob": "cb50fa3b489088d14f93e4610b496e9e412e0dde"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/m_cstr_dup.h",
+      "source": "components/toolbox/m_cstr_dup.h",
+      "blob": "8cc45dd856694dc0dfcb813a847f9bca07d233c8"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/manchester_decoder.c",
+      "source": "components/toolbox/manchester_decoder.c",
+      "blob": "853c8bc1510857f4cb1945db9f9fda5cd9e102f2"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/manchester_decoder.h",
+      "source": "components/toolbox/manchester_decoder.h",
+      "blob": "4fb6dbc6402a9c3d38dd1d25c9d8a8d15f979c59"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/manchester_encoder.c",
+      "source": "components/toolbox/manchester_encoder.c",
+      "blob": "239e5325012231b79dd8ae1090381a3a740ea4d0"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/manchester_encoder.h",
+      "source": "components/toolbox/manchester_encoder.h",
+      "blob": "57ea8fb455d4f9332f85986fba8e5778d6460336"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/md5_calc.h",
+      "source": "components/toolbox/md5_calc.h",
+      "blob": "cf82e37181c86e268258fb4dd08b347c3f6df35a"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/path.c",
+      "source": "components/toolbox/path.c",
+      "blob": "a3fe68473065587721a996e8de9b71098a1dc52a"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/pipe.c",
+      "source": "components/toolbox/pipe.c",
+      "blob": "59b2f63f44bb2177e6ce336a8e7476b112f88466"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/pipe.h",
+      "source": "components/toolbox/pipe.h",
+      "blob": "b071975f70de91deecba95bd66ba3a423006c5e2"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/pretty_format.c",
+      "source": "components/toolbox/pretty_format.c",
+      "blob": "496738c4d8a70dfeb48c8ff9e838fd6e93cbe109"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/protocols/protocol.h",
+      "source": "lib/toolbox/protocols/protocol.h",
+      "blob": "855839dc7f4481bd8f680b352cf3805a5be0041b"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/protocols/protocol_dict.c",
+      "source": "lib/toolbox/protocols/protocol_dict.c",
+      "blob": "5cc46d6eb681582f0031a5d13d70a8c8710c7f44"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/protocols/protocol_dict.h",
+      "source": "lib/toolbox/protocols/protocol_dict.h",
+      "blob": "a7e02a988037e39549a590f09d2c418210971c0b"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/pulse_protocols/pulse_glue.c",
+      "source": "lib/toolbox/pulse_protocols/pulse_glue.c",
+      "blob": "f8574691d7338e4abbe30b780620b25b3cc2ece0"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/pulse_protocols/pulse_glue.h",
+      "source": "lib/toolbox/pulse_protocols/pulse_glue.h",
+      "blob": "9f707d0c2167059151c483fdca5aacf53a35228c"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/simple_array.c",
+      "source": "components/toolbox/simple_array.c",
+      "blob": "af20444dfe95fb31ba20457029a82fc12ac301ce"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/simple_array.h",
+      "source": "components/toolbox/simple_array.h",
+      "blob": "a608db08d876fd089448dd57bf52bbe0af3eac50"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/str_buffer.c",
+      "source": "lib/toolbox/str_buffer.c",
+      "blob": "a46a3f27b46af27515aca8f27f663130a511db71"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/str_buffer.h",
+      "source": "lib/toolbox/str_buffer.h",
+      "blob": "9623065c8def22af0b44a68dae6d5efc7e04d1dd"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/stream/buffered_file_stream.c",
+      "source": "components/toolbox/stream/buffered_file_stream.c",
+      "blob": "819e499c1550af0f595a976dee06cba6f99dbd39"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/stream/buffered_file_stream.h",
+      "source": "components/toolbox/stream/buffered_file_stream.h",
+      "blob": "54917b6a4751f555bee76347a17629995101b877"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/stream/stream_cache.c",
+      "source": "components/toolbox/stream/stream_cache.c",
+      "blob": "d38a2f7b7283444ab2d6c18b3489dce3a0acf273"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/stream/stream_cache.h",
+      "source": "components/toolbox/stream/stream_cache.h",
+      "blob": "b00538ae36ec74a6bb393ca53d8cc57faed07fe9"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/stream/string_stream.c",
+      "source": "components/toolbox/stream/string_stream.c",
+      "blob": "7b014391e4fad6f008ee7eecd8e2d09a921a93d8"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/stream/string_stream.h",
+      "source": "components/toolbox/stream/string_stream.h",
+      "blob": "279f053f245caade0802ddadad72c675c837da6f"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/strint.c",
+      "source": "components/toolbox/strint.c",
+      "blob": "113becd05286d2c3b718384f0e4ccf08d6d7f8a9"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/strint.h",
+      "source": "components/toolbox/strint.h",
+      "blob": "c27cdcb4ea0f1948edd62df5d1c9c850e5026c2c"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/tar/tar_archive.c",
+      "source": "components/toolbox/tar/tar_archive.c",
+      "blob": "01b23c2d05ec90c00e97c45ee490d73de4b3c5a8"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/tar/tar_archive.h",
+      "source": "components/toolbox/tar/tar_archive.h",
+      "blob": "fd0b28b87f56e207c9d6830710c99c0f98623506"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/value_index.c",
+      "source": "components/toolbox/value_index.c",
+      "blob": "c17b0ae79497b74e374354e78d1f265daddf1a34"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/value_index.h",
+      "source": "components/toolbox/value_index.h",
+      "blob": "bcd3024acd847283944308e48db30618f3dd8cb9"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/varint.c",
+      "source": "lib/toolbox/varint.c",
+      "blob": "79777c4ba5818300cbe15b3a6fcb8469c2c057b3"
+    },
+    {
+      "group": "toolbox",
+      "official": "lib/toolbox/varint.h",
+      "source": "lib/toolbox/varint.h",
+      "blob": "997c4d9d8bc372c481bf9de86c3e0b7d098d8f33"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/js_app.c",
+      "source": "applications/system/js_app/js_app.c",
+      "blob": "3084b9b2a34db047715d251ee9aa2240ff9dd995"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/js_app_i.h",
+      "source": "applications/system/js_app/js_app_i.h",
+      "blob": "bc958414065b99b6df13c39010e7698fd92baf8a"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/js_thread.c",
+      "source": "applications/system/js_app/js_thread.c",
+      "blob": "a41a28d11b582949c135e9781b7e615cf29e1ebe"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/js_thread.h",
+      "source": "applications/system/js_app/js_thread.h",
+      "blob": "581a449192121404ef714b0a8406a5f9ef6c9a01"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/js_thread_i.h",
+      "source": "applications/system/js_app/js_thread_i.h",
+      "blob": "5fbdb06d033551cdeef6dbf66ce1b3f682ed539d"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/js_value.c",
+      "source": "applications/system/js_app/js_value.c",
+      "blob": "6ce1cf37a42d24a0db508da7a865a567246c9bd8"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/js_value.h",
+      "source": "applications/system/js_app/js_value.h",
+      "blob": "765bcb3bba23a527bb99548df19fa2c7482938d5"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_event_loop/js_event_loop.c",
+      "source": "applications/system/js_app/modules/js_event_loop/js_event_loop.c",
+      "blob": "3e3d20fc494be0b9894b4c871593bf073777fe8d"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_event_loop/js_event_loop.h",
+      "source": "applications/system/js_app/modules/js_event_loop/js_event_loop.h",
+      "blob": "7ae608e349a086e4297c7a931cc3b60f5b1719df"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_event_loop/js_event_loop_api_table_i.h",
+      "source": "applications/system/js_app/modules/js_event_loop/js_event_loop_api_table_i.h",
+      "blob": "49090caebc4d24a6855cb9df45abdc87be068fab"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_flipper.h",
+      "source": "applications/system/js_app/modules/js_flipper.h",
+      "blob": "98979ce58269931d681aa866ce07f258f6f4f6da"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gpio.c",
+      "source": "applications/system/js_app/modules/js_gpio.c",
+      "blob": "df7d494a6d50072e4de4e2b1dbe41a50098e4c5b"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/button_menu.c",
+      "source": "applications/system/js_app/modules/js_gui/button_menu.c",
+      "blob": "e247e16358dadaf667b6069782aa51d470dda9c3"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/button_panel.c",
+      "source": "applications/system/js_app/modules/js_gui/button_panel.c",
+      "blob": "ebd4edb57adfbe6215dd8ba88f49d9a72410011a"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/byte_input.c",
+      "source": "applications/system/js_app/modules/js_gui/byte_input.c",
+      "blob": "2d6dae475599a7d985d47f79b374f306a4c860a6"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/dialog.c",
+      "source": "applications/system/js_app/modules/js_gui/dialog.c",
+      "blob": "31eee237f6b7aac2cd256ddc2ef0bf97c60f8886"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/empty_screen.c",
+      "source": "applications/system/js_app/modules/js_gui/empty_screen.c",
+      "blob": "9684eabdc1a938e8b65f0ca9d0146297695604a6"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/file_picker.c",
+      "source": "applications/system/js_app/modules/js_gui/file_picker.c",
+      "blob": "7b36596cde448f5f9ef7975a2de68f84873db872"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/js_gui.c",
+      "source": "applications/system/js_app/modules/js_gui/js_gui.c",
+      "blob": "2f782571748b09bdff58a922906871f5d0ef90b8"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/js_gui.h",
+      "source": "applications/system/js_app/modules/js_gui/js_gui.h",
+      "blob": "552eaee7c178e55040b349d86333b4d946b02903"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/js_gui_api_table_i.h",
+      "source": "applications/system/js_app/modules/js_gui/js_gui_api_table_i.h",
+      "blob": "c83a38e30ca1b584f7a83d6d18a45d71cd779671"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/loading.c",
+      "source": "applications/system/js_app/modules/js_gui/loading.c",
+      "blob": "e291824a078836b290b298dce69f23ff3c388977"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/menu.c",
+      "source": "applications/system/js_app/modules/js_gui/menu.c",
+      "blob": "c8e23470f7a70fcf1bec287094e05966cb110dab"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/number_input.c",
+      "source": "applications/system/js_app/modules/js_gui/number_input.c",
+      "blob": "2a1aa6ee6de22ce9dad60005560e97d8decac03e"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/popup.c",
+      "source": "applications/system/js_app/modules/js_gui/popup.c",
+      "blob": "65f827ab1b902b82a33eef17cc4af18332231643"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/submenu.c",
+      "source": "applications/system/js_app/modules/js_gui/submenu.c",
+      "blob": "64ab1b90668706e836bbff643abfc4a3e4d6db93"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/text_box.c",
+      "source": "applications/system/js_app/modules/js_gui/text_box.c",
+      "blob": "4e6c8247ca74e52b5ed12f64d769f7695f222be8"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/text_input.c",
+      "source": "applications/system/js_app/modules/js_gui/text_input.c",
+      "blob": "bb3a6cfa31c9852ec469ad2965f2e93df23707bc"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/vi_list.c",
+      "source": "applications/system/js_app/modules/js_gui/vi_list.c",
+      "blob": "bdea2fba1521490963cd7825c7479228da679fdf"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_gui/widget.c",
+      "source": "applications/system/js_app/modules/js_gui/widget.c",
+      "blob": "47149b4acb0bd0b505f8c02b261fa633dc386f49"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_notification.c",
+      "source": "applications/system/js_app/modules/js_notification.c",
+      "blob": "994283a0984fdfed3f567b8b020be286d7f7f4f8"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_serial.c",
+      "source": "applications/system/js_app/modules/js_serial.c",
+      "blob": "78f4db63a0205df2f02bbb66d87262d924b160fb"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_storage.c",
+      "source": "applications/system/js_app/modules/js_storage.c",
+      "blob": "66d002f337754cbd4aa0cee35ff793af5512dc88"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_tests.c",
+      "source": "applications/system/js_app/modules/js_tests.c",
+      "blob": "f275640000617fb7acd482af27cbc4cc1630950e"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/modules/js_tests.h",
+      "source": "applications/system/js_app/modules/js_tests.h",
+      "blob": "49f752c2b398f551edd724df0b3e4437e1601023"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/plugin_api/app_api_interface.h",
+      "source": "applications/system/js_app/plugin_api/app_api_interface.h",
+      "blob": "be4f78930d9d24ee70f3da859a1791e4a92ba75f"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/plugin_api/app_api_table_i.h",
+      "source": "applications/system/js_app/plugin_api/app_api_table_i.h",
+      "blob": "76556bcdd347cb31f2b930c7ca8109d9a6b87bc0"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/views/console_font.h",
+      "source": "applications/system/js_app/views/console_font.h",
+      "blob": "d22110aee3f1ff02fa6dbbfa167f4ada46bb599e"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/views/console_view.c",
+      "source": "applications/system/js_app/views/console_view.c",
+      "blob": "67f5d9de877d4f8f8ce8aa9e950eac9b4d0a3542"
+    },
+    {
+      "group": "javascript",
+      "official": "applications/system/js_app/views/console_view.h",
+      "source": "applications/system/js_app/views/console_view.h",
+      "blob": "9fcd1a3dce9bda678358d84ed65725a98bcb165b"
+    },
+    {
+      "group": "bit",
+      "official": "lib/bit_lib/bit_lib.c",
+      "source": "components/bit_lib/bit_lib.c",
+      "blob": "97535d891ae7dbef529931b7b63a327d2023e5ed"
+    },
+    {
+      "group": "bit",
+      "official": "lib/bit_lib/bit_lib.h",
+      "source": "components/bit_lib/bit_lib.h",
+      "blob": "b8cc092c8164f112eddef3fbb91eb30cc52d06e0"
+    }
+  ]
+}

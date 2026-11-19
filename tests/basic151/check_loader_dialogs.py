@@ -35,7 +35,7 @@ enum {AlignCenter, AlignTop, AlignLeft, FSE_OK};
 #define RECORD_DIALOGS "dialogs"
 #define RECORD_STORAGE "storage"
 static const Icon I_WarningDolphinFlip_45x42 = {1}, I_err_02 = {2}, I_err_03 = {3},
-                  I_err_04 = {4}, I_err_05 = {5}, I_err_06 = {6};
+                  I_err_04 = {4}, I_err_05 = {5};
 static Storage storage;
 static DialogsApp dialogs;
 static DialogMessage message;

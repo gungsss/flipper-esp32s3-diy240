@@ -12,6 +12,13 @@ index 0bf5056..21c70db 100644
 @@ -430 +430 @@ UsbUartBridge* usb_uart_enable(UsbUartConfig* cfg) {
 -    bridge->cli_disabled = cli_vcp_disable(bridge->cli_vcp);
 +    bridge->cli_disabled = cli_vcp_disable_and_get_previous(bridge->cli_vcp);
+diff --git a/applications/services/cli/cli_main_shell.c b/applications/services/cli/cli_main_shell.c
+index 7550bef..ca0ad19 100644
+--- a/applications/services/cli/cli_main_shell.c
++++ b/applications/services/cli/cli_main_shell.c
+@@ -26 +26 @@ void cli_main_motd(void* context) {
+-           "Read the manual: https://docs.flipper.net/development/cli\r\n"
++           "Read the manual: https://docs.flipper.net/zero/development/cli\r\n"
 diff --git a/applications/services/cli/cli_vcp.c b/applications/services/cli/cli_vcp.c
 index 6337261..b4380f1 100644
 --- a/applications/services/cli/cli_vcp.c
@@ -41,6 +48,13 @@ index 93b4534..8f7884a 100644
 +bool cli_vcp_disable_and_get_previous(CliVcp* cli_vcp);
 +/* Explicit symbol for native apps compiled against the 1.5.1 signature. */
 +void cli_vcp_disable_151(CliVcp* cli_vcp);
+diff --git a/applications/services/dolphin/dolphin.h b/applications/services/dolphin/dolphin.h
+index 82bab66..95f851a 100644
+--- a/applications/services/dolphin/dolphin.h
++++ b/applications/services/dolphin/dolphin.h
+@@ -6 +6 @@
+-#include "helpers/dolphin_state.h"
++#include "helpers/dolphin_deed.h"
 diff --git a/applications/system/js_app/modules/js_event_loop/js_event_loop.c b/applications/system/js_app/modules/js_event_loop/js_event_loop.c
 index 1aded8d..3e3d20f 100644
 --- a/applications/system/js_app/modules/js_event_loop/js_event_loop.c
@@ -1987,6 +2001,12 @@ index 872bf2e..6770f36 100644
 @@ -209,0 +215,2 @@ void tud_hid_set_report_cb(
 +    } else if(report_id == 0 && bufsize >= 2 && buffer[0] == REPORT_ID_KEYBOARD) {
 +        s_state.led_state = buffer[1];
+diff --git a/components/gui/canvas.c b/components/gui/canvas.c
+index b4ad7a8..946e427 100644
+--- a/components/gui/canvas.c
++++ b/components/gui/canvas.c
+@@ -1,0 +2 @@
++#include "canvas.h"
 diff --git a/components/gui/canvas.h b/components/gui/canvas.h
 index 5d5737d..7ae4bac 100644
 --- a/components/gui/canvas.h
@@ -1998,6 +2018,27 @@ index 5d5737d..7ae4bac 100644
 +uint8_t* canvas_get_buffer(Canvas* canvas);
 +size_t canvas_get_buffer_size(const Canvas* canvas);
 +
+diff --git a/components/gui/canvas_i.h b/components/gui/canvas_i.h
+index 0fb523a..0ac7bf0 100644
+--- a/components/gui/canvas_i.h
++++ b/components/gui/canvas_i.h
+@@ -64,16 +63,0 @@ void canvas_free(Canvas* canvas);
+-/** Get canvas buffer.
+- *
+- * @param      canvas  Canvas instance
+- *
+- * @return     pointer to buffer
+- */
+-uint8_t* canvas_get_buffer(Canvas* canvas);
+-
+-/** Get canvas buffer size.
+- *
+- * @param      canvas  Canvas instance
+- *
+- * @return     size of canvas in bytes
+- */
+-size_t canvas_get_buffer_size(const Canvas* canvas);
+-
 diff --git a/components/gui/modules/date_time_input.c b/components/gui/modules/date_time_input.c
 index f48ec4d..e3e7da3 100644
 --- a/components/gui/modules/date_time_input.c
@@ -2138,7 +2179,7 @@ index 5781499..385ae1e 100644
 -    requires=["loader"],
 +    requires=["loader", "cli"],
 diff --git a/components/loader/loader.c b/components/loader/loader.c
-index 5ba1551..3cc9b2b 100644
+index 5ba1551..5bfd801 100644
 --- a/components/loader/loader.c
 +++ b/components/loader/loader.c
 @@ -7,0 +8,4 @@
@@ -2182,7 +2223,7 @@ index 5ba1551..3cc9b2b 100644
 +            title = "Target mismatch"; text = "Use an\nESP32 app"; icon = &I_err_05; break;
 +        case LoaderStatusErrorOutdatedApp:
 +        case LoaderStatusErrorOutdatedFirmware:
-+            title = "App API mismatch"; text = "Rebuild for\nthis firmware"; icon = &I_err_06; break;
++            title = "App API mismatch"; text = "Rebuild for\nthis firmware"; icon = &I_err_05; break;
 +        case LoaderStatusErrorOutOfMemory:
 +            title = "Out of memory"; text = "Close apps\nor reboot"; break;
 +        default: break;
@@ -3153,7 +3194,7 @@ index fe5cca7..ce50252 100644
 -        if(second_quote_pos == 0) {
 +        if(second_quote_pos == FURI_STRING_FAILURE) {
 diff --git a/components/toolbox/cli/shell/cli_shell.c b/components/toolbox/cli/shell/cli_shell.c
-index dde5cc3..920aeb4 100644
+index dde5cc3..5fb360d 100644
 --- a/components/toolbox/cli/shell/cli_shell.c
 +++ b/components/toolbox/cli/shell/cli_shell.c
 @@ -11,0 +12 @@
@@ -3161,6 +3202,9 @@ index dde5cc3..920aeb4 100644
 @@ -14,0 +16,2 @@
 +extern const ElfApiInterface* const firmware_api_interface;
 +
+@@ -126 +129 @@ void cli_command_help(PipeSide* pipe, FuriString* args, void* context) {
+-    printf(ANSI_RESET "\r\nFind out more: https://docs.flipper.net/development/cli");
++    printf(ANSI_RESET "\r\nFind out more: https://docs.flipper.net/zero/development/cli");
 @@ -163,0 +167 @@ void cli_shell_execute_command(CliShell* cli_shell, FuriString* command) {
 +    PluginManager* plugin_manager = NULL;
 @@ -179,3 +183,30 @@ void cli_shell_execute_command(CliShell* cli_shell, FuriString* command) {
