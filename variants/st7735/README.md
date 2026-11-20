@@ -6,12 +6,11 @@ RST GPIO16) and its CS pin is tied to GND. The panel runs at 5 MHz. The microSD
 module stays on a separate SPI3 bus (SCK 40, MOSI 39, MISO 38, CS 14); do not
 move it onto the display or radio bus.
 
-The standard Flipper UI framebuffer is 128×64. This profile scales it across
-the full 160×128 panel, removing the unused top and bottom bands. The vertical
-scale is larger than the horizontal scale because the original Flipper canvas
-has a different aspect ratio. Some upstream views still use the original
-Flipper layout; this port does not claim that every screen has a native
-160×128 redesign.
+This profile changes the Flipper GUI canvas to native 160×128 and renders it
+directly to the full panel. The home screen adds a compact clock/date above the
+original pixel-art animation; the app launcher shows five full-width rows, and
+common submenus expose more entries. A few applications with fixed 128×64
+coordinates may still need their own layout updates.
 
 ## Optional modules
 
