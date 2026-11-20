@@ -7,13 +7,14 @@ belum memiliki kesetaraan penuh dengan semua aplikasi, HAL, dan aksesori resmi.
 
 | Area | Status port |
 |---|---|
-| UI dan navigasi | Kanvas native 160×128 1-bit; layar beranda, daftar aplikasi, dan submenu umum diatur ulang agar memakai panel penuh tanpa pembesaran gambar 128×64. Sejumlah aplikasi dengan koordinat tetap masih dapat tampil dalam tata letak 128×64. |
+| UI dan navigasi | Kanvas native 160×128 1-bit. Beranda pixel-art, launcher lima baris, browser berkas, daftar pengaturan, kotak teks, keyboard teks, editor angka/byte, editor tanggal-waktu, dan submenu umum memakai area layar landscape. Beberapa aplikasi atau plugin pihak ketiga yang menggambar pada koordinat 128×64 masih dapat menyisakan ruang atau perlu layout khusus. |
 | microSD / Archive | Bus SPI3 terpisah dari LCD dan radio; perlu uji pada kartu fisik. |
 | Wi-Fi dan BLE | Fitur ESP32-S3 dari port; beberapa penggunaan radio bersamaan bisa berbagi resource. |
 | USB HID / BadUSB | Didukung oleh port ESP32-S3; perlu uji pada perangkat target dan hanya untuk sistem yang berizin. |
 | Sub-GHz | Opsional dengan CC1101 dan dedicated bit-bang SPI. Menu baru dibangun saat pinout modul lengkap. |
 | 2,4 GHz nRF24 | Opsional, berbagi bus radio CC1101 tetapi memakai CS dan CE sendiri. |
-| NFC | Opsional dengan PN532 melalui I²C; berbeda dari front-end ST25R3916 pada Flipper Zero. |
+| NFC | Opsional dengan PN532 melalui I²C; berbeda dari front-end ST25R3916 pada Flipper Zero. Parser hotel Saflok, Onity, dan VingCard dari lini 1.5.1 ikut ditambahkan. |
+| BadUSB | Layout keyboard Jepang `ja-JP` tersedia di isi kartu SD, mengikuti perubahan 1.5.1. |
 | Infrared | Opsional dengan pin TX dan RX untuk driver RMT. |
 | LF RFID | RDM6300 melalui UART, hanya pembacaan; tidak menyediakan penulisan dan emulasi native. |
 | iButton | Belum tersedia karena HAL iButton ESP32 belum diimplementasikan pada upstream port. |

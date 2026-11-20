@@ -26,6 +26,7 @@ jobs:
       - name: Apply DIY and ST7735S profiles
         run: |
           python3 patch/patch_flipper.py .work/upstream
+          python3 patch/patch_hotels_151.py .work/upstream
           python3 variants/st7735/patch_st7735.py .work/upstream
           sha256sum .work/upstream/tools/gen_diy_board.py .work/upstream/components/furi_hal/furi_hal_display.c .work/upstream/components/furi_hal/idf_component.yml .work/upstream/components/furi_hal/CMakeLists.txt > /tmp/st7735-patch.sha256
           python3 variants/st7735/patch_st7735.py .work/upstream

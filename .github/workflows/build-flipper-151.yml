@@ -59,6 +59,7 @@ jobs:
           git -C .work/upstream apply --check "$GITHUB_WORKSPACE/patch/flipper_1_5_1_port.patch"
           git -C .work/upstream apply "$GITHUB_WORKSPACE/patch/flipper_1_5_1_port.patch"
           python3 patch/patch_flipper.py .work/upstream
+          python3 patch/patch_hotels_151.py .work/upstream
           python3 variants/st7735/patch_st7735.py .work/upstream
           if [[ "$ORIENTATION" == landscape ]]; then
             python3 variants/st7735/patch_landscape.py .work/upstream

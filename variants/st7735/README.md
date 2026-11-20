@@ -8,9 +8,10 @@ move it onto the display or radio bus.
 
 This profile changes the Flipper GUI canvas to native 160×128 and renders it
 directly to the full panel. The home screen adds a compact clock/date above the
-original pixel-art animation; the app launcher shows five full-width rows, and
-common submenus expose more entries. A few applications with fixed 128×64
-coordinates may still need their own layout updates.
+original pixel-art animation. The launcher uses five full-height rows; the file
+browser, settings list, text box, text/number/byte editors, date-time editor,
+and common submenus also use the landscape canvas. Some individual apps or
+third-party plugins with fixed 128×64 coordinates can still need a layout pass.
 
 ## Optional modules
 
