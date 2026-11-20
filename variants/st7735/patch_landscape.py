@@ -355,14 +355,14 @@ def patch_bubble_home(s):
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(
-        canvas, canvas_width(canvas) / 2, 24, AlignCenter, AlignBottom, "FLIPPER ZERO");
-    canvas_draw_line(canvas, 42, 29, canvas_width(canvas) - 43, 29);
+        canvas, canvas_width(canvas) / 2, 16, AlignCenter, AlignBottom, "FLIPPER ZERO");
+    canvas_draw_line(canvas, 24, 22, canvas_width(canvas) - 25, 22);
     canvas_set_font(canvas, FontBigNumbers);
     canvas_draw_str_aligned(
-        canvas, canvas_width(canvas) / 2, 54, AlignCenter, AlignBottom, time_text);
+        canvas, canvas_width(canvas) / 2, 44, AlignCenter, AlignBottom, time_text);
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(
-        canvas, canvas_width(canvas) / 2, 69, AlignCenter, AlignBottom, date_text);
+        canvas, canvas_width(canvas) / 2, 57, AlignCenter, AlignBottom, date_text);
     const int32_t art_x = ((int32_t)canvas_width(canvas) - 128) / 2;
     const int32_t art_y = (int32_t)canvas_height(canvas) - 64;
 #else
