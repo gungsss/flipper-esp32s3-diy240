@@ -4,49 +4,49 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b1820">
-  <title>Uji firmware 1.5.1 · ESP32-S3 ST7735S</title>
+  <title>Flipper 1.5.1 backport · ST7735S landscape</title>
   <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; background: #0b1820; color: #e9f4f2; font: 16px/1.55 system-ui, sans-serif; }
-    main { width: min(100% - 32px, 720px); margin: 36px auto 56px; }
+    main { width: min(100% - 32px, 760px); margin: 36px auto 56px; }
     a { color: #83ead2; }
     .card { margin: 18px 0; padding: clamp(20px, 4vw, 28px); background: #11242c; border: 1px solid #29414a; border-radius: 16px; }
     h1 { margin: 8px 0 14px; font-size: clamp(28px, 6vw, 40px); line-height: 1.15; }
     h2 { font-size: 20px; margin: 0 0 10px; }
     p { color: #c0d2d0; }
     strong { color: #f5fbfa; }
-    ol { padding-left: 23px; color: #d8e7e5; }
-    li { margin: 10px 0; }
+    .eyebrow { color: #83ead2; font-size: 13px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
     .notice { background: #342a19; border-color: #795f32; }
+    .profile { padding: 16px 0; border-top: 1px solid #29414a; }
+    .profile:first-of-type { border-top: 0; }
+    .profile p { margin: 6px 0 12px; }
     .buttons { display: flex; flex-wrap: wrap; gap: 12px; }
-    button { border: 0; border-radius: 10px; background: #79e8cd; padding: 14px 20px; color: #08231c; font: inherit; font-weight: 750; cursor: pointer; }
+    button { border: 0; border-radius: 10px; background: #79e8cd; padding: 13px 18px; color: #08231c; font: inherit; font-weight: 750; cursor: pointer; }
     label { display: flex; gap: 10px; align-items: flex-start; margin: 18px 0; }
     input { width: 20px; height: 20px; flex: 0 0 auto; accent-color: #73e4c9; }
     [hidden] { display: none !important; }
+    .small { color: #a8bfbd; font-size: 14px; }
   </style>
 </head>
 <body>
 <main>
-  <a href="/flipper-st7735/">&larr; Firmware ST7735S yang sudah berhasil</a>
+  <a href="/">&larr; Kembali ke DIY240 Flasher</a>
   <section class="card">
-    <h1>Firmware uji dengan perubahan Flipper 1.5.1</h1>
-    <p>Untuk ESP32-S3 N16R8 dan layar ST7735S yang digunakan pada perangkatmu. Ini adalah port Sor3nt dengan sejumlah perubahan 1.5.1, <strong>belum setara dengan seluruh firmware resmi Flipper 1.5.1</strong>.</p>
-    <p>Build ini sudah dikompilasi, tetapi belum diuji pada perangkat fisik. Versi 1.4.3 masih dapat muncul di aplikasi karena identitas kompatibilitas belum diubah.</p>
+    <span class="eyebrow">ESP32-S3 N16R8 · ST7735S 160×128 landscape</span>
+    <h1>Flipper 1.5.1 ESP32 backport</h1>
+    <p>Source port ESP32 ini memasukkan perubahan pilihan dari Flipper 1.5.1 dan memakai layar ST7735S landscape dengan CS ke GND. Ini <strong>bukan firmware resmi Flipper Zero</strong> dan tidak memiliki seluruh fitur atau hardware yang sama.</p>
   </section>
   <section class="card notice">
-    <h2>Sebelum flash</h2>
-    <ol>
-      <li>Pertahankan sambungan layar dan tombol yang sudah dipakai. Sambungkan ESP32 ke Mac atau PC melalui kabel USB data.</li>
-      <li>Matikan mode qFlipper di perangkat dan tutup aplikasi qFlipper serta serial monitor sebelum memilih port di browser.</li>
-      <li>Gunakan Chrome atau Edge, centang persetujuan, lalu pilih orientasi layar. Instalasi akan mengganti firmware di ESP32.</li>
-    </ol>
-    <p>Jangan instal pembaruan resmi Flipper Zero atau T-Embed melalui aplikasi: firmware tersebut tidak disesuaikan untuk rangkaian ini.</p>
-    <label><input id="confirm" type="checkbox"><span>Saya memakai ESP32-S3 dengan layar ST7735S sesuai wiring yang sudah digunakan dan memahami bahwa ini firmware uji.</span></label>
+    <h2>Sebelum memilih build</h2>
+    <p>Profil <strong>Inti</strong> cocok untuk wiring layar, microSD, dan tombol saat ini. Profil <strong>Modul</strong> mengompilasi menu CC1101, nRF24, PN532, IR, dan RDM6300; pin tambahannya hanya contoh dan perlu dicocokkan dengan skema board sebelum kabel dipasang.</p>
+    <p>Modul tidak terdeteksi otomatis. Untuk menggunakannya, pinout firmware harus sama dengan kabel yang terpasang. Profil modul memakai RDM6300 hanya-baca; iButton belum tersedia pada HAL ESP32 ini.</p>
+    <label><input id="confirm" type="checkbox"><span>Saya memakai ESP32-S3 N16R8 dan ST7735S 160×128 landscape dengan CS layar ke GND, sudah memeriksa pinout pilihan, dan memahami firmware di flash akan ditimpa.</span></label>
     <div class="buttons" id="buttons" hidden>
-      <esp-web-install-button manifest="portrait/manifest.json"><button slot="activate">Flash portrait</button><span slot="unsupported">Gunakan Chrome atau Edge di komputer.</span></esp-web-install-button>
-      <esp-web-install-button manifest="landscape/manifest.json"><button slot="activate">Flash landscape</button><span slot="unsupported">Gunakan Chrome atau Edge di komputer.</span></esp-web-install-button>
+      <esp-web-install-button manifest="landscape/manifest.json"><button slot="activate">Flash profil inti</button><span slot="unsupported">Gunakan Chrome atau Edge pada komputer.</span><span slot="not-allowed">Buka halaman ini melalui HTTPS.</span></esp-web-install-button>
+      <esp-web-install-button manifest="all-modules/manifest.json"><button slot="activate">Flash profil modul</button><span slot="unsupported">Gunakan Chrome atau Edge pada komputer.</span><span slot="not-allowed">Buka halaman ini melalui HTTPS.</span></esp-web-install-button>
     </div>
+    <p class="small"><a href="landscape/Pinout.txt">Pinout inti</a> · <a href="all-modules/Pinout.txt">Contoh pinout modul</a> · <a href="landscape/BUILD_INFO.json">Metadata profil inti</a> · <a href="all-modules/BUILD_INFO.json">Metadata profil modul</a></p>
   </section>
 </main>
 <script>document.getElementById('confirm').addEventListener('change', e => { document.getElementById('buttons').hidden = !e.target.checked; });</script>

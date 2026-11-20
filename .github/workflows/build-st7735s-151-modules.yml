@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: st7735s-151-${{ github.ref }}
@@ -70,3 +70,41 @@ jobs:
           path: ${{ runner.temp }}/st7735s-package
           if-no-files-found: error
           retention-days: 30
+
+  publish-preview:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: flipper-151-st7735s-core
+          path: ${{ runner.temp }}/st7735s-core
+      - uses: actions/download-artifact@v4
+        with:
+          name: flipper-151-st7735s-all-modules-example
+          path: ${{ runner.temp }}/st7735s-modules
+      - name: Stage the landscape-only flasher preview
+        run: |
+          set -euo pipefail
+          core='web/public/flipper-st7735-151/landscape'
+          modules='web/public/flipper-st7735-151/all-modules'
+          rm -rf "$core" "$modules"
+          mkdir -p "$core" "$modules"
+          cp -a "$RUNNER_TEMP/st7735s-core/." "$core/"
+          cp -a "$RUNNER_TEMP/st7735s-modules/." "$modules/"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f "$core" "$modules" web/public/flipper-st7735-151/index.html
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'No preview files changed.'
+            exit 0
+          fi
+          git commit -m 'build: publish ST7735S landscape profile previews'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
