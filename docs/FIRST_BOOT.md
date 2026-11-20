@@ -44,9 +44,13 @@ Tombol RST pada PCB eksternal **tidak disambungkan** pada profil awal. Jika perl
 - Uji USB HID hanya pada komputer pribadi/lingkungan pengujian yang sah. Jangan menjalankan skrip BadUSB dari sumber tak dikenal.
 - Antarmuka qFlipper upstream untuk komunikasi file **bukan** jaminan kompatibilitas flash via qFlipper original; flash ulang tetap melalui ESP-IDF atau esptool lokal.
 
-## 6. Ekspektasi layar 240×240
+## 6. Ekspektasi layar ST7735S 160×128
 
-Upstream menggunakan framebuffer Flipper **128×64**, diskalakan mempertahankan rasio aspek. Dengan margin 4 px kiri/kanan pada layar 240×240, wilayah UI yang terisi sekitar **232×116 px**, disenter vertikal. Bagian atas-bawah kosong adalah perilaku yang diharapkan, bukan bug yang harus selalu dihilangkan. Aplikasi yang menggambar native dengan resolusi lebih lebar perlu audit tersendiri.
+Build utama memakai framebuffer Flipper **128×64** yang diskalakan memenuhi
+seluruh panel **160×128 landscape**. Tidak ada bar kosong di atas atau bawah.
+Karena rasio framebuffer berbeda dari rasio panel, UI tampak lebih tinggi
+dibanding tampilan Flipper asli. Beberapa aplikasi yang menggambar langsung ke
+layar masih memerlukan penyesuaian resolusi tersendiri.
 
 ## 7. Checklist hasil uji awal
 

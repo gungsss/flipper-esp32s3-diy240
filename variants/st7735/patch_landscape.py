@@ -58,6 +58,7 @@ def main():
     board = (root / "components/furi_hal/boards/board_DIY.h").read_text(encoding="utf-8")
     required = (
         "#define BOARD_LCD_H_RES 160", "#define BOARD_LCD_V_RES 128",
+        "#define BOARD_LCD_FILL_SCREEN 1",
         "#define BOARD_LCD_SIDE_MARGIN 0", "#define BOARD_LCD_SPI_FREQ_HZ (5 * 1000 * 1000)",
         "#define BOARD_LCD_SWAP_XY true", "#define BOARD_LCD_MIRROR_X false",
         "#define BOARD_LCD_MIRROR_Y true", "#define BOARD_LCD_INVERT_COLOR false",

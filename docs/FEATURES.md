@@ -7,7 +7,7 @@ belum memiliki kesetaraan penuh dengan semua aplikasi, HAL, dan aksesori resmi.
 
 | Area | Status port |
 |---|---|
-| UI dan navigasi | Framebuffer Flipper 128×64 diskalakan ke panel ST7735S 160×128 landscape. Aplikasi yang menggambar langsung ke layar perlu penyesuaian sendiri. |
+| UI dan navigasi | Framebuffer Flipper 128×64 diskalakan memenuhi panel ST7735S 160×128 landscape. Rasio UI menjadi lebih tinggi karena rasio panel berbeda; aplikasi yang menggambar langsung ke layar perlu penyesuaian sendiri. |
 | microSD / Archive | Bus SPI3 terpisah dari LCD dan radio; perlu uji pada kartu fisik. |
 | Wi-Fi dan BLE | Fitur ESP32-S3 dari port; beberapa penggunaan radio bersamaan bisa berbagi resource. |
 | USB HID / BadUSB | Didukung oleh port ESP32-S3; perlu uji pada perangkat target dan hanya untuk sistem yang berizin. |

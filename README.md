@@ -62,7 +62,7 @@ Panduan build Windows/WSL2 ada di [docs/BUILD_WINDOWS_WSL.md](docs/BUILD_WINDOWS
 ## Batasan penting
 
 - ESP32-S3 berbeda dari Flipper Zero asli; aplikasi FAP ARM tidak otomatis kompatibel.
-- Firmware Flipper memakai framebuffer 128×64 yang diskalakan pada panel 160×128. Sebagian layar aplikasi belum didesain ulang secara native untuk resolusi panel.
+- Framebuffer UI Flipper 128×64 diskalakan memenuhi seluruh panel ST7735S 160×128 landscape, tanpa bar kosong di atas atau bawah. Karena rasio panel berbeda, skala vertikal lebih besar daripada horizontal; sebagian layar aplikasi belum didesain ulang secara native.
 - Fitur Sub-GHz, nRF24, NFC, IR, dan LF RFID memerlukan modul fisik dan pinout yang sesuai.
 - Ada lebih banyak sinyal modul daripada GPIO bebas yang aman untuk selalu memasang semua perangkat bersamaan. Profil perlu disesuaikan dengan rangkaian sebenarnya.
 - Keberhasilan kompilasi tidak menggantikan uji tampilan, tombol, microSD, Wi-Fi/BLE, dan modul pada board fisik.

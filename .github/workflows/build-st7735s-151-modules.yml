@@ -60,6 +60,8 @@ jobs:
           info = json.loads(Path(sys.argv[1]).read_text())
           if info['lcd'] != 'ST7735S landscape 160x128, CS tied to GND, 5 MHz SPI':
               raise SystemExit(f"Wrong target profile: {info['lcd']}")
+          if 'Full-panel 160x128' not in info['ui_rendering']:
+              raise SystemExit(f"Display is not configured full-screen: {info['ui_rendering']}")
           if info['official_flipper_tag'] != '1.5.1':
               raise SystemExit('Unexpected Flipper source tag')
           print('Packaged', info['build_profile'], 'with modules:', info['enabled_optional_modules'])

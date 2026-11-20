@@ -50,7 +50,7 @@ def patch_generator(s):
          'nfc_rst_macro = f\'#define BOARD_PIN_NFC_RST {g("NFC_RST")}\\n\' if p["NFC_RST"] >= 0 else ""'),
         ("#define BOARD_OTA_PROFILE_ST7789 1\n#define BOARD_LCD_H_RES 240\n#define BOARD_LCD_V_RES 240",
          "#define BOARD_OTA_PROFILE_ST7735 1\n#define BOARD_LCD_H_RES 128\n#define BOARD_LCD_V_RES 160\n"
-         "#define BOARD_LCD_SIDE_MARGIN 0"),
+         "#define BOARD_LCD_SIDE_MARGIN 0\n#define BOARD_LCD_FILL_SCREEN 1"),
         ("/* LCD ST7789 */", "/* LCD ST7735S */"),
         ("#define BOARD_LCD_SPI_FREQ_HZ (10 * 1000 * 1000)",
          "#define BOARD_LCD_SPI_FREQ_HZ (5 * 1000 * 1000)"),
@@ -145,6 +145,32 @@ def patch_display(s):
     s = replace_once(s, "#include <esp_lcd_panel_vendor.h>",
                      "#include <esp_lcd_panel_vendor.h>\n#include <esp_lcd_st7735.h>",
                      "ST7735S driver include")
+    s = replace_once(
+        s,
+        "/* Scale the 128x64 framebuffer to the largest centered size that keeps aspect ratio. */\n"
+        "#if (USABLE_H_RES * FB_HEIGHT) <= (LCD_V_RES * FB_WIDTH)\n"
+        "#define SCALED_WIDTH  USABLE_H_RES\n"
+        "#define SCALED_HEIGHT ((USABLE_H_RES * FB_HEIGHT) / FB_WIDTH)\n"
+        "#else\n"
+        "#define SCALED_HEIGHT LCD_V_RES\n"
+        "#define SCALED_WIDTH  ((LCD_V_RES * FB_WIDTH) / FB_HEIGHT)\n"
+        "#endif",
+        "/* The ST7735S profile fills its entire 160x128 panel. The stock Flipper\n"
+        " * 128x64 canvas is scaled independently on each axis, so there are no\n"
+        " * unused top/bottom bands. Other boards retain aspect-fit rendering. */\n"
+        "#if defined(BOARD_LCD_FILL_SCREEN) && BOARD_LCD_FILL_SCREEN\n"
+        "#define SCALED_WIDTH LCD_H_RES\n"
+        "#define SCALED_HEIGHT LCD_V_RES\n"
+        "#else\n"
+        "#if (USABLE_H_RES * FB_HEIGHT) <= (LCD_V_RES * FB_WIDTH)\n"
+        "#define SCALED_WIDTH  USABLE_H_RES\n"
+        "#define SCALED_HEIGHT ((USABLE_H_RES * FB_HEIGHT) / FB_WIDTH)\n"
+        "#else\n"
+        "#define SCALED_HEIGHT LCD_V_RES\n"
+        "#define SCALED_WIDTH  ((LCD_V_RES * FB_WIDTH) / FB_HEIGHT)\n"
+        "#endif\n"
+        "#endif",
+        "full-panel ST7735S scaling")
     s = replace_once(s, "#define STRIPE_HEIGHT 32", "#define STRIPE_HEIGHT 10",
                      "DMA stripe size")
     # waveshare/esp_lcd_st7735 2.0.0 exposes DISPON/DISPOFF, but does not
@@ -250,7 +276,8 @@ def main():
     board = (root / "components/furi_hal/boards/board_DIY.h").read_text(encoding="utf-8")
     required = (
         "#define BOARD_OTA_PROFILE_ST7735 1",
-        "#define BOARD_LCD_SIDE_MARGIN 0", "#define BOARD_LCD_SPI_FREQ_HZ (5 * 1000 * 1000)",
+        "#define BOARD_LCD_SIDE_MARGIN 0", "#define BOARD_LCD_FILL_SCREEN 1",
+        "#define BOARD_LCD_SPI_FREQ_HZ (5 * 1000 * 1000)",
         "#define BOARD_LCD_MIRROR_Y true",
         "#define BOARD_LCD_INVERT_COLOR false", "#define BOARD_LCD_GAP_X 0", "#define BOARD_LCD_GAP_Y 0",
         "#define BOARD_PIN_LCD_CS   UINT16_MAX", "#define BOARD_PIN_BTN_OK     8",
