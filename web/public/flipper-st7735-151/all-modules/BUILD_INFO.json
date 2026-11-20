@@ -11,7 +11,7 @@
   "pinout_sha256": "9da1627edbcea7d0e47dc0ac87fcff72a9d8425e596014dd10d2a49e25e1c485",
   "board": "DIY ESP32-S3 N16R8",
   "lcd": "ST7735S landscape 160x128, CS tied to GND, 5 MHz SPI",
-  "ui_rendering": "Full-panel 160x128 native GUI canvas; home screen, app launcher, and common submenus are reflowed for ST7735S. No 128x64 stretch or top/bottom bars.",
+  "ui_rendering": "Full-panel 160x128 native GUI canvas; all legacy Canvas views use the shared 128x64-to-160x128 adapter, while core screen modules use native layouts. Static source audit covers all Canvas draw APIs and GUI callback paths; physical display validation remains separate.",
   "display_driver": "waveshare/esp_lcd_st7735==2.0.0",
   "sd": "SPI3_HOST",
   "enabled_optional_modules": [
@@ -27,7 +27,7 @@
       "file": "bootloader/bootloader.bin",
       "offset": "0x0",
       "size_bytes": 20848,
-      "sha256": "aa6d018325f1ba371e1bf15265dd1aa852509d4ed2f8b4f2756c69aa33352007"
+      "sha256": "daae9c542d7124264c6bf1d80e6424187cba1e7a2fd5033e905c617952007d91"
     },
     {
       "file": "partition_table/partition-table.bin",
@@ -38,8 +38,8 @@
     {
       "file": "furi_esp32.bin",
       "offset": "0x10000",
-      "size_bytes": 3693280,
-      "sha256": "0081a6211d3b40e542701ce5324cf369080c5191929de6d8efaa7f58a8e51ea1"
+      "size_bytes": 3694592,
+      "sha256": "a80436bcceb469dac289e48257984ca44c3c5958aaeb287642e6543c92c4c91a"
     },
     {
       "file": "ota_data_initial.bin",
