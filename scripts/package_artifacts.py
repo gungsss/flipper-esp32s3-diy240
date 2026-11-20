@@ -69,7 +69,7 @@ def main():
     (out / 'BUILD_INFO.json').write_text(json.dumps({
         'upstream_repository':'Sor3nt/Flipper-Zero-ESP32-Port',
         'upstream_commit':'e6ec11972a8e025d7ab686a6ef3016cf52360834',
-        'board':'DIY ESP32-S3 N16R8', 'lcd':'ST7789 240x240 7-pin no CS',
+        'board':'DIY ESP32-S3 N16R8', 'lcd':'ST7789 240x240 8-pin, CS GPIO10, 10 MHz SPI',
         'sd':'SPI3_HOST', 'images':records
     },indent=2)+'\n')
     print('Packaged images:')
