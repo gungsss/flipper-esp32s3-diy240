@@ -85,6 +85,7 @@ def main():
         "#define BOARD_GUI_NATIVE_LCD 1",
         "#define BOARD_LCD_FILL_SCREEN 1",
         "#define BOARD_LCD_SIDE_MARGIN 0",
+        "#define BOARD_INPUT_DPAD 1",
     ):
         require(macro in board, f"panel geometry does not include {macro}")
 
@@ -113,7 +114,7 @@ def main():
     require("canvas_set_legacy_scale(canvas, !view->native_layout)" in view,
             "View draw callbacks are not routed through native or legacy layout")
     viewport = read("components/gui/view_port.c")
-    require("canvas_set_legacy_scale(canvas, true)" in viewport,
+    require("canvas_set_legacy_scale(canvas, !view_port->native_layout)" in viewport,
             "custom ViewPort draw callbacks are not adapted to the full panel")
 
     for relative, callback in REQUIRED_NATIVE_VIEWS.items():
@@ -151,6 +152,115 @@ def main():
     elements = read("components/gui/elements.c")
     require("y < canvas_height(canvas)" in elements,
             "multiline text still stops at the old 64-pixel boundary")
+
+    # Directional controls must follow the six physical D-pad buttons. Text and
+    # byte editors have internal handler layouts inherited from encoder boards,
+    # so their explicit D-pad remaps are part of the ST7735 profile contract.
+    input_source = read("targets/DIY/target_input.c")
+    for token in (
+        "{ BOARD_PIN_BTN_UP,    InputKeyUp,    InputKeyUp    }",
+        "{ BOARD_PIN_BTN_DOWN,  InputKeyDown,  InputKeyDown  }",
+        "{ BOARD_PIN_BTN_LEFT,  InputKeyLeft,  InputKeyLeft  }",
+        "{ BOARD_PIN_BTN_RIGHT, InputKeyRight, InputKeyRight }",
+    ):
+        require(token in input_source, f"physical D-pad event mapping changed ({token})")
+    for relative in (
+        "components/gui/modules/text_input.c",
+        "components/gui/modules/byte_input.c",
+        "components/gui/modules/button_menu.c",
+        "components/gui/modules/button_panel.c",
+    ):
+        require("#if defined(BOARD_INPUT_DPAD) && BOARD_INPUT_DPAD" in read(relative),
+                f"D-pad-specific navigation is missing in {relative}")
+    text_input = read("components/gui/modules/text_input.c")
+    for token in (
+        "bool caps_lock;",
+        "bool uppercase = model->caps_lock && !symbols_active;",
+        "model->caps_lock = !model->caps_lock;",
+        "Hold OK: Caps",
+    ):
+        require(token in text_input, f"keyboard lowercase/Caps Lock contract missing ({token})")
+    require("(model->clear_default_text || text_length == 0) && !symbols_active" not in text_input,
+            "keyboard still forces uppercase for new/empty text")
+    for mapping in (
+        "[InputKeyUp] = InputKeyLeft,",
+        "[InputKeyDown] = InputKeyRight,",
+        "[InputKeyLeft] = InputKeyUp,",
+        "[InputKeyRight] = InputKeyDown,",
+    ):
+        require(mapping in text_input, f"text keyboard D-pad remap changed ({mapping})")
+    byte_input = read("components/gui/modules/byte_input.c")
+    for mapping in (
+        "[InputKeyUp] = InputKeyRight,",
+        "[InputKeyDown] = InputKeyLeft,",
+        "[InputKeyLeft] = InputKeyUp,",
+        "[InputKeyRight] = InputKeyDown,",
+    ):
+        require(mapping in byte_input, f"byte editor D-pad remap changed ({mapping})")
+    for relative, controls in (
+        ("components/gui/modules/button_menu.c", (
+            "case InputKeyUp:\n            consumed = true;\n            button_menu_process_up(button_menu);",
+            "case InputKeyDown:\n            consumed = true;\n            button_menu_process_down(button_menu);",
+            "case InputKeyLeft:\n            consumed = true;\n            button_menu_process_left(button_menu);",
+            "case InputKeyRight:\n            consumed = true;\n            button_menu_process_right(button_menu);",
+        )),
+        ("components/gui/modules/button_panel.c", (
+            "case InputKeyUp:\n            consumed = true;\n            button_panel_process_up(button_panel);",
+            "case InputKeyDown:\n            consumed = true;\n            button_panel_process_down(button_panel);",
+            "case InputKeyLeft:\n            consumed = true;\n            button_panel_process_left(button_panel);",
+            "case InputKeyRight:\n            consumed = true;\n            button_panel_process_right(button_panel);",
+        )),
+    ):
+        source = read(relative)
+        for control in controls:
+            require(control in source, f"D-pad control direction changed in {relative} ({control})")
+
+    viewport = read("components/gui/view_port.c")
+    require("canvas_set_legacy_scale(canvas, !view_port->native_layout)" in viewport,
+            "native ViewPort layout opt-out is missing")
+    bt_pin = function_body(
+        read("components/btshim/btshim.c"), "bt_pin_code_view_port_draw_callback")
+    for token in (
+        'canvas_draw_str(canvas, 25, 16, "PAIR DEVICE")',
+        '"ENTER THIS CODE IN THE APP"',
+        'canvas_set_font(canvas, FontBigNumbers)',
+        '"Pair with Flipper mobile app"',
+    ):
+        require(token in bt_pin, f"native BLE pairing-code screen is incomplete ({token})")
+    require("I_BLE_Pairing_128x64" not in bt_pin,
+            "legacy 128x64 pairing artwork is still stretched over the native panel")
+    bt_pin_input = function_body(
+        read("components/btshim/btshim.c"), "bt_pin_code_view_port_input_callback")
+    require("event->key == InputKeyBack" in bt_pin_input,
+            "BLE pairing screen is not closed with the physical Back key")
+    require("event->key == InputKeyLeft" not in bt_pin_input,
+            "BLE pairing screen incorrectly maps the left arrow to Back")
+
+    subghz = read("applications/main/subghz/subghz.c")
+    require("furi_hal_subghz_is_connected()" in subghz and "CC1101 not detected" in subghz,
+            "Sub-GHz does not check and report the CC1101 module")
+    nfc = read("applications/main/nfc/nfc_app.c")
+    require("PN532 not detected" in nfc and "SDA GPIO41, SCL GPIO42" in nfc,
+            "NFC does not report the PN532 mode and wiring")
+    nrf24 = function_body(read("applications/main/nrf24/nrf24_app.c"), "nrf24_app")
+    require("nrf24_hw_probe()" in nrf24 and "nRF24L01+ not detected" in nrf24,
+            "nRF24 app does not probe and identify its required module")
+    require(nrf24.index("furi_hal_shared_pins_release(&owner)") <
+            nrf24.index("m4145_show_module_notice("),
+            "nRF24 module notice holds the shared radio pins while waiting")
+    infrared = read("applications/main/infrared/infrared_app.c")
+    require("IR has no module ID pin." in infrared and "38kHz receiver" in infrared,
+            "IR app does not explain the manual hardware check")
+    lfrfid = read("applications/main/lfrfid/lfrfid.c")
+    require("RDM6300 125kHz." in lfrfid and "EM4100 card" in lfrfid,
+            "LF RFID app does not identify the required reader and test tag")
+    status_page = read("applications/settings/about/about.c")
+    for status in (
+        "CC1101: %s", "PN532 I2C: %s", "nRF24: open app to test",
+        "RDM6300: %s", "IR: test with wired parts",
+        "iButton / LF write: not supported",
+    ):
+        require(status in status_page, f"About module status is missing ({status})")
 
     app_sources = list((root / "applications").rglob("*.c"))
     app_view_callbacks = sum(

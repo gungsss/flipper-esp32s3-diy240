@@ -13,8 +13,13 @@ divider, correcting the top-edge crowding visible on the user's panel. The
 launcher uses five full-height rows; the file browser, settings, text and number
 editors, date-time editor, and common submenus have layouts for landscape. Other
 app views using the shared Canvas API are routed through a 128×64-to-160×128
-adapter. Source audit checks the Canvas primitives and shared GUI callback
-paths; the board still needs a physical screen-by-screen check.
+adapter. The six-button profile declares a D-pad, so text/byte editors and button
+panels use the correct physical arrow directions. New text begins lowercase;
+hold OK on the keyboard-layout key to toggle Caps Lock. The BLE pairing code uses
+a separate native full-screen layout, avoiding the old 128×64 illustration and
+overlapping text. Source audit checks the Canvas primitives, shared GUI paths,
+keyboard/navigation contracts, and pairing geometry; the board still needs a
+physical screen-by-screen check.
 
 ## Single universal firmware and optional modules
 
@@ -23,8 +28,10 @@ below. The tested display, SD, and button assignments stay unchanged; optional
 module GPIOs are reserved in `patch/Pinout_ESP32S3_ST7735S_160.txt`. Connect a
 supported module to those exact GPIOs and 3.3 V. No rebuild or reflash is needed
 when adding a supported module. Check that the selected ESP32-S3 board exposes
-each GPIO and has no onboard component using it. The module is not detected just
-by plugging it in; open its app to check communication.
+each GPIO and has no onboard component using it. CC1101 is probed at startup;
+PN532 and nRF24 are checked when their app opens. IR and RDM6300 have no module
+identity signal, so their screens explain how to confirm the wiring and test
+them instead of claiming automatic presence detection.
 
 | Module | Required pin fields | Current ESP32 port support |
 |---|---|---|
@@ -37,8 +44,8 @@ by plugging it in; open its app to check communication.
 The current port does not implement the iButton HAL. RDM6300 is read-only, and
 does not replace LF RFID writing or emulation. Those functions need a compatible
 external frontend and a separate M4145 driver/app implementation; they are not
-silently presented as supported by this release. ESP32-S3 also lacks the
-onboard speaker and several dedicated Flipper Zero circuits.
+presented as working until implemented. ESP32-S3 also lacks the onboard speaker
+and several dedicated Flipper Zero circuits.
 
 To build, install ESP-IDF v5.4.1 and run:
 

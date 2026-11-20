@@ -728,9 +728,28 @@ def patch_text_box(s):
 
 
 def patch_text_input(s):
+    s = replace_once(
+        s,
+        "    bool clear_default_text;\n",
+        "    bool clear_default_text;\n    bool caps_lock;\n",
+        "persistent text keyboard Caps Lock state",
+    )
+    s = replace_once(
+        s,
+        "            model->clear_default_text = false;\n            model->cursor_pos = 0;",
+        "            model->clear_default_text = false;\n            model->caps_lock = false;\n            model->cursor_pos = 0;",
+        "reset keyboard Caps Lock between inputs",
+    )
     start = s.index("static void text_input_view_draw_callback(Canvas* canvas, void* _model) {")
     end = s.index("\nstatic void text_input_handle_up(", start)
     chunk = s[start:end]
+    chunk = replace_once(
+        chunk,
+        "    TextInputModel* model = _model;\n",
+        "    TextInputModel* model = _model;\n"
+        "    bool symbols_active = model->selected_keyboard != letters_keyboard.keyboard_index;\n",
+        "keyboard mode state for native display",
+    )
     chunk = replace_once(
         chunk,
         "    canvas_draw_str(canvas, 2, 8, model->header);\n    elements_slightly_rounded_frame(canvas, 1, 12, 126, 15);",
@@ -748,6 +767,13 @@ def patch_text_input(s):
         "    uint8_t needed_string_width = canvas_width(canvas) - 8;\n    uint8_t start_pos = 4;",
         "    uint8_t needed_string_width = canvas_width(canvas) - 10;\n    uint8_t start_pos = 5;",
         "native text input field width",
+    )
+    chunk = replace_once(
+        chunk,
+        "    bool symbols_active = model->selected_keyboard != letters_keyboard.keyboard_index;\n"
+        "    bool uppercase = (model->clear_default_text || text_length == 0) && !symbols_active;",
+        "    bool uppercase = model->caps_lock && !symbols_active;",
+        "lowercase keyboard default with explicit Caps Lock",
     )
     key_anchor = "            bool selected = !model->cursor_select && model->selected_row == row &&\n                            model->selected_column == column;\n"
     key_geometry = key_anchor + "            int32_t key_x = keyboard_origin_x + keys[column].x;\n"
@@ -797,7 +823,49 @@ def patch_text_input(s):
         "#endif",
         "native text input validation message position",
     )
-    return s[:start] + chunk + s[end:]
+    chunk = replace_once(
+        chunk,
+        "    if(model->validator_message_visible) {",
+        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
+        "    canvas_set_font(canvas, FontSecondary);\n"
+        "    canvas_draw_str(canvas, 4, canvas_height(canvas) - 3, \"Hold OK: Caps\");\n"
+        "    const char* keyboard_mode = symbols_active ?\n"
+        "        (model->selected_keyboard == 1 ? \"SYM\" : \"SYM2\") :\n"
+        "        (model->caps_lock ? \"CAPS\" : \"abc\");\n"
+        "    canvas_draw_str_aligned(\n"
+        "        canvas, canvas_width(canvas) - 4, canvas_height(canvas) - 3,\n"
+        "        AlignRight, AlignBottom, keyboard_mode);\n"
+        "    canvas_set_font(canvas, FontKeyboard);\n"
+        "#endif\n"
+        "    if(model->validator_message_visible) {",
+        "visible keyboard Caps Lock help and state",
+    )
+    s = s[:start] + chunk + s[end:]
+    shift_declaration = "    bool shift = type == InputTypeLong;\n"
+    if shift_declaration in s:
+        s = s.replace(shift_declaration, "", 1)
+    s = replace_once(
+        s,
+        "    } else if(selected == SWITCH_KEYBOARD_KEY) {\n        switch_keyboard(model);\n    } else {",
+        "    } else if(selected == SWITCH_KEYBOARD_KEY) {\n"
+        "        if(type == InputTypeLong) {\n"
+        "            model->caps_lock = !model->caps_lock;\n"
+        "        } else {\n"
+        "            switch_keyboard(model);\n"
+        "        }\n"
+        "    } else {",
+        "long-press keyboard switch to toggle Caps Lock",
+    )
+    return replace_once(
+        s,
+        "                if(!symbols_active && shift != (text_length == 0)) {\n"
+        "                    selected = char_to_uppercase(selected);\n"
+        "                }",
+        "                if(!symbols_active && model->caps_lock) {\n"
+        "                    selected = char_to_uppercase(selected);\n"
+        "                }",
+        "insert lowercase by default and uppercase only with Caps Lock",
+    )
 
 
 def patch_variable_item_list(s):
@@ -1326,6 +1394,7 @@ def main():
         "#define BOARD_SD_SPI_HOST SPI3_HOST", "#define BOARD_PIN_SD_MISO2 38",
         "#define BOARD_PIN_SD_MOSI  39", "#define BOARD_PIN_SD_SCK   40", "#define BOARD_PIN_SD_CS    14",
         "#define BOARD_PIN_BTN_OK     8", "#define BOARD_PIN_BTN_BACK   18",
+        "#define BOARD_INPUT_DPAD 1",
     )
     missing = [item for item in required if item not in board]
     if missing:

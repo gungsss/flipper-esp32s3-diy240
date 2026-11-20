@@ -36,6 +36,9 @@ def patch_generator(s):
     if legacy_req in s:
         s = s.replace(legacy_req, canonical_req, 1)
     for old, new in (
+        ("/* Buttons (active low, wired to GND) */\n",
+         "/* Buttons (active low, wired to GND) */\n"
+         "#define BOARD_INPUT_DPAD 1 /* six physical buttons, not a rotary encoder */\n"),
         ('       "CC1101_CS","CC1101_GDO0","CC1101_GDO2","NRF24_CS","NRF24_CE","NFC_SDA","NFC_SCL",\n'
          '       "NFC_IRQ","NFC_RST","IR_TX","IR_RX","BTN_UP","BTN_DOWN","BTN_LEFT","BTN_RIGHT",\n'
          '       "BTN_OK","BTN_BACK"]',
@@ -276,6 +279,7 @@ def main():
     board = (root / "components/furi_hal/boards/board_DIY.h").read_text(encoding="utf-8")
     required = (
         "#define BOARD_OTA_PROFILE_ST7735 1",
+        "#define BOARD_INPUT_DPAD 1",
         "#define BOARD_LCD_SIDE_MARGIN 0", "#define BOARD_LCD_FILL_SCREEN 1",
         "#define BOARD_LCD_SPI_FREQ_HZ (5 * 1000 * 1000)",
         "#define BOARD_LCD_MIRROR_Y true",
