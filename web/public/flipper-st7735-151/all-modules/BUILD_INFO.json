@@ -11,6 +11,7 @@
   "pinout_sha256": "9da1627edbcea7d0e47dc0ac87fcff72a9d8425e596014dd10d2a49e25e1c485",
   "board": "DIY ESP32-S3 N16R8",
   "lcd": "ST7735S landscape 160x128, CS tied to GND, 5 MHz SPI",
+  "ui_rendering": "Full-panel 160x128 scaling from the stock 128x64 canvas; no top/bottom bars.",
   "display_driver": "waveshare/esp_lcd_st7735==2.0.0",
   "sd": "SPI3_HOST",
   "enabled_optional_modules": [
@@ -26,7 +27,7 @@
       "file": "bootloader/bootloader.bin",
       "offset": "0x0",
       "size_bytes": 20848,
-      "sha256": "e908faf900653b5880852f1bc0ff60a80947a7a79db7f176fc3b723491aa93b4"
+      "sha256": "545446f055218881b927e8efdb8f93335339f9a1e3361d04bc28c68af93226ec"
     },
     {
       "file": "partition_table/partition-table.bin",
@@ -37,8 +38,8 @@
     {
       "file": "furi_esp32.bin",
       "offset": "0x10000",
-      "size_bytes": 3692624,
-      "sha256": "bd3dc2dd75055733b99c64f8f05e7f667c7d87448b72bbae9b451bd9a3caefd8"
+      "size_bytes": 3692416,
+      "sha256": "af41b60bf7fc1e873e6b21e0dc3393371165bf7be3ef481e61aee169e0e614b9"
     },
     {
       "file": "ota_data_initial.bin",
