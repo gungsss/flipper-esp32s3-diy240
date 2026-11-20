@@ -17,7 +17,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--source', type=Path, required=True, help='Upstream checkout with build_diy/')
     ap.add_argument('--output', type=Path, required=True)
-    ap.add_argument('--profile-name', help='Build profile label for BUILD_INFO.json')
+    ap.add_argument('--profile-name', default='m4145-unified', help='Build profile label for BUILD_INFO.json')
     ns = ap.parse_args()
     build = ns.source / 'build_diy'
     images = {
@@ -90,8 +90,8 @@ def main():
         ('LF RFID read-only', 'BOARD_HAS_RFID'),
     ) if board_flag(flag)]
     manifest = {
-        'name': f'Flipper ESP32-S3 ST7735S 1.5.1 ({ns.profile_name or pinout.stem})',
-        'version': f'1.5.1-esp32-preview-st7735s-{ns.profile_name or pinout.stem}',
+        'name': 'M4145 Flipper 1.5.1 ESP32-S3 ST7735S (universal modules)',
+        'version': '1.5.1-m4145-esp32s3-st7735s-unified',
         'new_install_prompt_erase': False,
         'builds': [{
             'chipFamily': 'ESP32-S3',
@@ -103,15 +103,17 @@ def main():
     }
     (out / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     (out / 'BUILD_INFO.json').write_text(json.dumps({
-        'upstream_repository':'Sor3nt/Flipper-Zero-ESP32-Port',
-        'upstream_commit':'e6ec11972a8e025d7ab686a6ef3016cf52360834',
+        'project_name':'M4145 Flipper ESP32-S3',
+        'firmware_author':'m4145',
+        'source_base_repository':'Sor3nt/Flipper-Zero-ESP32-Port',
+        'source_base_commit':'e6ec11972a8e025d7ab686a6ef3016cf52360834',
         'official_flipper_tag':'1.5.1',
         'official_flipper_commit':'9e810dc399e027e48ce07751df72168abbb19065',
         'reported_flipper_version':'1.5.1-ESP32-preview',
         'reported_ble_software_revision':'1.5.1-ESP32-preview',
         'firmware_build_date':'Compiler-generated from __DATE__ at build time',
         'scope':'Selected portable Flipper 1.5.1 changes adapted to the ESP32 port; not full official source, SDK, runtime, or hardware parity.',
-        'build_profile':ns.profile_name or pinout.stem,
+        'build_profile':ns.profile_name,
         'pinout_sha256':pinout_sha256,
         'board':'DIY ESP32-S3 N16R8',
         'lcd':'ST7735S landscape 160x128, CS tied to GND, 5 MHz SPI',
@@ -119,6 +121,12 @@ def main():
         'display_driver':'waveshare/esp_lcd_st7735==2.0.0',
         'sd':'SPI3_HOST',
         'enabled_optional_modules':enabled_modules,
+        'module_behavior':'All module menus and drivers are compiled into this single image. Attach and wire each module to the listed pinout; no rebuild or reflash is needed when adding a supported module.',
+        'unsupported_or_limited_features':[
+            'iButton HAL is not implemented for this ESP32 port.',
+            'LF RFID through RDM6300 is read-only; writing and emulation need another compatible frontend and firmware support.',
+            'ARM-targeted FAP files are not binary-compatible with ESP32-S3 and must be ported and rebuilt.',
+        ],
         'hardware_validation':'Build packaging does not verify physical LCD, buttons, SD, or optional modules.',
         'images':records
     },indent=2)+'\n')

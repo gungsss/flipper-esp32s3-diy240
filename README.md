@@ -1,18 +1,18 @@
-# Flipper ESP32-S3 · ST7735S Landscape
+# M4145 Flipper 1.5.1 · ESP32-S3 ST7735S
 
-Port eksperimen untuk ESP32-S3 N16R8 dengan layar **ST7735S 160×128 landscape**.
-Semua build di proyek ini memakai pinout ST7735S sebagai target utama. Source
-menggabungkan port Sor3nt dengan perubahan yang dipilih dari firmware resmi
-Flipper 1.5.1; ini bukan binary resmi Flipper Zero dan belum setara penuh dengan
-seluruh software, hardware, dan aksesori Flipper asli.
+Firmware port komunitas **by m4145** untuk ESP32-S3 N16R8 dengan layar **ST7735S
+160×128 landscape**. Firmware memakai perubahan terpilih dari Flipper 1.5.1 dan
+satu image universal yang sudah mengompilasi menu modul opsional. Source dasar
+ESP32 dan lisensinya tetap dicatat terpisah; ini bukan binary resmi Flipper Zero
+atau klaim kesetaraan penuh dengan perangkat asli.
 
 ## Status saat ini
 
-Build ST7735S native 160×128 berhasil pada GitHub Actions run
-[#44725551712](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/44725551712).
-Profil inti dan profil contoh modul sudah dipaketkan di flasher preview
-`web/public/flipper-st7735-151/`. Build ini sudah dikompilasi, tetapi layar,
-tombol, microSD, dan modul tetap perlu diuji pada board fisik.
+Rilis ST7735S dibangun dari satu pinout dan satu profil universal melalui
+`.github/workflows/build-st7735s-151-modules.yml`. CI memeriksa source UI,
+mengompilasi semua modul port yang didukung, lalu menerbitkan satu manifest di
+`web/public/flipper-st7735-151/`. Build dan packaging belum menggantikan uji
+layar, tombol, microSD, dan modul pada board fisik.
 
 ## Hardware inti
 
@@ -29,17 +29,14 @@ Gunakan kabel daya dicabut saat mengubah sambungan. Jangan menghubungkan modul
 
 ## Modul opsional
 
-Profil dasar menonaktifkan perangkat eksternal. Generator akan memasukkan menu
-dan driver yang tersedia hanya bila pin modul diisi lengkap pada file pinout.
-CC1101 dan nRF24 menggunakan bus radio khusus agar tidak berbagi SPI dengan LCD
-yang CS-nya terikat ke GND atau microSD. Port saat ini memiliki dukungan PN532
-NFC, IR RMT, serta RDM6300 LF RFID read-only; iButton belum tersedia karena
-upstream belum memiliki HAL iButton untuk ESP32. Contoh profil yang menyiapkan
-semua menu modul tersedia di
-`patch/Pinout_ESP32S3_ST7735S_160_all_modules.example.txt`. Profil contoh itu
-belum divalidasi pada board fisik. Modul tidak aktif hanya dengan dicolokkan:
-pilih pinout yang cocok, build ulang, lalu flash image hasil build. Rincian di
-[variants/st7735/README.md](variants/st7735/README.md).
+Satu firmware menyertakan menu dan driver CC1101 Sub-GHz, nRF24L01+, PN532 NFC,
+Infrared, dan RDM6300 LF RFID read-only. Pin layar, SD, dan tombol tetap sama;
+pin modul tambahan ada di
+`patch/Pinout_ESP32S3_ST7735S_160.txt`. Setelah modul disambungkan ke GPIO yang
+tertera dan level 3,3 V, tidak perlu build atau flash ulang. Pin tambahan belum
+diverifikasi pada setiap varian PCB, jadi cocokkan dengan board sebelum
+memasang kabel. iButton belum tersedia; LF RFID tulis/emulasi juga belum
+didukung oleh RDM6300. Detail di [variants/st7735/README.md](variants/st7735/README.md).
 
 ## Build
 
@@ -49,13 +46,8 @@ Perlu ESP-IDF v5.4.1. Dari folder proyek jalankan:
 ./scripts/build_local.sh
 ```
 
-Secara default build memakai
-`patch/Pinout_ESP32S3_ST7735S_160.txt`. Untuk pinout modul yang sudah dicocokkan
-dengan wiring nyata:
-
-```bash
-ST7735_PINOUT=/path/to/Pinout.txt ./scripts/build_local.sh
-```
+Secara default build memakai satu pinout universal
+`patch/Pinout_ESP32S3_ST7735S_160.txt`.
 
 Hasil build harus melewati validasi dan packaging sebelum dipakai untuk flash.
 Panduan build Windows/WSL2 ada di [docs/BUILD_WINDOWS_WSL.md](docs/BUILD_WINDOWS_WSL.md).
@@ -64,8 +56,8 @@ Panduan build Windows/WSL2 ada di [docs/BUILD_WINDOWS_WSL.md](docs/BUILD_WINDOWS
 
 - ESP32-S3 berbeda dari Flipper Zero asli; aplikasi FAP ARM tidak otomatis kompatibel.
 - Profil ST7735S memakai kanvas native 160×128, bukan membesarkan framebuffer 128×64. Layar beranda, daftar aplikasi, dan submenu umum memakai area penuh panel; aplikasi yang menggambar dengan koordinat lama tertentu mungkin masih perlu penyesuaian.
-- Fitur Sub-GHz, nRF24, NFC, IR, dan LF RFID memerlukan modul fisik dan pinout yang sesuai.
-- Ada lebih banyak sinyal modul daripada GPIO bebas yang aman untuk selalu memasang semua perangkat bersamaan. Profil perlu disesuaikan dengan rangkaian sebenarnya.
+- Fitur Sub-GHz, nRF24, NFC, IR, dan LF RFID memerlukan modul fisik dan kabel ke GPIO yang dicantumkan; sekadar menancapkan modul ke pin acak tidak cukup.
+- iButton, LF RFID tulis/emulasi, speaker, dan sebagian fitur periferal Flipper belum memiliki padanan penuh pada port ini. Aplikasi FAP ARM juga perlu dipindahkan dan dibangun ulang untuk ESP32-S3.
 - Keberhasilan kompilasi tidak menggantikan uji tampilan, tombol, microSD, Wi-Fi/BLE, dan modul pada board fisik.
 
 ## Struktur

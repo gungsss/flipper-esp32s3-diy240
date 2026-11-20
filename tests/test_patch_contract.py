@@ -10,6 +10,10 @@ ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('patch_flipper', ROOT / 'patch' / 'patch_flipper.py')
 PATCH = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(PATCH)
+LANDSCAPE_SPEC = importlib.util.spec_from_file_location(
+    'patch_landscape', ROOT / 'variants' / 'st7735' / 'patch_landscape.py')
+LANDSCAPE = importlib.util.module_from_spec(LANDSCAPE_SPEC)
+LANDSCAPE_SPEC.loader.exec_module(LANDSCAPE)
 
 
 class PatchContractTest(unittest.TestCase):
@@ -29,6 +33,14 @@ class PatchContractTest(unittest.TestCase):
             'BTN_RIGHT':17, 'BTN_OK':8, 'BTN_BACK':18,
         }
         self.assertEqual({key:cfg[key] for key in required}, required)
+        module_pins = {
+            'CC1101_CS':22, 'CC1101_SCK':9, 'CC1101_MOSI':10,
+            'CC1101_MISO':21, 'CC1101_GDO0':23,
+            'NRF24_CS':24, 'NRF24_CE':25,
+            'NFC_SDA':41, 'NFC_SCL':42,
+            'IR_TX':1, 'IR_RX':2, 'RFID_TX':47, 'RFID_RX':48,
+        }
+        self.assertEqual({key:cfg[key] for key in module_pins}, module_pins)
         assigned = [val for val in cfg.values() if val >= 0]
         self.assertEqual(len(assigned), len(set(assigned)))
         self.assertFalse(set(assigned) & {0, 3, 19, 20, *range(26, 38), 43, 44, 45, 46})
@@ -83,6 +95,33 @@ class PatchContractTest(unittest.TestCase):
         self.assertIn('sdkconfig.defaults.esp32s3', edited)
         self.assertIn('-DFLIPPER_BOARD="${BOARD}"', edited)
         self.assertEqual(edited, PATCH.patch_build(edited))
+
+    def test_firmware_identity_is_m4145_and_idempotent(self):
+        source = (
+            '#define FURI_ESP32_PROJECT_NAME   "Flipper-Zero-ESP32-Port"\n'
+            '#define FURI_ESP32_PROJECT_AUTHOR "by Sor3nt"\n'
+            '#define FURI_ESP32_VERSION      "2.0.0"\n'
+            '#define FURI_ESP32_VERSION_NAME "Sor3nt Stuff"\n'
+        )
+        modified = LANDSCAPE.patch_firmware_identity(source)
+        self.assertIn('"M4145 Flipper Firmware"', modified)
+        self.assertIn('"by m4145"', modified)
+        self.assertIn('"1.5.1"', modified)
+        self.assertIn('"m4145 ESP32-S3"', modified)
+        self.assertNotIn('"Sor3nt Stuff"', modified)
+        self.assertEqual(modified, LANDSCAPE.patch_firmware_identity(modified))
+
+    def test_home_title_patch_moves_text_below_top_header(self):
+        source = (
+            '#include <momentum_settings.h>\n'
+            '/* Give the extra panel height a purpose */\n'
+            'canvas_width(canvas) / 2, 21, AlignCenter, AlignBottom, "FLIPPER ZERO"\n'
+            'canvas_draw_line(canvas, 24, 27, canvas_width(canvas) - 25, 27)\n'
+        )
+        moved = LANDSCAPE.patch_bubble_home(source)
+        self.assertIn('canvas_width(canvas) / 2, 25, AlignCenter, AlignBottom, "FLIPPER ZERO"', moved)
+        self.assertIn('canvas_draw_line(canvas, 24, 31, canvas_width(canvas) - 25, 31)', moved)
+        self.assertEqual(moved, LANDSCAPE.patch_bubble_home(moved))
 
 
 if __name__ == '__main__':

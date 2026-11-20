@@ -55,25 +55,20 @@ Tombol aktif-rendah menggunakan pull-up internal: saat ditekan, pin ditarik ke
 GND. Tidak perlu menyambungkan 3V3 ke keypad. Pastikan dengan multimeter bahwa
 setiap sakelar menghubungkan label tombol ke COM saat ditekan.
 
-## 4. Modul tambahan
+## 4. Modul tambahan pada image tunggal
 
-File pinout dasar mengisi semua pin opsional dengan `-1`. Jika memasang modul,
-buat salinan file pinout lalu isi pin berdasarkan wiring yang benar-benar
-digunakan. Build hanya mengaktifkan menu Sub-GHz, nRF24, NFC, IR, atau LF RFID
-ketika pin yang diwajibkan lengkap.
+Firmware ST7735S universal sudah mengompilasi menu dan driver modul di bawah.
+Display, microSD, dan keypad memakai sambungan yang sama seperti sebelumnya.
+Untuk menambah modul, sambungkan sinyalnya ke GPIO pada tabel ini; tidak perlu
+rebuild atau reflash. Board pengguna harus mengekspos pin itu dan tidak boleh
+memakainya untuk rangkaian lain. Semua sinyal memakai logika 3,3 V; cek tegangan
+dan kebutuhan arus modul sebelum menyalakannya.
 
-Ada contoh alokasi GPIO untuk mengompilasi semua menu modul di
-`patch/Pinout_ESP32S3_ST7735S_160_all_modules.example.txt`. Angka opsional di
-file itu hanya kandidat untuk board ESP32-S3 yang mengekspos pin tersebut;
-periksa skema board dan konflik komponen sebelum menyambungkan apa pun. Profil
-ini bukan plug-and-play: firmware harus dibangun ulang dengan file pinout itu
-setelah kabel dan modul dipasang.
+CC1101 dan nRF24 berbagi bus radio, terpisah dari LCD CS yang terikat GND dan
+microSD SPI3. Generator menolak pin bentrok dan GPIO yang dicadangkan untuk
+flash, PSRAM, atau USB. Pinout image ini adalah:
 
-Generator menolak pin yang bentrok dan GPIO ESP32-S3 yang dicadangkan untuk
-flash, PSRAM, atau USB. Hindari pin strapping boot dan jalur UART yang dipakai
-oleh board. Contoh tersebut mengalokasikan GPIO sebagai berikut:
-
-| Fungsi contoh | GPIO |
+| Fungsi modul | GPIO |
 |---|---:|
 | CC1101: SCK / MOSI / MISO / CS / GDO0 | 9 / 10 / 21 / 22 / 23 |
 | nRF24: CS / CE, bus radio bersama | 24 / 25 |
@@ -81,9 +76,12 @@ oleh board. Contoh tersebut mengalokasikan GPIO sebagai berikut:
 | IR: TX / RX | 1 / 2 |
 | RDM6300: UART TX / RX | 47 / 48 |
 
-Tabel ini mengikuti file contoh, bukan hasil pengukuran pada PCB pengguna.
-Gunakan profil berbeda jika pin-pin itu tidak tersedia atau sudah dipakai.
-Lihat [daftar kompatibilitas modul](../variants/st7735/README.md).
+Tabel ini mengikuti firmware tunggal. Periksa skema atau label PCB ESP32-S3-mu
+sebelum memasang kabel; GPIO yang tidak tersedia di board tertentu tidak dapat
+digunakan meski drivernya sudah ada di image. PN532 memakai mode I²C. Modul
+RDM6300 hanya memberikan fungsi baca. iButton dan fungsi tulis/emulasi LF RFID
+belum memiliki padanan driver di rilis ini. Lihat
+[daftar kompatibilitas modul](../variants/st7735/README.md).
 
 ## 5. Sebelum dinyalakan
 

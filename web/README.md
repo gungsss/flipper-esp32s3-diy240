@@ -26,12 +26,12 @@ Situs hanya mengaktifkan installer jika manifest, file binary, dan metadata ters
 - **Firmware yang sama tidak boleh dipasang pada board selain ESP32-S3 N16R8 dengan pinout DIY240**.
 - Sukses build + flashing tidak otomatis membuktikan TFT, SD card, tombol atau semua aplikasi bekerja; lakukan pengujian hardware.
 - Flashing adalah operasi penulisan flash internal. Backup data yang diperlukan.
-- Port original Sor3nt dan dependensi memiliki lisensi, risiko keamanan, dan keterbatasan sendiri. Situs tidak melakukan telemetry atau menyimpan data port USB.
+- Firmware port komunitas by m4145 memakai source ESP32 berlisensi yang dicatat di metadata dan dokumen pengembangan. Situs tidak melakukan telemetry atau menyimpan data port USB.
 - Perangkat mungkin memakai driver USB-UART spesifik (mis. CP210x/CH34x) bergantung desain board, bukan ditentukan oleh website.
 
 ## Sources
 
 - [Firmware integration](https://github.com/gungsss/flipper-esp32s3-diy240)
 - [Build artifact](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43889135916)
-- [Upstream Sor3nt](https://github.com/Sor3nt/Flipper-Zero-ESP32-Port)
+- [Source dasar ESP32](https://github.com/Sor3nt/Flipper-Zero-ESP32-Port)
 - [ESP Web Tools official documentation](https://esphome.github.io/esp-web-tools/)

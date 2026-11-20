@@ -123,6 +123,25 @@ def main():
         require("view_set_native_layout" in source,
                 f"native layout opt-out is missing in {relative}")
 
+    home = function_body(
+        read("applications/services/desktop/animations/views/bubble_animation_view.c"),
+        "bubble_animation_draw_callback",
+    )
+    for token in (
+        'canvas_width(canvas) / 2, 25, AlignCenter, AlignBottom, "FLIPPER ZERO"',
+        "canvas_draw_line(canvas, 24, 31, canvas_width(canvas) - 25, 31)",
+        "canvas_width(canvas) / 2, 46, AlignCenter, AlignBottom, time_text",
+        "canvas_width(canvas) / 2, 59, AlignCenter, AlignBottom, date_text",
+    ):
+        require(token in home, f"home header layout regressed ({token})")
+    firmware_identity = read("components/toolbox/fw_version.h")
+    require('#define FURI_ESP32_PROJECT_AUTHOR "by m4145"' in firmware_identity,
+            "About screen does not use the M4145 author identity")
+    require('#define FURI_ESP32_VERSION_NAME "m4145 ESP32-S3"' in firmware_identity,
+            "About screen still has the old upstream product label")
+    require('#define FURI_ESP32_VERSION      "1.5.1"' in firmware_identity,
+            "About screen does not report the 1.5.1 port version")
+
     menu = read("components/gui/modules/menu.c")
     require("const size_t row_count = MIN((size_t)5, items_count);" in menu,
             "launcher does not use the five-row full-height layout")
@@ -147,7 +166,7 @@ def main():
         f"{len(CANVAS_REQUIREMENTS)} Canvas APIs audited; "
         f"{len(REQUIRED_NATIVE_VIEWS)} native screen modules; "
         f"{app_view_callbacks} application View callbacks and {app_viewports} ViewPort callbacks "
-        "flow through the shared GUI adapters."
+        "flow through the shared GUI adapters; home header clearance and M4145 identity verified."
     )
 
 

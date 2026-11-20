@@ -108,7 +108,7 @@
         <aside class="flash-sidebar">
           <div class="panel info-panel">
             <div class="panel-top"><span class="panel-label">FIRMWARE</span><span class="chip-tag">VERIFIED BUILD</span></div>
-            <div class="info-title">Sor3nt ESP32 Port <span>DIY240</span></div>
+            <div class="info-title">M4145 ESP32 Firmware <span>DIY240</span></div>
             <p class="info-sub">ESP-IDF v5.4.1 · ST7789 240×240 · SPI3</p>
             <div class="info-divider"></div>
             <div class="info-row"><span>Chipset</span><strong>ESP32-S3</strong></div>
@@ -172,13 +172,13 @@
         <details><summary>Browser tidak mendukung flashing <span>+</span></summary><p>Gunakan Chrome atau Edge desktop terbaru. Browser seluler tidak semuanya mendukung USB Serial; Android membutuhkan dukungan browser dan koneksi OTG. iPhone/iPad tidak mendukung flashing USB lewat halaman ini. Gunakan PC atau unduh firmware dan ikuti panduan manual.</p></details>
         <details><summary>Layar menyala tetapi tampilan kosong <span>+</span></summary><p>Periksa backlight BLK, VCC 3V3, GND, jalur SPI2 GPIO12/11, DC15 dan RES16. Offset panel ST7789 bervariasi; bila log boot normal tetapi gambar bergeser, driver perlu disesuaikan. Jangan langsung menghapus flash.</p></details>
         <details><summary>microSD tidak terbaca <span>+</span></summary><p>Periksa enam kabel SPI3: CLK40, MOSI39, MISO38, CS14, 3V3 dan GND. Gunakan FAT32, kemudian salin isi paket SD card upstream ke root microSD. Isi kartu SD terpisah dari firmware chip.</p></details>
-        <details><summary>Apakah ini firmware Flipper Zero resmi? <span>+</span></summary><p>Bukan. Ini adaptasi komunitas dari Sor3nt/Flipper-Zero-ESP32-Port, khusus board ESP32-S3 N16R8 dan wiring DIY240. Beberapa fitur seperti NFC/Sub-GHz membutuhkan modul tambahan. Keberhasilan build tidak menjamin setiap fitur bekerja di hardware.</p></details>
+        <details><summary>Apakah ini firmware Flipper Zero resmi? <span>+</span></summary><p>Bukan. Ini firmware komunitas by m4145 untuk ESP32-S3 N16R8, dengan perubahan terpilih Flipper 1.5.1 dan source dasar ESP32 berlisensi. Beberapa fitur membutuhkan modul tambahan; build yang berhasil tetap perlu diverifikasi pada hardware.</p></details>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="shell footer-inner"><div><span class="footer-brand">DIY<span>240</span></span><p>Firmware komunitas untuk perangkat yang kamu buat sendiri.</p></div><div class="footer-links"><a href="https://github.com/gungsss/flipper-esp32s3-diy240" target="_blank" rel="noopener noreferrer">Source code ↗</a><a href="https://github.com/Sor3nt/Flipper-Zero-ESP32-Port" target="_blank" rel="noopener noreferrer">Original Sor3nt ↗</a><a href="https://github.com/gungsss/flipper-esp32s3-diy240/issues" target="_blank" rel="noopener noreferrer">Laporkan masalah ↗</a></div></div>
+    <div class="shell footer-inner"><div><span class="footer-brand">DIY<span>240</span></span><p>Firmware komunitas by m4145 untuk perangkat yang kamu buat sendiri.</p></div><div class="footer-links"><a href="https://github.com/gungsss/flipper-esp32s3-diy240" target="_blank" rel="noopener noreferrer">Source code ↗</a><a href="https://github.com/Sor3nt/Flipper-Zero-ESP32-Port" target="_blank" rel="noopener noreferrer">Source dasar ESP32 ↗</a><a href="https://github.com/gungsss/flipper-esp32s3-diy240/issues" target="_blank" rel="noopener noreferrer">Laporkan masalah ↗</a></div></div>
     <div class="shell footer-bottom"><span>DIY240 FLASHER © 2026</span><span>Dibuat untuk komunitas · Tidak berafiliasi dengan Flipper Devices</span></div>
   </footer>
 </body>

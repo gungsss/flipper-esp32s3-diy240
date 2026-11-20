@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 17023)
+Total output lines: 1337
+
 #!/usr/bin/env python3
 """Rotate the already-applied ST7735S profile to 160x128 landscape.
 
@@ -383,546 +386,7 @@ size_t canvas_current_font_height(const Canvas* canvas) {""",
                 raise ValueError(f"{label}: expected 3 source anchors, found {s.count(before)}")
             s = s.replace(before, after)
         else:
-            s = replace_once(s, before, after, label)
-    return s
-
-
-def patch_view_header(s):
-    s = replace_once(
-        s,
-        "void view_set_orientation(View* view, ViewOrientation orientation);",
-        "void view_set_orientation(View* view, ViewOrientation orientation);\n\n"
-        "/* Native-layout GUI modules opt out of legacy 128x64 canvas scaling. */\n"
-        "void view_set_native_layout(View* view, bool native_layout);",
-        "select native full-screen layouts",
-    )
-    return s
-
-
-def patch_view_internal_header(s):
-    return replace_once(
-        s,
-        "    ViewOrientation orientation;\n    ViewInputMode input_mode;",
-        "    ViewOrientation orientation;\n    ViewInputMode input_mode;\n    bool native_layout;",
-        "store native-layout module preference",
-    )
-
-
-def patch_view(s):
-    s = replace_once(
-        s,
-        '#include "view_i.h"\n',
-        '#include "view_i.h"\n#include "canvas_i.h"\n',
-        "canvas scaling for legacy application views",
-    )
-    s = replace_once(
-        s,
-        "void view_set_orientation(View* view, ViewOrientation orientation) {\n    furi_check(view);\n    view->orientation = orientation;\n}\n",
-        "void view_set_orientation(View* view, ViewOrientation orientation) {\n    furi_check(view);\n    view->orientation = orientation;\n}\n\n"
-        "void view_set_native_layout(View* view, bool native_layout) {\n"
-        "    furi_check(view);\n    view->native_layout = native_layout;\n}\n",
-        "native view layout opt-out",
-    )
-    return replace_once(
-        s,
-        "void view_draw(View* view, Canvas* canvas) {\n    furi_check(view);\n    if(view->draw_callback) {\n        void* data = view_get_model(view);\n        view->draw_callback(canvas, data);\n        view_unlock_model(view);\n    }\n}",
-        """void view_draw(View* view, Canvas* canvas) {
-    furi_check(view);
-    if(view->draw_callback) {
-        const bool legacy_scale = canvas_get_legacy_scale(canvas);
-        canvas_set_legacy_scale(canvas, !view->native_layout);
-        void* data = view_get_model(view);
-        view->draw_callback(canvas, data);
-        view_unlock_model(view);
-        canvas_set_legacy_scale(canvas, legacy_scale);
-    }
-}""",
-        "scale every legacy app view to native screen",
-    )
-
-
-def patch_view_port(s):
-    s = replace_once(
-        s,
-        '#include "gui_i.h"\n',
-        '#include "gui_i.h"\n#include "canvas_i.h"\n',
-        "canvas scaling for full-screen viewport apps",
-    )
-    return replace_once(
-        s,
-        "    if(view_port->draw_callback) {\n        view_port_setup_canvas_orientation(view_port, canvas);\n        view_port->draw_callback(canvas, view_port->draw_callback_context);\n    }",
-        "    if(view_port->draw_callback) {\n"
-        "        view_port_setup_canvas_orientation(view_port, canvas);\n"
-        "        const bool legacy_scale = canvas_get_legacy_scale(canvas);\n"
-        "        canvas_set_legacy_scale(canvas, true);\n"
-        "        view_port->draw_callback(canvas, view_port->draw_callback_context);\n"
-        "        canvas_set_legacy_scale(canvas, legacy_scale);\n"
-        "    }",
-        "scale full-screen custom viewport apps",
-    )
-
-
-def patch_mark_native_layout(s, view_expr, draw_callback):
-    return replace_once(
-        s,
-        f"    view_set_draw_callback({view_expr}, {draw_callback});",
-        f"    view_set_draw_callback({view_expr}, {draw_callback});\n"
-        f"    view_set_native_layout({view_expr}, true);",
-        f"native 160x128 view layout: {draw_callback}",
-    )
-
-
-def patch_multiline_elements(s):
-    return replace_once(
-        s,
-        "    } while(end && y < 64);",
-        "    } while(end && y < canvas_height(canvas));",
-        "multiline text follows active full-screen canvas",
-    )
-
-
-def patch_interface_menu_style(s):
-    s = replace_once(
-        s,
-        "#include <power/power_service/power.h>\n",
-        "#include <power/power_service/power.h>\n#include <boards/board.h>\n",
-        "board-aware menu style options",
-    )
-    s = replace_once(
-        s,
-        "static const char* const menu_style_text[MenuStyleCount] = {\n"
-        '    "List",\n    "Wii",\n    "DSi",\n    "PS4",\n    "Vertical",\n    "C64",\n'
-        '    "Compact",\n    "MNTM",\n    "CoverFlow",\n};',
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        'static const char* const menu_style_text[] = {"Fullscreen list"};\n'
-        "#define MENU_STYLE_COUNT 1\n#else\n"
-        "static const char* const menu_style_text[MenuStyleCount] = {\n"
-        '    "List",\n    "Wii",\n    "DSi",\n    "PS4",\n    "Vertical",\n    "C64",\n'
-        '    "Compact",\n    "MNTM",\n    "CoverFlow",\n};\n#define MENU_STYLE_COUNT MenuStyleCount\n#endif',
-        "hide unsupported 64px launcher layouts on native LCD",
-    )
-    s = replace_once(
-        s,
-        "    VariableItem* item = variable_item_list_add(\n        app->variable_item_list, \"Menu style\", MenuStyleCount, menu_style_changed, app);\n    uint8_t value_index = (uint8_t)menu_get_style();",
-        "    VariableItem* item = variable_item_list_add(\n"
-        "        app->variable_item_list, \"Menu style\", MENU_STYLE_COUNT, menu_style_changed, app);\n"
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "    uint8_t value_index = 0;\n#else\n    uint8_t value_index = (uint8_t)menu_get_style();\n#endif",
-        "native LCD interface menu style selector",
-    )
-    return s
-
-
-def patch_menu(s):
-    s = replace_once(
-        s,
-        "#include <furi_hal.h>\n",
-        "#include <furi_hal.h>\n#include <boards/board.h>\n",
-        "board geometry include for responsive app menu",
-    )
-    s = replace_once(
-        s,
-        "    FURI_CRITICAL_ENTER();\n    if(!g_menu_style_loaded && valid) g_menu_style = loaded;\n    g_menu_style_loaded = true;",
-        "    FURI_CRITICAL_ENTER();\n"
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "    UNUSED(valid);\n"
-        "    if(!g_menu_style_loaded) g_menu_style = MenuStyleList;\n"
-        "#else\n    if(!g_menu_style_loaded && valid) g_menu_style = loaded;\n#endif\n"
-        "    g_menu_style_loaded = true;",
-        "force native launcher style on 160x128 profile",
-    )
-    s = replace_once(
-        s,
-        "void menu_set_style(MenuStyle style) {\n    if(((int)style < 0) || ((int)style >= (int)MenuStyleCount)) {",
-        "void menu_set_style(MenuStyle style) {\n"
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "    UNUSED(style);\n    style = MenuStyleList;\n#endif\n"
-        "    if(((int)style < 0) || ((int)style >= (int)MenuStyleCount)) {",
-        "keep launcher and interface setting in sync",
-    )
-    old = """        case MenuStyleList: {
-            for(uint8_t i = 0; i < 3; i++) {
-                canvas_set_font(canvas, i == 1 ? FontPrimary : FontSecondary);
-                shift_position = (position + items_count + i - 1) % items_count;
-                item = MenuItemArray_get(model->items, shift_position);
-                menu_centered_icon(canvas, item, 4, 3 + 22 * i, 14, 14);
-                menu_get_name(item, name, false);
-                size_t scroll_counter = menu_scroll_counter(model, i == 1);
-                elements_scrollable_text_line(
-                    canvas, 22, 14 + 22 * i, 98, name, scroll_counter, false);
-            }
-            elements_frame(canvas, 0, 21, 128 - 5, 21);
-            elements_scrollbar(canvas, position, items_count);
-            break;
-        }"""
-    new = """        case MenuStyleList: {
-#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD
-            /* Five generous rows fill the native 160x128 panel. The selected row
-             * stays centered, matching the Flipper list while using the extra
-             * height for more apps and a wider text area. */
-            const size_t row_count = MIN((size_t)5, items_count);
-            if(row_count == 0) break;
-            const size_t row_height = MIN((size_t)25, canvas_height(canvas) / row_count);
-            const size_t center_row = row_count / 2;
-            const size_t top = (canvas_height(canvas) - row_count * row_height) / 2;
-            const size_t left = 2;
-            const size_t row_width = canvas_width(canvas) - 6;
-            for(size_t i = 0; i < row_count; i++) {
-                const bool selected = i == center_row;
-                const int32_t delta = (int32_t)i - (int32_t)center_row;
-                int32_t index = (int32_t)position + delta;
-                while(index < 0) index += (int32_t)items_count;
-                shift_position = (size_t)index % items_count;
-                const size_t row_y = top + i * row_height;
-                if(selected) {
-                    elements_slightly_rounded_box(
-                        canvas, left, row_y + 1, row_width, row_height - 2);
-                    canvas_set_color(canvas, ColorWhite);
-                }
-                canvas_set_font(canvas, selected ? FontPrimary : FontSecondary);
-                item = MenuItemArray_get(model->items, shift_position);
-                menu_centered_icon(canvas, item, left + 3, row_y + 5, 15, 15);
-                menu_get_name(item, name, false);
-                const size_t scroll_counter = menu_scroll_counter(model, selected);
-                elements_scrollable_text_line(
-                    canvas,
-                    left + 23,
-                    row_y + 17,
-                    row_width - 28,
-                    name,
-                    scroll_counter,
-                    false);
-                if(selected) canvas_set_color(canvas, ColorBlack);
-            }
-            elements_scrollbar(canvas, position, items_count);
-#else
-            for(uint8_t i = 0; i < 3; i++) {
-                canvas_set_font(canvas, i == 1 ? FontPrimary : FontSecondary);
-                shift_position = (position + items_count + i - 1) % items_count;
-                item = MenuItemArray_get(model->items, shift_position);
-                menu_centered_icon(canvas, item, 4, 3 + 22 * i, 14, 14);
-                menu_get_name(item, name, false);
-                size_t scroll_counter = menu_scroll_counter(model, i == 1);
-                elements_scrollable_text_line(
-                    canvas, 22, 14 + 22 * i, 98, name, scroll_counter, false);
-            }
-            elements_frame(canvas, 0, 21, 128 - 5, 21);
-            elements_scrollbar(canvas, position, items_count);
-#endif
-            break;
-        }"""
-    if "const size_t row_height = 25;" in s:
-        s = replace_once(
-            s,
-            "const size_t row_height = 25;",
-            "const size_t row_height = MIN((size_t)25, canvas_height(canvas) / row_count);",
-            "fit native launcher rows to available height",
-        )
-    if "const size_t row_height = MIN((size_t)25, canvas_height(canvas) / row_count);" in s:
-        return s
-    return replace_once(s, old, new, "native full-height app menu")
-
-
-def patch_file_browser(s):
-    s = replace_once(
-        s,
-        "#define LIST_ITEMS   5u\n#define MAX_LEN_PX   110\n#define FRAME_HEIGHT 12\n#define Y_OFFSET     3",
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "#define LIST_ITEMS   9u\n#define MAX_LEN_PX   142\n#define FRAME_HEIGHT 12\n#define Y_OFFSET     3\n"
-        "#else\n#define LIST_ITEMS   5u\n#define MAX_LEN_PX   110\n#define FRAME_HEIGHT 12\n#define Y_OFFSET     3\n#endif",
-        "full-height native file browser rows",
-    )
-    s = replace_once(
-        s,
-        "#include <furi.h>\n",
-        "#include <furi.h>\n#include <boards/board.h>\n",
-        "board geometry include for native file browser",
-    )
-    s = replace_once(
-        s,
-        "    canvas_draw_box(\n        canvas, 0, Y_OFFSET + idx * FRAME_HEIGHT, (scrollbar ? 122 : 127), FRAME_HEIGHT);",
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "    const uint16_t frame_right_edge = canvas_width(canvas) - (scrollbar ? 6 : 1);\n"
-        "    canvas_draw_box(canvas, 0, Y_OFFSET + idx * FRAME_HEIGHT, frame_right_edge, FRAME_HEIGHT);\n"
-        "#else\n"
-        "    canvas_draw_box(\n        canvas, 0, Y_OFFSET + idx * FRAME_HEIGHT, (scrollbar ? 122 : 127), FRAME_HEIGHT);\n"
-        "#endif",
-        "native file browser row width",
-    )
-    s = replace_once(
-        s,
-        "    canvas_draw_dot(canvas, scrollbar ? 121 : 126, Y_OFFSET + idx * FRAME_HEIGHT);\n"
-        "    canvas_draw_dot(\n        canvas, scrollbar ? 121 : 126, (Y_OFFSET + idx * FRAME_HEIGHT) + (FRAME_HEIGHT - 1));",
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "    const uint16_t outline_right_edge = canvas_width(canvas) - (scrollbar ? 7 : 2);\n"
-        "#else\n"
-        "    const uint16_t outline_right_edge = scrollbar ? 121 : 126;\n"
-        "#endif\n"
-        "    canvas_draw_dot(canvas, outline_right_edge, Y_OFFSET + idx * FRAME_HEIGHT);\n"
-        "    canvas_draw_dot(\n        canvas, outline_right_edge, (Y_OFFSET + idx * FRAME_HEIGHT) + (FRAME_HEIGHT - 1));",
-        "native file browser selection frame width",
-    )
-    s = replace_once(
-        s,
-        "    uint8_t x = 128 / 2 - 24 / 2;\n    uint8_t y = 64 / 2 - 24 / 2;",
-        "    uint8_t x = canvas_width(canvas) / 2 - 24 / 2;\n"
-        "    uint8_t y = canvas_height(canvas) / 2 - 24 / 2;",
-        "center native file browser loading icon",
-    )
-    s = replace_once(
-        s,
-        "            126,\n            Y_OFFSET,\n            canvas_height(canvas) - Y_OFFSET,",
-        "            canvas_width(canvas) - 2,\n            Y_OFFSET,\n            canvas_height(canvas) - Y_OFFSET,",
-        "native file browser scrollbar position",
-    )
-    return s
-
-
-def patch_text_box(s):
-    s = replace_once(
-        s,
-        "#include <stdint.h>\n",
-        "#include <stdint.h>\n#include <boards/board.h>\n",
-        "board geometry include for native text box",
-    )
-    first_define = s.index("#define TEXT_BOX_TEXT_WIDTH")
-    previous_if = s.rfind("#if defined(BOARD_GUI_NATIVE_LCD)", 0, first_define)
-    line_start = s.rfind("\n", 0, first_define) + 1
-    if previous_if >= 0 and not s[line_start:first_define].strip():
-        line_start = previous_if
-    layout_end = s.index("#define TEXT_BOX_LINES_SCROLL_SPEED_MEDIUM", first_define)
-    layout = (
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "#define TEXT_BOX_TEXT_WIDTH           (BOARD_LCD_H_RES - 16)\n"
-        "#define TEXT_BOX_TEXT_HEIGHT          (BOARD_LCD_V_RES - 24)\n"
-        "#define TEXT_BOX_MAX_LINES_PER_SCREEN 20\n"
-        "#else\n"
-        "#define TEXT_BOX_TEXT_WIDTH           (120)\n"
-        "#define TEXT_BOX_TEXT_HEIGHT          (56)\n"
-        "#define TEXT_BOX_MAX_LINES_PER_SCREEN (10)\n"
-        "#endif\n\n"
-    )
-    s = s[:line_start] + layout + s[layout_end:]
-    s = replace_once(
-        s,
-        "    elements_slightly_rounded_frame(canvas, 0, 0, 124, 64);\n    elements_scrollbar(canvas, model->scroll_pos, model->scroll_num);",
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "    elements_slightly_rounded_frame(\n"
-        "        canvas, 1, 1, canvas_width(canvas) - 5, canvas_height(canvas) - 2);\n"
-        "#else\n"
-        "    elements_slightly_rounded_frame(canvas, 0, 0, 124, 64);\n"
-        "#endif\n    elements_scrollbar(canvas, model->scroll_pos, model->scroll_num);",
-        "fullscreen native text box frame",
-    )
-    s = replace_once(
-        s,
-        "    elements_multiline_text(canvas, 3, 11, furi_string_get_cstr(model->text_on_screen));",
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "    elements_multiline_text(canvas, 4, 11, furi_string_get_cstr(model->text_on_screen));\n"
-        "#else\n"
-        "    elements_multiline_text(canvas, 3, 11, furi_string_get_cstr(model->text_on_screen));\n"
-        "#endif",
-        "native text box content margin",
-    )
-    return s
-
-
-def patch_text_input(s):
-    start = s.index("static void text_input_view_draw_callback(Canvas* canvas, void* _model) {")
-    end = s.index("\nstatic void text_input_handle_up(", start)
-    chunk = s[start:end]
-    chunk = replace_once(
-        chunk,
-        "    canvas_draw_str(canvas, 2, 8, model->header);\n    elements_slightly_rounded_frame(canvas, 1, 12, 126, 15);",
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "    canvas_draw_str(canvas, 5, 8, model->header);\n"
-        "    elements_slightly_rounded_frame(canvas, 2, 12, canvas_width(canvas) - 4, 18);\n"
-        "#else\n"
-        "    canvas_draw_str(canvas, 2, 8, model->header);\n"
-        "    elements_slightly_rounded_frame(canvas, 1, 12, 126, 15);\n"
-        "#endif",
-        "native text input header and field",
-    )
-    chunk = replace_once(
-        chunk,
-        "    uint8_t needed_string_width = canvas_width(canvas) - 8;\n    uint8_t start_pos = 4;",
-        "    uint8_t needed_string_width = canvas_width(canvas) - 10;\n    uint8_t start_pos = 5;",
-        "native text input field width",
-    )
-    key_anchor = "            bool selected = !model->cursor_select && model->selected_row == row &&\n                            model->selected_column == column;\n"
-    key_geometry = key_anchor + "            int32_t key_x = keyboard_origin_x + keys[column].x;\n"
-    key_geometry += "            int32_t key_y = keyboard_origin_y + keys[column].y;\n"
-    key_geometry += "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-    key_geometry += "            key_x = 7 + (keys[column].x * 9) / 8;\n"
-    key_geometry += "            key_y = row == 0 ? 50 : (row == 1 ? 78 : 106);\n"
-    key_geometry += "            if(keys[column].text == ENTER_KEY || keys[column].text == SWITCH_KEYBOARD_KEY) key_y -= 11;\n"
-    key_geometry += "            if(keys[column].text == BACKSPACE_KEY) key_y -= 9;\n"
-    key_geometry += "#endif\n"
-    if "key_y = row == 0 ? 50 : (row == 1 ? 78 : 106);" not in chunk:
-        chunk = replace_once(chunk, key_anchor, key_geometry, "native text input keyboard geometry")
-    chunk = chunk.replace("keyboard_origin_x + keys[column].x", "key_x")
-    chunk = chunk.replace("keyboard_origin_y + keys[column].y", "key_y")
-    chunk = chunk.replace("int32_t key_x = key_x;", "int32_t key_x = keyboard_origin_x + keys[column].x;")
-    chunk = chunk.replace("int32_t key_y = key_y;", "int32_t key_y = keyboard_origin_y + keys[column].y;")
-    chunk = replace_once(
-        chunk,
-        "        canvas_set_color(canvas, ColorWhite);\n        canvas_draw_box(canvas, 8, 10, 110, 48);\n        canvas_set_color(canvas, ColorBlack);\n        canvas_draw_icon(canvas, 10, 14, &I_WarningDolphin_45x42);\n        canvas_draw_rframe(canvas, 8, 8, 112, 50, 3);\n        canvas_draw_rframe(canvas, 9, 9, 110, 48, 2);",
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "        const int32_t dialog_x = 8;\n        const int32_t dialog_y = (canvas_height(canvas) - 54) / 2;\n"
-        "        const int32_t dialog_w = canvas_width(canvas) - 16;\n"
-        "        canvas_set_color(canvas, ColorWhite);\n"
-        "        canvas_draw_box(canvas, dialog_x + 2, dialog_y + 2, dialog_w - 4, 50);\n"
-        "        canvas_set_color(canvas, ColorBlack);\n"
-        "        canvas_draw_icon(canvas, dialog_x + 4, dialog_y + 5, &I_WarningDolphin_45x42);\n"
-        "        canvas_draw_rframe(canvas, dialog_x, dialog_y, dialog_w, 54, 3);\n"
-        "        canvas_draw_rframe(canvas, dialog_x + 1, dialog_y + 1, dialog_w - 2, 52, 2);\n"
-        "#else\n"
-        "        canvas_set_color(canvas, ColorWhite);\n"
-        "        canvas_draw_box(canvas, 8, 10, 110, 48);\n"
-        "        canvas_set_color(canvas, ColorBlack);\n"
-        "        canvas_draw_icon(canvas, 10, 14, &I_WarningDolphin_45x42);\n"
-        "        canvas_draw_rframe(canvas, 8, 8, 112, 50, 3);\n"
-        "        canvas_draw_rframe(canvas, 9, 9, 110, 48, 2);\n"
-        "#endif",
-        "center native text input validation dialog",
-    )
-    chunk = replace_once(
-        chunk,
-        "        elements_multiline_text(canvas, 62, 20, furi_string_get_cstr(model->validator_text));",
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "        elements_multiline_text(\n"
-        "            canvas, 63, canvas_height(canvas) / 2 - 20, furi_string_get_cstr(model->validator_text));\n"
-        "#else\n"
-        "        elements_multiline_text(canvas, 62, 20, furi_string_get_cstr(model->validator_text));\n"
-        "#endif",
-        "native text input validation message position",
-    )
-    return s[:start] + chunk + s[end:]
-
-
-def patch_variable_item_list(s):
-    s = replace_once(
-        s,
-        "static uint8_t variable_item_list_items_on_screen(const VariableItemListModel* model) {\n    size_t res = 4;",
-        "static uint8_t variable_item_list_items_on_screen(const VariableItemListModel* model) {\n"
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n    size_t res = 7;\n"
-        "#else\n    size_t res = 4;\n#endif",
-        "native settings list row count",
-    )
-    native_row_height = (
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "    const uint8_t item_height = 16;\n"
-        "#else\n    const uint8_t item_height = 16;\n#endif"
-    )
-    if native_row_height not in s:
-        s = replace_once(
-            s,
-            "    const uint8_t item_height = 16;",
-            native_row_height,
-            "native settings list row height",
-        )
-    s = replace_once(
-        s,
-        "            uint8_t temp_x_default = 73;\n            uint8_t temp_w_default = 66;",
-        "            uint8_t temp_x_default = 73;\n            uint8_t temp_w_default = 66;\n"
-        "            uint8_t value_marker_x = 115;\n            uint8_t value_text_width = 37;\n"
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "            temp_x_default = 90;\n            temp_w_default = canvas_width(canvas) - 115;\n"
-        "            value_marker_x = canvas_width(canvas) - 20;\n#endif",
-        "native settings list value column",
-    )
-    s = replace_once(
-        s,
-        "                    temp_x_default = 80;\n                    temp_w_default = 71;",
-        "                    temp_x_default = 80;\n                    temp_w_default = 71;\n"
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "                    temp_x_default = 98;\n                    temp_w_default = canvas_width(canvas) - 123;\n#endif",
-        "native settings list short-value spacing",
-    )
-    s = s.replace("canvas_draw_icon(canvas, 110, item_text_y - 8, &I_Lock_7x8);",
-                  "canvas_draw_icon(\n"
-                  "                canvas,\n#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-                  "                canvas_width(canvas) - 17,\n#else\n                110,\n#endif\n"
-                  "                item_text_y - 8,\n                &I_Lock_7x8);")
-    s = replace_once(
-        s,
-        "                if(item->current_value_index > 0) {\n                    canvas_draw_str(canvas, temp_x_default, item_text_y, is_editing ? \"[\" : \"<\");\n                }\n\n                elements_scrollable_text_line_str(\n                    canvas,\n                    (115 + temp_x_default) / 2 + 1,\n                    item_text_y,\n                    37,",
-        "                if(item->current_value_index > 0) {\n"
-        "                    canvas_draw_str(canvas, temp_x_default, item_text_y, is_editing ? \"[\" : \"<\");\n"
-        "                }\n\n                elements_scrollable_text_line_str(\n"
-        "                    canvas,\n                    (value_marker_x + temp_x_default) / 2 + 1,\n"
-        "                    item_text_y,\n                    value_text_width,",
-        "native settings list right-aligned values",
-    )
-    s = s.replace(
-        "canvas_draw_str(canvas, 115, item_text_y, is_editing ? \"]\" : \">\");",
-        "canvas_draw_str(canvas, value_marker_x, item_text_y, is_editing ? \"]\" : \">\");",
-    )
-    return s
-
-
-def patch_number_input(s):
-    s = replace_once(
-        s,
-        "#include <assets_icons.h>\n",
-        "#include <assets_icons.h>\n#include <boards/board.h>\n",
-        "board geometry include for native number input",
-    )
-    s = replace_once(
-        s,
-        "static void number_input_draw_input(Canvas* canvas, NumberInputModel* model) {\n"
-        "    const size_t text_x = 8;\n    const size_t text_y = 25;\n\n"
-        "    elements_slightly_rounded_frame(canvas, 4, 14, 120, 15);\n\n"
-        "    canvas_draw_str(canvas, text_x, text_y, furi_string_get_cstr(model->text_buffer));\n}",
-        "static void number_input_draw_input(Canvas* canvas, NumberInputModel* model) {\n"
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "    const size_t text_x = 10;\n    const size_t text_y = 51;\n"
-        "    elements_slightly_rounded_frame(canvas, 4, 35, canvas_width(canvas) - 8, 22);\n"
-        "#else\n    const size_t text_x = 8;\n    const size_t text_y = 25;\n"
-        "    elements_slightly_rounded_frame(canvas, 4, 14, 120, 15);\n#endif\n\n"
-        "    canvas_draw_str(canvas, text_x, text_y, furi_string_get_cstr(model->text_buffer));\n}",
-        "native number input value field",
-    )
-    start = s.index("static void number_input_view_draw_callback(Canvas* canvas, void* _model) {")
-    end = s.index("\nstatic bool number_input_view_input_callback(", start)
-    chunk = s[start:end]
-    anchor = "        for(size_t column = 0; column < column_count; column++) {\n"
-    coords = anchor + "            int32_t key_x = keyboard_origin_x + keys[column].x;\n"
-    coords += "            int32_t key_y = keyboard_origin_y + keys[column].y;\n"
-    coords += "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-    coords += "            if(keys[column].text == backspace_symbol) {\n"
-    coords += "                key_x = canvas_width(canvas) - 27;\n                key_y = 66;\n"
-    coords += "            } else if(keys[column].text == sign_symbol) {\n"
-    coords += "                key_x = canvas_width(canvas) - 44;\n                key_y = 99;\n"
-    coords += "            } else if(keys[column].text == enter_symbol) {\n"
-    coords += "                key_x = canvas_width(canvas) - 26;\n                key_y = 99;\n"
-    coords += "            } else {\n"
-    coords += "                key_x = 15 + (keys[column].x * 18) / 10;\n"
-    coords += "                key_y = row == 0 ? 72 : 104;\n            }\n#endif\n"
-    if "key_y = row == 0 ? 72 : 104;" not in chunk:
-        chunk = replace_once(chunk, anchor, coords, "native number keyboard geometry")
-    chunk = chunk.replace("keyboard_origin_x + keys[column].x", "key_x")
-    chunk = chunk.replace("keyboard_origin_y + keys[column].y", "key_y")
-    chunk = chunk.replace("int32_t key_x = key_x;", "int32_t key_x = keyboard_origin_x + keys[column].x;")
-    chunk = chunk.replace("int32_t key_y = key_y;", "int32_t key_y = keyboard_origin_y + keys[column].y;")
-    return s[:start] + chunk + s[end:]
-
-
-def patch_byte_input(s):
-    s = replace_once(
-        s,
-        "static const uint8_t max_drawable_bytes = 8;",
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "static const uint8_t max_drawable_bytes = 10;\n"
-        "#else\nstatic const uint8_t max_drawable_bytes = 8;\n#endif",
-        "native byte editor display capacity",
-    )
-    s = replace_once(
-        s,
-        "    const uint8_t text_x = 8;\n    const uint8_t text_y = 25;\n    const uint8_t text_y2 = 40;",
-        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "    const uint8_t text_x = 10;\n    const uint8_t text_y = 49;\n    const uint8_t text_y2 = 66;\n"
-        "#else\n    const uint8_t text_x = 8;\n    const uint8_t text_y = 25;\n    const uint8_t text_y2 = 40;\n#endif",
+            s = replace_once(s,…7023 tokens truncated…2 = 40;\n#endif",
         "native byte editor input coordinates",
     )
     s = replace_once(
@@ -1087,6 +551,25 @@ def patch_bubble_home(s):
         "#include <momentum_settings.h>\n#include <boards/board.h>\n#include <stdio.h>\n",
         "board geometry include for home dashboard",
     )
+    title_clearance = (
+        'canvas_width(canvas) / 2, 25, AlignCenter, AlignBottom, "FLIPPER ZERO"'
+    )
+    divider_clearance = "canvas_draw_line(canvas, 24, 31, canvas_width(canvas) - 25, 31)"
+    if title_clearance in s and divider_clearance in s:
+        return s
+    if "Give the extra panel height a purpose" in s:
+        s = replace_once(
+            s,
+            'canvas_width(canvas) / 2, 21, AlignCenter, AlignBottom, "FLIPPER ZERO"',
+            title_clearance,
+            "move home title clear of top header",
+        )
+        return replace_once(
+            s,
+            "canvas_draw_line(canvas, 24, 27, canvas_width(canvas) - 25, 27)",
+            divider_clearance,
+            "move home divider with title",
+        )
     old = """static void bubble_animation_draw_callback(Canvas* canvas, void* model_) {
     furi_assert(model_);
     furi_assert(canvas);
@@ -1151,14 +634,14 @@ def patch_bubble_home(s):
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(
-        canvas, canvas_width(canvas) / 2, 16, AlignCenter, AlignBottom, "FLIPPER ZERO");
-    canvas_draw_line(canvas, 24, 22, canvas_width(canvas) - 25, 22);
+        canvas, canvas_width(canvas) / 2, 25, AlignCenter, AlignBottom, "FLIPPER ZERO");
+    canvas_draw_line(canvas, 24, 31, canvas_width(canvas) - 25, 31);
     canvas_set_font(canvas, FontBigNumbers);
     canvas_draw_str_aligned(
-        canvas, canvas_width(canvas) / 2, 44, AlignCenter, AlignBottom, time_text);
+        canvas, canvas_width(canvas) / 2, 46, AlignCenter, AlignBottom, time_text);
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(
-        canvas, canvas_width(canvas) / 2, 57, AlignCenter, AlignBottom, date_text);
+        canvas, canvas_width(canvas) / 2, 59, AlignCenter, AlignBottom, date_text);
     const int32_t art_x = ((int32_t)canvas_width(canvas) - 128) / 2;
     const int32_t art_y = (int32_t)canvas_height(canvas) - 64;
 #else
@@ -1193,6 +676,33 @@ def patch_bubble_home(s):
     }
 }"""
     return replace_once(s, old, new, "native full-screen home dashboard")
+
+
+def patch_firmware_identity(s):
+    s = replace_once(
+        s,
+        '#define FURI_ESP32_PROJECT_NAME   "Flipper-Zero-ESP32-Port"',
+        '#define FURI_ESP32_PROJECT_NAME   "M4145 Flipper Firmware"',
+        "M4145 project branding",
+    )
+    s = replace_once(
+        s,
+        '#define FURI_ESP32_PROJECT_AUTHOR "by Sor3nt"',
+        '#define FURI_ESP32_PROJECT_AUTHOR "by m4145"',
+        "M4145 firmware author",
+    )
+    s = replace_once(
+        s,
+        '#define FURI_ESP32_VERSION      "2.0.0"',
+        '#define FURI_ESP32_VERSION      "1.5.1"',
+        "Flipper 1.5.1 port version label",
+    )
+    return replace_once(
+        s,
+        '#define FURI_ESP32_VERSION_NAME "Sor3nt Stuff"',
+        '#define FURI_ESP32_VERSION_NAME "m4145 ESP32-S3"',
+        "M4145 version label",
+    )
 
 
 def patch_native_ui(root):
@@ -1254,6 +764,7 @@ def main():
     updates = {
         "tools/gen_diy_board.py": patch_generator,
         "components/furi_hal/furi_hal_display.c": patch_display,
+        "components/toolbox/fw_version.h": patch_firmware_identity,
     }
     prepared = {p: fn((root / p).read_text(encoding="utf-8")) for p, fn in updates.items()}
     pinout = (root / "Pinout.txt").read_text(encoding="utf-8").splitlines()

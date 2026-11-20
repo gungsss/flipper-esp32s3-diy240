@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b1820">
-  <title>Flipper 1.5.1 backport · ST7735S landscape</title>
+  <title>M4145 Flipper 1.5.1 · ST7735S landscape</title>
   <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
   <style>
     * { box-sizing: border-box; }
@@ -33,20 +33,19 @@
 <main>
   <a href="/">&larr; Kembali ke DIY240 Flasher</a>
   <section class="card">
-    <span class="eyebrow">ESP32-S3 N16R8 · ST7735S 160×128 landscape</span>
-    <h1>Flipper 1.5.1 ESP32 backport</h1>
-    <p>Port ESP32-S3 ini memakai kanvas UI native 160×128 untuk panel ST7735S landscape. Halaman inti memiliki layout khusus; aplikasi Flipper lama yang memakai API Canvas bersama dipetakan ke seluruh panel. Audit source memeriksa jalur gambar dan callback aplikasi sebelum kompilasi. Parser hotel NFC 1.5.1 serta layout BadUSB Jepang juga disertakan. Ini <strong>bukan firmware resmi Flipper Zero</strong>; sebagian aplikasi dan periferal tetap dibatasi hardware ESP32.</p>
+    <span class="eyebrow">M4145 · ESP32-S3 N16R8 · ST7735S 160×128 landscape</span>
+    <h1>Flipper 1.5.1 untuk ESP32-S3</h1>
+    <p>Firmware port komunitas <strong>by m4145</strong>, dengan layar ST7735S landscape fullscreen dan dukungan modul opsional yang sudah dikompilasi dalam satu image. Ini bukan binary resmi Flipper Zero. Perubahan 1.5.1 diadaptasi ke ESP32-S3; fungsi yang membutuhkan hardware atau HAL berbeda tetap memiliki batas port.</p>
   </section>
   <section class="card notice">
-    <h2>Sebelum memilih build</h2>
-    <p>Profil <strong>Inti</strong> cocok untuk wiring layar, microSD, dan tombol saat ini. Profil <strong>Modul</strong> mengompilasi menu CC1101, nRF24, PN532, IR, dan RDM6300; pin tambahannya hanya contoh dan perlu dicocokkan dengan skema board sebelum kabel dipasang.</p>
-    <p>Modul tidak terdeteksi otomatis. Untuk menggunakannya, pinout firmware harus sama dengan kabel yang terpasang. Profil modul memakai RDM6300 hanya-baca; iButton belum tersedia pada HAL ESP32 ini.</p>
-    <label><input id="confirm" type="checkbox"><span>Saya memakai ESP32-S3 N16R8 dan ST7735S 160×128 landscape dengan CS layar ke GND, sudah memeriksa pinout pilihan, dan memahami firmware di flash akan ditimpa.</span></label>
+    <h2>Satu firmware, dukungan modul opsional</h2>
+    <p>Image tunggal ini menyertakan menu dan driver untuk <strong>CC1101 Sub-GHz, nRF24L01+, PN532 NFC, Infrared, dan RDM6300 LF RFID</strong>. Layar, microSD, dan tombol tetap memakai wiring yang sekarang. Saat modul tambahan dipasang, hubungkan ke GPIO yang tercantum pada pinout firmware; tidak perlu build atau flash ulang. GPIO modul harus tersedia pada board dan memakai level 3,3 V.</p>
+    <p>RDM6300 hanya membaca. iButton serta tulis/emulasi LF RFID belum tersedia pada port ESP32 ini; fitur tersebut perlu driver dan hardware padanan tersendiri.</p>
+    <label><input id="confirm" type="checkbox"><span>Saya memakai ESP32-S3 N16R8 dan ST7735S 160×128 landscape dengan CS layar ke GND, sudah mencocokkan pin modul tambahan dengan board, dan memahami firmware di flash akan ditimpa.</span></label>
     <div class="buttons" id="buttons" hidden>
-      <esp-web-install-button manifest="landscape/manifest.json"><button slot="activate">Flash profil inti</button><span slot="unsupported">Gunakan Chrome atau Edge pada komputer.</span><span slot="not-allowed">Buka halaman ini melalui HTTPS.</span></esp-web-install-button>
-      <esp-web-install-button manifest="all-modules/manifest.json"><button slot="activate">Flash profil modul</button><span slot="unsupported">Gunakan Chrome atau Edge pada komputer.</span><span slot="not-allowed">Buka halaman ini melalui HTTPS.</span></esp-web-install-button>
+      <esp-web-install-button manifest="landscape/manifest.json"><button slot="activate">Flash firmware m4145</button><span slot="unsupported">Gunakan Chrome atau Edge pada komputer.</span><span slot="not-allowed">Buka halaman ini melalui HTTPS.</span></esp-web-install-button>
     </div>
-    <p class="small"><a href="landscape/Pinout.txt">Pinout inti</a> · <a href="all-modules/Pinout.txt">Contoh pinout modul</a> · <a href="landscape/BUILD_INFO.json">Metadata profil inti</a> · <a href="all-modules/BUILD_INFO.json">Metadata profil modul</a></p>
+    <p class="small"><a href="landscape/Pinout.txt">Pinout firmware tunggal</a> · <a href="landscape/BUILD_INFO.json">Metadata dan batas fitur</a></p>
   </section>
 </main>
 <script>document.getElementById('confirm').addEventListener('change', e => { document.getElementById('buttons').hidden = !e.target.checked; });</script>

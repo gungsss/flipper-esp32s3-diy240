@@ -53,6 +53,10 @@ class PackageContractTest(unittest.TestCase):
             manifest = json.loads((dst / 'BUILD_INFO.json').read_text())
             self.assertEqual(manifest['board'], 'DIY ESP32-S3 N16R8')
             self.assertEqual(len(manifest['images']), 4)
+            self.assertEqual(manifest['firmware_author'], 'm4145')
+            self.assertEqual(manifest['project_name'], 'M4145 Flipper ESP32-S3')
+            self.assertIn('iButton HAL', manifest['unsupported_or_limited_features'][0])
+            self.assertIn('single image', manifest['module_behavior'])
             self.assertIn('all legacy Canvas views', manifest['ui_rendering'])
             self.assertIn('physical display validation remains separate', manifest['ui_rendering'])
             for entry in manifest['images']:
