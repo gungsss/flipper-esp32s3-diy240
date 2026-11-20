@@ -8,10 +8,11 @@ seluruh software, hardware, dan aksesori Flipper asli.
 
 ## Status saat ini
 
-Source dan generator board ST7735S landscape sudah disiapkan. **Image firmware
-baru belum berhasil dibangun atau dipublikasikan**, jadi belum ada ZIP dari
-perubahan ini yang boleh dianggap siap flash. ESP-IDF 5.4.1 diperlukan untuk
-build; pengujian fisik tetap diperlukan setelah image tersedia.
+Build ST7735S native 160×128 berhasil pada GitHub Actions run
+[#44725551712](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/44725551712).
+Profil inti dan profil contoh modul sudah dipaketkan di flasher preview
+`web/public/flipper-st7735-151/`. Build ini sudah dikompilasi, tetapi layar,
+tombol, microSD, dan modul tetap perlu diuji pada board fisik.
 
 ## Hardware inti
 
@@ -62,7 +63,7 @@ Panduan build Windows/WSL2 ada di [docs/BUILD_WINDOWS_WSL.md](docs/BUILD_WINDOWS
 ## Batasan penting
 
 - ESP32-S3 berbeda dari Flipper Zero asli; aplikasi FAP ARM tidak otomatis kompatibel.
-- Framebuffer UI Flipper 128×64 diskalakan memenuhi seluruh panel ST7735S 160×128 landscape, tanpa bar kosong di atas atau bawah. Karena rasio panel berbeda, skala vertikal lebih besar daripada horizontal; sebagian layar aplikasi belum didesain ulang secara native.
+- Profil ST7735S memakai kanvas native 160×128, bukan membesarkan framebuffer 128×64. Layar beranda, daftar aplikasi, dan submenu umum memakai area penuh panel; aplikasi yang menggambar dengan koordinat lama tertentu mungkin masih perlu penyesuaian.
 - Fitur Sub-GHz, nRF24, NFC, IR, dan LF RFID memerlukan modul fisik dan pinout yang sesuai.
 - Ada lebih banyak sinyal modul daripada GPIO bebas yang aman untuk selalu memasang semua perangkat bersamaan. Profil perlu disesuaikan dengan rangkaian sebenarnya.
 - Keberhasilan kompilasi tidak menggantikan uji tampilan, tombol, microSD, Wi-Fi/BLE, dan modul pada board fisik.
