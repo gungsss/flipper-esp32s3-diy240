@@ -1,17 +1,17 @@
 {
-  "name": "ESP32-S3 ST7735S 1.5.1 backport (landscape)",
-  "version": "2.0.0-flipper151-experimental",
+  "name": "Flipper ESP32-S3 ST7735S 1.5.1 (core)",
+  "version": "1.5.1-esp32-preview-st7735s-core",
   "new_install_prompt_erase": false,
   "builds": [
     {
       "chipFamily": "ESP32-S3",
       "parts": [
         {
-          "path": "bootloader.bin",
+          "path": "bootloader/bootloader.bin",
           "offset": 0
         },
         {
-          "path": "partition-table.bin",
+          "path": "partition_table/partition-table.bin",
           "offset": 32768
         },
         {

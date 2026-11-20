@@ -1,0 +1,37 @@
+# EXAMPLE ONLY: ESP32-S3 N16R8 + ST7735S 160x128 landscape + microSD + 6 buttons
+# Optional-module GPIOs are candidate assignments, not physically validated on every dev board.
+# Check the board schematic and exposed pins before wiring. Logic is 3.3 V.
+# Shared CC1101/nRF24 radio bus is separate from the CS-less LCD and microSD.
+SPI_SCK=12
+SPI_MOSI=11
+SPI_MISO=13
+SD_SCK=40
+SD_MOSI=39
+SD_MISO=38
+LCD_CS=-1
+LCD_DC=15
+LCD_RST=16
+LCD_BL=7
+SD_CS=14
+CC1101_CS=22
+CC1101_SCK=9
+CC1101_MOSI=10
+CC1101_MISO=21
+CC1101_GDO0=23
+CC1101_GDO2=-1
+NRF24_CS=24
+NRF24_CE=25
+NFC_SDA=41
+NFC_SCL=42
+NFC_IRQ=-1
+NFC_RST=-1
+IR_TX=1
+IR_RX=2
+RFID_TX=47
+RFID_RX=48
+BTN_UP=4
+BTN_DOWN=5
+BTN_LEFT=6
+BTN_RIGHT=17
+BTN_OK=8
+BTN_BACK=18
