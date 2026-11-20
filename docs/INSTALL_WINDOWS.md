@@ -1,73 +1,49 @@
-# Instalasi dan flash lewat Windows — panduan utama
+# Build dan flash di Windows
 
-Proyek ini **Windows-first** untuk pengguna. **Kamu tidak memerlukan Mac, Linux, atau ESP-IDF untuk flash** bila file firmware sudah tersedia dari build GitHub Actions yang **sukses**. Perangkat target adalah **ESP32-S3 N16R8**, TFT ST7789 240×240 8 pin dengan CS GPIO10, microSD SPI3, dan enam tombol.
+Target proyek ini adalah ESP32-S3 N16R8 dengan ST7735S 160×128 landscape. Jangan
+memakai firmware ST7789 atau image ESP32 dari project lain. Gunakan hanya paket
+yang `BUILD_INFO.json`-nya mencantumkan ST7735S landscape dan offset image yang
+sesuai.
 
-> [!WARNING]
-> **Build firmware sudah berhasil** pada [GitHub Actions #43889135916](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43889135916). ZIP-nya sudah diverifikasi untuk empat image dan SHA256. **Flashing, boot, dan hardware belum diuji fisik**; jangan menggunakan image dari LilyGo atau board lain.
+## Dapatkan firmware
 
-## 1. Persiapan
+Jika GitHub Actions sudah mengunggah artifact dari workflow **Flipper 1.5.1
+ST7735S Landscape**, unduh artifact itu dan ekstrak ke satu folder. Paket flash
+harus berisi `BUILD_INFO.json`, `flash_windows.ps1`, `bootloader/bootloader.bin`,
+`partition_table/partition-table.bin`, `furi_esp32.bin`, dan
+`ota_data_initial.bin`. Jangan menggabungkan file dari run berbeda.
 
-1. Pastikan [wiring hardware](HARDWARE.md) benar dan semua modul menggunakan **3,3 V** sesuai label. Lepaskan kabel USB ketika mengubah wiring.
-2. Gunakan **kabel USB-C data**. Board memiliki dua port USB-C; uji masing-masing bila COM port tidak muncul.
-3. Pasang [Python 3 resmi](https://www.python.org/downloads/windows/) dengan **Python Launcher `py`**. Di Windows, cek dengan membuka PowerShell:
+Jika artifact baru belum tersedia, jangan flash ZIP lama yang memiliki metadata
+ST7789, orientasi portrait, atau pinout yang berbeda. Bangun firmware melalui
+[WSL2](BUILD_WINDOWS_WSL.md) atau ikuti [panduan build macOS](INSTALL_MAC.md),
+lalu kemas hanya hasil build yang berhasil.
+
+## Flash dari PowerShell
+
+Pasang Python 3, hubungkan ESP32-S3 menggunakan kabel USB data, lalu periksa
+port-nya pada **Device Manager → Ports (COM & LPT)**. Instal esptool:
 
 ```powershell
-py -3 --version
 py -3 -m pip install "esptool>=4.8,<5"
-py -3 -m esptool version
 ```
 
-4. Buka **Device Manager → Ports (COM & LPT)**. Hubungkan ESP32-S3, lalu lihat port baru, misalnya **COM5**. Nomor COM bisa berbeda. Jika tidak muncul, baca [troubleshooting](TROUBLESHOOTING.md).
-
-## 2. Unduh firmware yang benar
-
-1. Buka [Actions repo ini](https://github.com/gungsss/flipper-esp32s3-diy240/actions).
-2. Pilih workflow **Build DIY ESP32-S3 N16R8** dan pastikan run berwarna **hijau / success**.
-3. Pada bagian **Artifacts**, unduh `flipper-diy-s3-n16r8-st7789-240`.
-4. Ekstrak ZIP dari [run sukses terverifikasi](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43889135916) ke folder biasa, misalnya `C:\ESP32\firmware`. Jangan menggabungkan file dari run berbeda.
-5. Pastikan di folder itu ada `BUILD_INFO.json`, `flash_windows.ps1`, `furi_esp32.bin`, `bootloader/bootloader.bin`, `partition_table/partition-table.bin`, dan **`ota_data_initial.bin`**. Keempat file wajib berasal dari satu ZIP yang sama.
-
-**Penting:** jika run GitHub Actions masih gagal, **tidak ada firmware siap flash**. Jangan melanjutkan ke langkah berikutnya.
-
-## 3. Flash menggunakan PowerShell
-
-Masuk ke folder hasil ekstraksi melalui File Explorer, klik kanan area kosong → **Open in Terminal**, atau buka PowerShell lalu `cd` ke folder tersebut.
+Buka PowerShell di folder artifact dan jalankan:
 
 ```powershell
-cd C:\ESP32\firmware
 .\flash_windows.ps1 -Port COM5
 ```
 
-Ubah `COM5` dengan port di Device Manager. Script melakukan **validasi target board, mapping offset, dan SHA256 keempat image** sebelum meminta konfirmasi `FLASH`. Hanya ketik konfirmasi jika hardware dan data penting sudah dicek.
+Ganti `COM5` dengan port yang terlihat di Device Manager. Script memverifikasi
+target, empat image, offset, dan SHA256 sebelum menulis flash. Flash pertama
+dapat menimpa firmware dan pengaturan lama; salin data penting terlebih dahulu.
 
-Jika kebijakan PowerShell mencegah script berjalan, **jangan ubah kebijakan secara permanen**. Kamu dapat menggunakan perintah manual berikut **setelah memverifikasi ZIP berasal dari run sukses**:
+Jika board tidak tersambung, tutup aplikasi serial yang menggunakan COM, coba
+kabel atau port USB lain, dan masuk mode download dengan tombol BOOT bawaan board
+saat reset.
 
-```powershell
-py -3 -m esptool --chip esp32s3 --port COM5 --baud 460800 write_flash 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 furi_esp32.bin 0xbf0000 ota_data_initial.bin
-```
+## Sesudah flash
 
-Perintah manual **tidak otomatis memeriksa checksum**. Offset di atas berlaku khusus layout artifact proyek ini, tidak berlaku universal untuk semua ESP32. Image OTA initialization pada `0xBF0000` diperlukan agar data pemilihan partisi OTA berada pada keadaan awal yang sesuai.
-
-## 4. Sesudah flash
-
-1. ESP32-S3 akan restart. Jika tidak, lepas-pasang USB secara aman.
-2. Periksa gambar di TFT, respons keenam tombol, dan akses microSD.
-3. Format microSD ke **FAT32**, lalu isi root kartu dengan paket SD resmi dari [Sor3nt Releases](https://github.com/Sor3nt/Flipper-Zero-ESP32-Port/releases/latest), bukan folder berlapis.
-4. Uji Wi-Fi dan BLE secara bergantian pada jaringan/perangkat yang kamu miliki atau diizinkan.
-5. Catat hasilnya menurut [pengujian pertama](FIRST_BOOT.md). **Flashing sukses belum membuktikan seluruh fungsi hardware bekerja.**
-
-## 5. Jika perangkat tidak terdeteksi
-
-- Cek kabel data dan port USB-C alternatif di board.
-- Cek Device Manager. Untuk board dengan USB-UART bridge, mungkin perlu driver **CP210x** atau **CH34x** sesuai chip fisik di board; jangan memasang driver acak.
-- Coba mode download manual: tahan **BOOT bawaan board**, tekan-lepas **RST**, lalu lepaskan BOOT; jalankan ulang esptool.
-- Jika muncul `PermissionError` atau port sedang dipakai, tutup Serial Monitor/Arduino IDE sebelum flash.
-- Jika `Failed to connect`, baca [troubleshooting](TROUBLESHOOTING.md).
-
-## 6. Pengembang Windows: build lokal
-
-Untuk **build** (bukan sekadar flash), kode integrasi saat ini masih menggunakan script **Bash**, sehingga metode praktis Windows adalah WSL2 Ubuntu untuk build, **lalu flash dari PowerShell Windows**. Instal ESP-IDF **v5.4.1** di WSL sesuai [panduan resmi Espressif](https://docs.espressif.com/projects/esp-idf/en/v5.4.1/esp32s3/get-started/linux-macos-setup.html), gunakan instalasi terpisah karena upstream memodifikasi library Wi-Fi IDF, jalankan `./scripts/build_local.sh`, kemudian kemas output dengan `scripts/package_artifacts.py` dan gunakan script flashing Windows. **Alur build via WSL ini belum divalidasi end-to-end**.
-
-Untuk mencoba build di Windows ketika GitHub Actions belum dapat menjalankan runner, ikuti **[panduan langkah demi langkah WSL2](BUILD_WINDOWS_WSL.md)**. Alur build ini belum diuji end-to-end.
-
-Analisis kegagalan CI: [CI_RUNNER_DIAGNOSTICS.md](CI_RUNNER_DIAGNOSTICS.md). Untuk jalur flash dan pemulihan pada Linux/macOS juga, baca [FLASH.md](FLASH.md).
+Periksa tampilan ST7735S landscape, keenam tombol, microSD FAT32, lalu Wi-Fi dan
+BLE secara bergantian. Fitur modul eksternal baru berfungsi jika modul dipasang
+sesuai pinout build tersebut. Lihat [HARDWARE.md](HARDWARE.md) dan
+[FEATURES.md](FEATURES.md).

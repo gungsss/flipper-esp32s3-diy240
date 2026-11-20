@@ -4,7 +4,7 @@ Target pengembangan: macOS, Git, Python 3, ESP-IDF **v5.4.1**, ESP32-S3 N16R8. P
 
 ## 0. Pastikan perangkat cocok
 
-Periksa [HARDWARE.md](HARDWARE.md). Modul TFT ST7789 240×240 7-pin **tanpa CS** bukan target bawaan original, karena itu source perlu dipatch terlebih dulu. Sediakan microSD FAT32 dan koneksi internet untuk mengunduh ESP-IDF + source.
+Periksa [HARDWARE.md](HARDWARE.md). Target build adalah ST7735S 160×128 landscape dengan CS layar ke GND, microSD pada SPI3, dan enam tombol. Sediakan microSD FAT32 dan koneksi internet untuk mengunduh ESP-IDF + source.
 
 ## 1. Perangkat lunak dasar
 
@@ -68,8 +68,8 @@ export ESP_IDF_EXPORT_SCRIPT="$HOME/esp-flipper/esp-idf/export.sh"
 Apa yang dilakukan otomatis:
 
 1. Mengambil sumber upstream pada commit `e6ec11972a8e025d7ab686a6ef3016cf52360834` dan memverifikasi SHA.
-2. Menerapkan perubahan ST7789 240×240 tanpa CS, SD SPI3, keypad 6 tombol, dan ESP32-S3 N16R8.
-3. Menjalankan generator `board_DIY.h` dan mengecek pinout.
+2. Menerapkan patch software pilihan Flipper 1.5.1, lalu konfigurasi ST7735S 160×128 landscape, SD SPI3, keypad 6 tombol, dan ESP32-S3 N16R8.
+3. Menjalankan generator `board_DIY.h` dari pinout ST7735S dan memilih fitur modul opsional berdasarkan pin yang diisi.
 4. Menggunakan ESP-IDF **5.4.1** untuk mengompilasi firmware (tanpa flash).
 
 Build output yang diharapkan:

@@ -1,0 +1,72 @@
+name: Build Flipper 1.5.1 ST7735S landscape profiles
+
+on:
+  push:
+    branches: [codex/st7735s-151-modules]
+    paths:
+      - '.github/workflows/build-st7735s-151-modules.yml'
+      - 'patch/**'
+      - 'variants/st7735/**'
+      - 'scripts/build_local.sh'
+      - 'scripts/fetch_upstream.sh'
+      - 'scripts/package_artifacts.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: st7735s-151-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    container: espressif/idf:v5.4.1
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - profile: core
+            pinout: patch/Pinout_ESP32S3_ST7735S_160.txt
+          - profile: all-modules-example
+            pinout: patch/Pinout_ESP32S3_ST7735S_160_all_modules.example.txt
+    defaults:
+      run:
+        shell: bash
+    env:
+      ESP_IDF_EXPORT_SCRIPT: /opt/esp/idf/export.sh
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build 1.5.1 backport for ST7735S landscape
+        env:
+          PROFILE_PINOUT: ${{ matrix.pinout }}
+        run: |
+          ST7735_PINOUT="$PROFILE_PINOUT" bash scripts/build_local.sh
+      - name: Package flash images and profile metadata
+        env:
+          PROFILE_NAME: ${{ matrix.profile }}
+        run: |
+          python3 scripts/package_artifacts.py \
+            --source .work/upstream \
+            --output "$RUNNER_TEMP/st7735s-package" \
+            --profile-name "$PROFILE_NAME"
+          python3 - "$RUNNER_TEMP/st7735s-package/BUILD_INFO.json" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          info = json.loads(Path(sys.argv[1]).read_text())
+          if info['lcd'] != 'ST7735S landscape 160x128, CS tied to GND, 5 MHz SPI':
+              raise SystemExit(f"Wrong target profile: {info['lcd']}")
+          if info['official_flipper_tag'] != '1.5.1':
+              raise SystemExit('Unexpected Flipper source tag')
+          print('Packaged', info['build_profile'], 'with modules:', info['enabled_optional_modules'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flipper-151-st7735s-${{ matrix.profile }}
+          path: ${{ runner.temp }}/st7735s-package
+          if-no-files-found: error
+          retention-days: 30

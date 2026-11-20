@@ -1,109 +1,94 @@
-# Perakitan hardware dan wiring
+# Wiring ST7735S landscape
 
-Dokumen ini khusus untuk **ESP32-S3 N16R8 (16 MB flash/8 MB PSRAM)** dengan layar ST7789 240×240 **8 pin dengan CS pada GPIO10**, pembaca microSD SPI 6 pin, dan PCB keypad dengan label `COM UP DWN LET RHT MID SET RST`.
+Target dokumen ini adalah ESP32-S3 N16R8, layar ST7735S 160×128, microSD SPI
+6-pin, dan keypad 6 tombol. Profil pin tetap mengikuti
+`patch/Pinout_ESP32S3_ST7735S_160.txt`. Cabut USB sebelum mengubah kabel dan
+gunakan logika 3,3 V.
 
-> **Perhatian:** foto board ESP32-S3 menunjukkan tulisan N16R8. Namun jenis rangkaian **BLK**, variasi ST7789, dan jalur internal PCB keypad belum diverifikasi dengan multimeter. Semua sambungan dilakukan **ketika daya USB dicabut**. Gunakan logika **3,3 V**. Jangan memakai 5 V pada modul yang hanya diberi label 3V3.
+## 1. Layar ST7735S 160×128
 
-## 1. TFT ST7789 240×240 (8 pin)
+| Pin layar | ESP32-S3 | Fungsi |
+|---|---:|---|
+| GND | GND | Ground bersama |
+| VCC | 3V3 | Daya layar sesuai label modul |
+| SCL / SCK | GPIO12 | SPI2 clock |
+| SDA / MOSI / DIN | GPIO11 | SPI2 data |
+| RES / RST | GPIO16 | Reset panel |
+| DC / A0 | GPIO15 | Data / command |
+| CS | GND | Panel pada modul pengguna tidak memakai CS GPIO |
+| BL / BLK / LED | GPIO7 atau rangkaian backlight yang sesuai | Periksa rangkaian modul sebelum disambungkan |
 
-| Dari layar | Ke ESP32-S3 | Fungsi |
-|---|---|---|
-| `GND` | `GND` | Ground |
-| `VCC` | `3V3` | Catu daya 3,3 V |
-| `SCL` / `SCK` | **GPIO12** | SPI2 clock |
-| `SDA` / `DIN` | **GPIO11** | SPI2 MOSI (bukan I²C SDA) |
-| `RES` / `RST` | **GPIO16** | Reset LCD |
-| `DC` / `A0` | **GPIO15** | Data/command |
-| `CS` | **GPIO10** | Chip-select aktif-rendah; wajib tersambung |
-| `BLK` / `LED` | Lihat **Backlight** | Jangan asal sambung GPIO |
+Jangan sambungkan CS layar ke GPIO yang dialokasikan untuk modul lain. Saat CS
+terikat ke GND, layar selalu terpilih pada SPI2; karena itu CC1101 dan nRF24
+menggunakan bus radio terpisah. Driver layar diatur pada 5 MHz.
 
-Foto modul menunjukkan pin `CS`. Hubungkan ke **GPIO10**; driver mengendalikan CS aktif-rendah. SPI2 digunakan khusus layar. GPIO13 disiapkan sebagai MISO tetapi **tidak perlu disambungkan ke TFT**.
+## 2. microSD SPI 6-pin
 
-### Backlight (BLK)
+Ikuti label di PCB modul, karena urutan pin dapat berbeda jika modul diputar.
 
-BLK pada modul ST7789 dapat berupa masukan kontrol atau sambungan LED backlight; implementasinya tidak seragam. Opsi:
+| Pin microSD | ESP32-S3 | Fungsi |
+|---|---:|---|
+| GND | GND | Ground bersama |
+| MISO | GPIO38 | Data dari kartu, SPI3 |
+| CLK / SCK | GPIO40 | Clock SPI3 |
+| MOSI | GPIO39 | Data ke kartu, SPI3 |
+| CS | GPIO14 | Chip select SPI3 |
+| 3V3 | 3V3 | Daya kartu |
 
-- Jika datasheet/hasil pemeriksaan memastikan BLK merupakan **input yang aman diberi 3,3 V** dan sudah ada resistor/rangkaian penggeraknya, hubungkan ke **3V3** agar lampu terus menyala. Dalam mode ini, **GPIO7 tidak disambung** dan pengaturan brightness fisik tidak efektif.
-- Jika backlight memerlukan arus lebih besar, gunakan **MOSFET/transistor driver yang sesuai** dikendalikan PWM GPIO7, dengan resistor dan suplai backlight sesuai spesifikasi modul. **Jangan langsung menghubungkan beban LED mentah ke GPIO7**.
-- Jangan memberi tegangan pada BLK sebelum tahu spesifikasinya; kondisi awal panel bisa blank karena backlight belum dinyalakan.
+Bus microSD terpisah dari LCD. Untuk awal gunakan kartu FAT32, kabel pendek, dan
+pastikan semua enam sambungan terpasang.
 
-Driver memperlakukan pin GPIO7 sebagai PWM aktif-high. Jika memilih GPIO7 sebagai input BLK berimpedansi tinggi, pastikan memang kompatibel dengan logika 3,3 V.
+## 3. Keypad 6 tombol
 
-## 2. MicroSD SPI (modul biru 6 pin)
+| Label PCB | ESP32-S3 | Aksi |
+|---|---:|---|
+| COM | GND | Ground tombol |
+| UP | GPIO4 | Atas |
+| DWN | GPIO5 | Bawah |
+| LET | GPIO6 | Kiri |
+| RHT | GPIO17 | Kanan |
+| MID | GPIO8 | OK / pilih |
+| SET | GPIO18 | Back / kembali |
+| RST | Jangan sambungkan ke GPIO tanpa pengecekan | Reset opsional board |
 
-**Baca tulisan di PCB, bukan posisi kanan/kiri ketika modul dibalik**. Pengguna menyebut label dari kanan ke kiri: `GND, MISO, CLK, MOSI, CS, 3V3`.
+Tombol aktif-rendah menggunakan pull-up internal: saat ditekan, pin ditarik ke
+GND. Tidak perlu menyambungkan 3V3 ke keypad. Pastikan dengan multimeter bahwa
+setiap sakelar menghubungkan label tombol ke COM saat ditekan.
 
-| Dari microSD | Ke ESP32-S3 | Fungsi |
-|---|---|---|
-| `GND` | `GND` | Ground |
-| `MISO` | **GPIO38** | SPI3 data dari kartu |
-| `CLK` / `SCK` | **GPIO40** | SPI3 clock |
-| `MOSI` | **GPIO39** | SPI3 data menuju kartu |
-| `CS` | **GPIO14** | SPI3 chip-select |
-| `3V3` | `3V3` | Daya 3,3 V |
+## 4. Modul tambahan
 
-MicroSD menggunakan `SPI3_HOST` dengan frekuensi awal 10 MHz. Keenam kabel di tabel wajib dihubungkan. **Tidak cukup hanya MISO/CLK/MOSI**. Untuk percobaan pertama gunakan microSD **FAT32**, kabel pendek, sambungan ground baik, dan bukan exFAT.
+File pinout dasar mengisi semua pin opsional dengan `-1`. Jika memasang modul,
+buat salinan file pinout lalu isi pin berdasarkan wiring yang benar-benar
+digunakan. Build hanya mengaktifkan menu Sub-GHz, nRF24, NFC, IR, atau LF RFID
+ketika pin yang diwajibkan lengkap.
 
-## 3. PCB keypad hijau (6 tombol)
+Ada contoh alokasi GPIO untuk mengompilasi semua menu modul di
+`patch/Pinout_ESP32S3_ST7735S_160_all_modules.example.txt`. Angka opsional di
+file itu hanya kandidat untuk board ESP32-S3 yang mengekspos pin tersebut;
+periksa skema board dan konflik komponen sebelum menyambungkan apa pun. Profil
+ini bukan plug-and-play: firmware harus dibangun ulang dengan file pinout itu
+setelah kabel dan modul dipasang.
 
-| Label PCB | Ke ESP32-S3 | Aksi |
-|---|---|---|
-| `COM` | `GND` | Ground bersama semua sakelar |
-| `UP` | **GPIO4** | Atas |
-| `DWN` | **GPIO5** | Bawah |
-| `LET` | **GPIO6** | Kiri |
-| `RHT` | **GPIO17** | Kanan |
-| `MID` | **GPIO8** | OK / pilih |
-| `SET` | **GPIO18** | Back / kembali |
-| `RST` | **Biarkan tidak tersambung** | Reset opsional setelah uji multimeter |
+Generator menolak pin yang bentrok dan GPIO ESP32-S3 yang dicadangkan untuk
+flash, PSRAM, atau USB. Hindari pin strapping boot dan jalur UART yang dipakai
+oleh board. Contoh tersebut mengalokasikan GPIO sebagai berikut:
 
-GPIO input menggunakan internal pull-up dan tombol **active-low** (ditekan → GND). Tidak perlu menghubungkan 3V3 ke keypad. GPIO0 sengaja dihindari untuk mencegah mode download tak sengaja pada saat boot.
+| Fungsi contoh | GPIO |
+|---|---:|
+| CC1101: SCK / MOSI / MISO / CS / GDO0 | 9 / 10 / 21 / 22 / 23 |
+| nRF24: CS / CE, bus radio bersama | 24 / 25 |
+| PN532: SDA / SCL | 41 / 42 |
+| IR: TX / RX | 1 / 2 |
+| RDM6300: UART TX / RX | 47 / 48 |
 
-**Sebelum menyalakan:** dengan multimeter mode kontinuitas, pastikan setiap tombol ketika ditekan menghubungkan labelnya ke COM. Lihat juga tombol `RST`: **jangan otomatis menghubungkan RST ke 3V3 atau GPIO0**. Jika benar merupakan tombol sakelar ke COM, baru bisa mempertimbangkan RST → EN (reset aktif-rendah) sesuai rangkaian board, setelah diverifikasi.
+Tabel ini mengikuti file contoh, bukan hasil pengukuran pada PCB pengguna.
+Gunakan profil berbeda jika pin-pin itu tidak tersedia atau sudah dipakai.
+Lihat [daftar kompatibilitas modul](../variants/st7735/README.md).
 
-## 4. Peta wiring total
+## 5. Sebelum dinyalakan
 
-```text
-                        ┌─────────────────────────────┐
-        3V3 ────────────┤ ESP32-S3 N16R8             │
-        GND ────────────┤ semua GND                  │
-                        │                             │
-   TFT SCL ── GPIO12 ◀──┤ SPI2 CLK                    │
-   TFT SDA ── GPIO11 ◀──┤ SPI2 MOSI                   │
-   TFT RES ── GPIO16 ◀──┤ TFT RESET                   │
-   TFT DC  ── GPIO15 ◀──┤ TFT DC                      │
-   TFT CS  ── GPIO10 ◀──┤ TFT chip-select             │
-   TFT BLK ── (3V3 jika sudah diverifikasi; opsional driver PWM GPIO7)
-                        │                             │
-    SD CLK ── GPIO40 ◀──┤ SPI3 CLK                    │
-   SD MOSI ── GPIO39 ◀──┤ SPI3 MOSI                   │
-   SD MISO ── GPIO38 ◀──┤ SPI3 MISO                   │
-     SD CS ── GPIO14 ◀──┤ SPI3 CS                     │
-                        │                             │
-   Key UP  ── GPIO4  ◀──┤ Active-low buttons          │
-   Key DWN ── GPIO5  ◀──┤                             │
-   Key LET ── GPIO6  ◀──┤                             │
-   Key RHT ── GPIO17 ◀──┤                             │
-   Key MID ── GPIO8  ◀──┤                             │
-   Key SET ── GPIO18 ◀──┤                             │
-   Key COM ── GND    ◀──┤                             │
-                        └─────────────────────────────┘
-```
-
-**Pin belum digunakan:** GPIO0 (strapping boot), GPIO19–20 (USB internal), GPIO26–37 (flash/PSRAM pada N16R8), GPIO43–44 (UART), GPIO45–46 (strapping). Jangan mengubah pinout tanpa memeriksa batasan modul fisik.
-
-## 5. Checklist sebelum kabel USB dipasang
-
-- [ ] Pin `CS` TFT tersambung ke **GPIO10**; pin lain diverifikasi satu per satu.
-- [ ] Semua komponen menggunakan 3,3 V yang sesuai, tidak ada 5 V keliru.
-- [ ] Ground TFT, SD, tombol, dan ESP32 terhubung bersama.
-- [ ] TFT dan microSD benar-benar pada bus SPI yang **berbeda**.
-- [ ] Tidak ada sambungan GPIO langsung ke LED backlight berarus besar.
-- [ ] Semua 6 pin microSD terpasang dan kartu FAT32 sudah disiapkan.
-- [ ] Tombol COM diuji sebagai common yang terhubung ke tombol ketika ditekan.
-- [ ] Tidak ada korsleting 3V3 ke GND; kabel cukup pendek.
-- [ ] Board ESP32-S3 dihubungkan USB hanya **setelah** rangkaian diperiksa.
-
-## 6. Risiko catu daya
-
-LCD backlight, microSD, dan Wi-Fi ESP32-S3 bisa menarik arus sesaat cukup besar. Jika terjadi reset berulang/brownout, evaluasi suplai 3,3 V dan kabel USB; **jangan menonaktifkan brownout detector sebagai solusi pertama**.
+- Pastikan tipe layar **ST7735S 160×128** dan CS layar ke GND.
+- Pastikan microSD pada SPI3: GPIO40 / 39 / 38 / 14.
+- Pastikan keenam tombol active-low dan ground-nya bersama.
+- Periksa label tegangan dan polaritas setiap modul.
+- Jangan memakai pin opsional hanya karena tertulis di contoh; pastikan cocok dengan board dan wiring fisik.

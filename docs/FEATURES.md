@@ -1,41 +1,35 @@
-# Cakupan fitur dan tingkat kesiapan
+# Cakupan fitur port ESP32-S3 ST7735S
 
-Dokumen ini **tidak menyatakan hasil uji fisik**. Tiga status berbeda dipakai:
+Target utama adalah ESP32-S3 N16R8 dengan ST7735S 160×128 landscape, microSD
+SPI3, dan enam tombol. Source ini menggabungkan port ESP32 yang ada dengan
+pilihan perubahan dari Flipper 1.5.1. Ini bukan firmware resmi Flipper Zero dan
+belum memiliki kesetaraan penuh dengan semua aplikasi, HAL, dan aksesori resmi.
 
-- **Termasuk dalam source/build candidate**: ada implementasi dan dipertahankan oleh konfigurasi aplikasi.
-- **Tidak tersedia tanpa modul**: membutuhkan rangkaian tambahan, sengaja dimatikan pada profil awal.
-- **Perlu uji hardware**: keberhasilan kompilasi saja tidak membuktikan pengalaman perangkat di lapangan.
+| Area | Status port |
+|---|---|
+| UI dan navigasi | Framebuffer Flipper 128×64 diskalakan ke panel ST7735S 160×128 landscape. Aplikasi yang menggambar langsung ke layar perlu penyesuaian sendiri. |
+| microSD / Archive | Bus SPI3 terpisah dari LCD dan radio; perlu uji pada kartu fisik. |
+| Wi-Fi dan BLE | Fitur ESP32-S3 dari port; beberapa penggunaan radio bersamaan bisa berbagi resource. |
+| USB HID / BadUSB | Didukung oleh port ESP32-S3; perlu uji pada perangkat target dan hanya untuk sistem yang berizin. |
+| Sub-GHz | Opsional dengan CC1101 dan dedicated bit-bang SPI. Menu baru dibangun saat pinout modul lengkap. |
+| 2,4 GHz nRF24 | Opsional, berbagi bus radio CC1101 tetapi memakai CS dan CE sendiri. |
+| NFC | Opsional dengan PN532 melalui I²C; berbeda dari front-end ST25R3916 pada Flipper Zero. |
+| Infrared | Opsional dengan pin TX dan RX untuk driver RMT. |
+| LF RFID | RDM6300 melalui UART, hanya pembacaan; tidak menyediakan penulisan dan emulasi native. |
+| iButton | Belum tersedia karena HAL iButton ESP32 belum diimplementasikan pada upstream port. |
+| Speaker / audio | Tidak tersedia pada profil dasar; aplikasi yang memerlukan speaker dapat terbatas. |
+| OTA Wi-Fi | Tidak direkomendasikan untuk saat ini; gunakan flashing USB dari image build yang cocok. |
 
-| Area | Kondisi saat ini | Catatan |
-|---|---|---|
-| UI dan navigasi | Termasuk, perlu uji | Flipper framebuffer 128×64 diskalakan ke panel 240×240 |
-| microSD / Archive | Termasuk, perlu uji | SPI3 terpisah, FAT32, berkas SD mengikuti upstream |
-| Wi-Fi scan dan koneksi | Termasuk, perlu uji | Gunakan pada jaringan sendiri/berizin |
-| Bluetooth BLE | Termasuk, perlu uji | Dapat saling eksklusif dengan Wi-Fi |
-| USB HID / BadUSB | Termasuk upstream, perlu uji | USB native ESP32-S3, hanya untuk sistem sendiri/berizin |
-| U2F | Bergantung dukungan build | Memerlukan uji USB, attestation, relying party; jangan jadikan kredensial utama sebelum tervalidasi |
-| JavaScript runtime | Sebagian modul upstream | Modul serial/gpio/i2c/spi tidak otomatis tersedia |
-| Game / media native | Tidak dijamin | Sejumlah aplikasi diasumsikan panel 320×170 dan speaker |
-| Sub-GHz CC1101 | **Nonaktif** | Modul CC1101 belum terpasang |
-| 2,4 GHz nRF24 | **Nonaktif** | Modul nRF24L01 belum terpasang |
-| NFC PN532 | **Nonaktif** | Tidak ada reader NFC |
-| Infrared | **Nonaktif** | Tidak ada pemancar/penerima IR |
-| LF RFID | **Nonaktif** | Tidak ada hardware 125 kHz |
-| OTA firmware lewat Wi-Fi | **Tidak direkomendasikan** | Mekanisme upstream perlu perbaikan verifikasi TLS dan autentisitas image |
-| Firmware flash via USB | Jalur yang direkomendasikan | ESP-IDF local atau esptool dari artifact CI sukses |
+Modul tambahan harus dipilih melalui file pinout dan firmware perlu dibangun
+ulang setelah pinout diubah. Modul tidak otomatis terdeteksi hanya karena
+dicolokkan. Jangan mengaktifkan flag board secara manual: aplikasi hanya
+dimasukkan saat generator menemukan pin lengkap, dan bus CC1101/nRF24 harus
+tetap terpisah dari layar ST7735 yang CS-nya terikat ke GND serta dari microSD.
+Profil inti berada di `patch/Pinout_ESP32S3_ST7735S_160.txt`; contoh profil untuk
+menyiapkan menu seluruh modul ada di
+`patch/Pinout_ESP32S3_ST7735S_160_all_modules.example.txt`. Pin contoh harus
+dicocokkan dengan board fisik sebelum dipakai.
 
-## Apa yang perlu pengembangan lanjutan?
-
-Fokus masuk akal adalah **stabilitas hardware dasar** (boot/UI/tombol/SD), lalu ketahanan Wi-Fi/BLE dan kompatibilitas aplikasi. Menambahkan radio eksternal mengubah kebutuhan bus/pin, dan perlu desain baru karena TFT tanpa CS harus tetap menjadi satu-satunya perangkat pada SPI2. Tidak cukup sekadar mengubah flag `BOARD_HAS_SUBGHZ` menjadi 1.
-
-## Definisi selesai (Milestone M1)
-
-1. Workflow CI sukses menghasilkan tiga `.bin` dan `flash_project_args`.
-2. ESP32-S3 N16R8 menjalankan firmware tanpa boot loop selama pengujian awal.
-3. Tampilan ST7789 terbaca baik, termasuk rotasi, warna, dan margin yang sesuai.
-4. Keenam tombol berfungsi konsisten tanpa memicu boot mode.
-5. microSD FAT32 bisa mount, browse, dan menyimpan file secara persisten.
-6. Wi-Fi scan jaringan sendiri dan BLE pairing secara bergantian dapat digunakan.
-7. Hasil uji dicatat bersama commit, foto dan log.
-
-**Status M1 saat dokumentasi ini dibuat: belum diverifikasi secara fisik.**
+Validasi panel landscape, warna, enam tombol, SD, dan modul tambahan masih perlu
+dilakukan pada board fisik. Hasil kompilasi saja tidak menjamin seluruh menu dan
+periferal berjalan di perangkat.

@@ -16,7 +16,7 @@ IDF_EXPORT="${ESP_IDF_EXPORT_SCRIPT:-$HOME/esp/esp-idf/export.sh}"
 [[ -f "$IDF_EXPORT" ]] || { echo "ESP-IDF missing: $IDF_EXPORT" >&2; exit 1; }
 # shellcheck source=/dev/null
 source "$IDF_EXPORT"
-echo 'TARGET ESP32-S3 N16R8 / ST7789 240x240 / microSD on SPI3'
+echo 'TARGET ESP32-S3 N16R8 / ST7735S 160x128 landscape / microSD on SPI3'
 echo "PORT: $PORT"
 echo 'First flash may overwrite the existing firmware and on-device settings.'
 read -r -p 'Have you verified wiring and backed up important data? Type FLASH: ' CONFIRM
