@@ -24,7 +24,7 @@ permissions:
 
 concurrency:
   group: flipper-151-st7789-preview
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
