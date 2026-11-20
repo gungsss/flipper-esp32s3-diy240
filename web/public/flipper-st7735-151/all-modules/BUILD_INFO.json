@@ -27,7 +27,7 @@
       "file": "bootloader/bootloader.bin",
       "offset": "0x0",
       "size_bytes": 20848,
-      "sha256": "d2ee26ed2c9478ebd7d87937f42f0728e986aa0081d827b1f53629edafb885bb"
+      "sha256": "a0ee71c5ec60753091346351cafddb97df196082028c98e6ad7d8d2720b5f037"
     },
     {
       "file": "partition_table/partition-table.bin",
@@ -39,7 +39,7 @@
       "file": "furi_esp32.bin",
       "offset": "0x10000",
       "size_bytes": 3692896,
-      "sha256": "54a13f86cde5d77e8b9848da4b6e00990dfffaa38474646802a345b7344a6c3d"
+      "sha256": "ec0ebe8751e880bdbace4c84d3fac1b811bb018d055f655bbfdedef2e79c57a5"
     },
     {
       "file": "ota_data_initial.bin",
