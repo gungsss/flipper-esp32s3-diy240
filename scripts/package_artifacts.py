@@ -115,7 +115,7 @@ def main():
         'pinout_sha256':pinout_sha256,
         'board':'DIY ESP32-S3 N16R8',
         'lcd':'ST7735S landscape 160x128, CS tied to GND, 5 MHz SPI',
-        'ui_rendering':'Full-panel 160x128 scaling from the stock 128x64 canvas; no top/bottom bars.',
+        'ui_rendering':'Full-panel 160x128 native GUI canvas; home screen, app launcher, and common submenus are reflowed for ST7735S. No 128x64 stretch or top/bottom bars.',
         'display_driver':'waveshare/esp_lcd_st7735==2.0.0',
         'sd':'SPI3_HOST',
         'enabled_optional_modules':enabled_modules,
