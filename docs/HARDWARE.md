@@ -1,10 +1,10 @@
 # Perakitan hardware dan wiring
 
-Dokumen ini khusus untuk **ESP32-S3 N16R8 (16 MB flash/8 MB PSRAM)** dengan layar ST7789 240×240 **7 pin tanpa CS**, pembaca microSD SPI 6 pin, dan PCB keypad dengan label `COM UP DWN LET RHT MID SET RST`.
+Dokumen ini khusus untuk **ESP32-S3 N16R8 (16 MB flash/8 MB PSRAM)** dengan layar ST7789 240×240 **8 pin dengan CS pada GPIO10**, pembaca microSD SPI 6 pin, dan PCB keypad dengan label `COM UP DWN LET RHT MID SET RST`.
 
 > **Perhatian:** foto board ESP32-S3 menunjukkan tulisan N16R8. Namun jenis rangkaian **BLK**, variasi ST7789, dan jalur internal PCB keypad belum diverifikasi dengan multimeter. Semua sambungan dilakukan **ketika daya USB dicabut**. Gunakan logika **3,3 V**. Jangan memakai 5 V pada modul yang hanya diberi label 3V3.
 
-## 1. TFT ST7789 240×240 (7 pin)
+## 1. TFT ST7789 240×240 (8 pin)
 
 | Dari layar | Ke ESP32-S3 | Fungsi |
 |---|---|---|
@@ -14,13 +14,14 @@ Dokumen ini khusus untuk **ESP32-S3 N16R8 (16 MB flash/8 MB PSRAM)** dengan laya
 | `SDA` / `DIN` | **GPIO11** | SPI2 MOSI (bukan I²C SDA) |
 | `RES` / `RST` | **GPIO16** | Reset LCD |
 | `DC` / `A0` | **GPIO15** | Data/command |
+| `CS` | **GPIO10** | Chip-select aktif-rendah; wajib tersambung |
 | `BLK` / `LED` | Lihat **Backlight** | Jangan asal sambung GPIO |
 
-**Tidak ada pin CS** pada modul. Driver `esp_lcd` diatur dengan `cs_gpio_num = -1`; SPI2 digunakan **khusus layar**. GPIO13 disiapkan pada konfigurasi SPI2 sebagai MISO tetapi **tidak perlu disambungkan ke TFT**.
+Foto modul menunjukkan pin `CS`. Hubungkan ke **GPIO10**; driver mengendalikan CS aktif-rendah. SPI2 digunakan khusus layar. GPIO13 disiapkan sebagai MISO tetapi **tidak perlu disambungkan ke TFT**.
 
 ### Backlight (BLK)
 
-BLK pada modul ST7789 7-pin dapat berupa masukan kontrol atau sambungan LED backlight; implementasinya tidak seragam. Opsi:
+BLK pada modul ST7789 dapat berupa masukan kontrol atau sambungan LED backlight; implementasinya tidak seragam. Opsi:
 
 - Jika datasheet/hasil pemeriksaan memastikan BLK merupakan **input yang aman diberi 3,3 V** dan sudah ada resistor/rangkaian penggeraknya, hubungkan ke **3V3** agar lampu terus menyala. Dalam mode ini, **GPIO7 tidak disambung** dan pengaturan brightness fisik tidak efektif.
 - Jika backlight memerlukan arus lebih besar, gunakan **MOSFET/transistor driver yang sesuai** dikendalikan PWM GPIO7, dengan resistor dan suplai backlight sesuai spesifikasi modul. **Jangan langsung menghubungkan beban LED mentah ke GPIO7**.
@@ -71,6 +72,7 @@ GPIO input menggunakan internal pull-up dan tombol **active-low** (ditekan → G
    TFT SDA ── GPIO11 ◀──┤ SPI2 MOSI                   │
    TFT RES ── GPIO16 ◀──┤ TFT RESET                   │
    TFT DC  ── GPIO15 ◀──┤ TFT DC                      │
+   TFT CS  ── GPIO10 ◀──┤ TFT chip-select             │
    TFT BLK ── (3V3 jika sudah diverifikasi; opsional driver PWM GPIO7)
                         │                             │
     SD CLK ── GPIO40 ◀──┤ SPI3 CLK                    │
@@ -92,7 +94,7 @@ GPIO input menggunakan internal pull-up dan tombol **active-low** (ditekan → G
 
 ## 5. Checklist sebelum kabel USB dipasang
 
-- [ ] Tulisan pin TFT sudah dicek satu per satu, termasuk apakah ada `CS` tersembunyi.
+- [ ] Pin `CS` TFT tersambung ke **GPIO10**; pin lain diverifikasi satu per satu.
 - [ ] Semua komponen menggunakan 3,3 V yang sesuai, tidak ada 5 V keliru.
 - [ ] Ground TFT, SD, tombol, dan ESP32 terhubung bersama.
 - [ ] TFT dan microSD benar-benar pada bus SPI yang **berbeda**.
