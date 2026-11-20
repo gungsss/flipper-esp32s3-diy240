@@ -1,6 +1,6 @@
 # Instalasi dan flash lewat Windows — panduan utama
 
-Proyek ini **Windows-first** untuk pengguna. **Kamu tidak memerlukan Mac, Linux, atau ESP-IDF untuk flash** bila file firmware sudah tersedia dari build GitHub Actions yang **sukses**. Perangkat target adalah **ESP32-S3 N16R8**, TFT ST7789 240×240 7 pin tanpa CS, microSD SPI3, dan enam tombol.
+Proyek ini **Windows-first** untuk pengguna. **Kamu tidak memerlukan Mac, Linux, atau ESP-IDF untuk flash** bila file firmware sudah tersedia dari build GitHub Actions yang **sukses**. Perangkat target adalah **ESP32-S3 N16R8**, TFT ST7789 240×240 8 pin dengan CS GPIO10, microSD SPI3, dan enam tombol.
 
 > [!WARNING]
 > **Build firmware sudah berhasil** pada [GitHub Actions #43889135916](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43889135916). ZIP-nya sudah diverifikasi untuk empat image dan SHA256. **Flashing, boot, dan hardware belum diuji fisik**; jangan menggunakan image dari LilyGo atau board lain.
