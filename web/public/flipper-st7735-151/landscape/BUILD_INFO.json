@@ -1,27 +1,41 @@
 {
-  "upstream_repository": "Sor3nt/Flipper-Zero-ESP32-Port",
-  "upstream_commit": "e6ec11972a8e025d7ab686a6ef3016cf52360834",
+  "project_name": "M4145 Flipper ESP32-S3",
+  "firmware_author": "m4145",
+  "source_base_repository": "Sor3nt/Flipper-Zero-ESP32-Port",
+  "source_base_commit": "e6ec11972a8e025d7ab686a6ef3016cf52360834",
   "official_flipper_tag": "1.5.1",
   "official_flipper_commit": "9e810dc399e027e48ce07751df72168abbb19065",
   "reported_flipper_version": "1.5.1-ESP32-preview",
   "reported_ble_software_revision": "1.5.1-ESP32-preview",
   "firmware_build_date": "Compiler-generated from __DATE__ at build time",
   "scope": "Selected portable Flipper 1.5.1 changes adapted to the ESP32 port; not full official source, SDK, runtime, or hardware parity.",
-  "build_profile": "core",
-  "pinout_sha256": "1b2909281753c9b322c4818c2a146f939bc0b3c8dc3f97bddbf860154ae310d8",
+  "build_profile": "m4145-unified",
+  "pinout_sha256": "69ea9aea7c5dc3beb1886d53c0a6936d0b4f899fbe8cd307f0b60a056b9aa02d",
   "board": "DIY ESP32-S3 N16R8",
   "lcd": "ST7735S landscape 160x128, CS tied to GND, 5 MHz SPI",
   "ui_rendering": "Full-panel 160x128 native GUI canvas; all legacy Canvas views use the shared 128x64-to-160x128 adapter, while core screen modules use native layouts. Static source audit covers all Canvas draw APIs and GUI callback paths; physical display validation remains separate.",
   "display_driver": "waveshare/esp_lcd_st7735==2.0.0",
   "sd": "SPI3_HOST",
-  "enabled_optional_modules": [],
+  "enabled_optional_modules": [
+    "CC1101 Sub-GHz",
+    "nRF24L01+",
+    "PN532 NFC",
+    "Infrared",
+    "LF RFID read-only"
+  ],
+  "module_behavior": "All module menus and drivers are compiled into this single image. Attach and wire each module to the listed pinout; no rebuild or reflash is needed when adding a supported module.",
+  "unsupported_or_limited_features": [
+    "iButton HAL is not implemented for this ESP32 port.",
+    "LF RFID through RDM6300 is read-only; writing and emulation need another compatible frontend and firmware support.",
+    "ARM-targeted FAP files are not binary-compatible with ESP32-S3 and must be ported and rebuilt."
+  ],
   "hardware_validation": "Build packaging does not verify physical LCD, buttons, SD, or optional modules.",
   "images": [
     {
       "file": "bootloader/bootloader.bin",
       "offset": "0x0",
       "size_bytes": 20848,
-      "sha256": "7d02b101749189f27ed59977d83f5b32ab17a3bf83e99553a490a51159369de8"
+      "sha256": "21fd35889767e2e4ce322f72eab4fc51fdabbcc123c2f474af3a70d94b580d0e"
     },
     {
       "file": "partition_table/partition-table.bin",
@@ -32,8 +46,8 @@
     {
       "file": "furi_esp32.bin",
       "offset": "0x10000",
-      "size_bytes": 3320416,
-      "sha256": "086d0000eddc0e479cd9bf812b4de6c052443d0268ec2bb41a4be727a4456e0d"
+      "size_bytes": 3694592,
+      "sha256": "9c2179b603152523f2c4e8183d2234684defb57078e9c5410fea32a4bfd0e6dd"
     },
     {
       "file": "ota_data_initial.bin",

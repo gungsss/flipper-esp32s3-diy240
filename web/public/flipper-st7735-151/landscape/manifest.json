@@ -1,6 +1,6 @@
 {
-  "name": "Flipper ESP32-S3 ST7735S 1.5.1 (core)",
-  "version": "1.5.1-esp32-preview-st7735s-core",
+  "name": "M4145 Flipper 1.5.1 ESP32-S3 ST7735S (universal modules)",
+  "version": "1.5.1-m4145-esp32s3-st7735s-unified",
   "new_install_prompt_erase": false,
   "builds": [
     {
