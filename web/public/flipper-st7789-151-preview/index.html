@@ -28,7 +28,7 @@ button{border:0;border-radius:10px;background:#79e8cd;padding:14px 20px;color:#0
 <section class="card">
 <span class="eyebrow">Flipper 1.5.1 · ESP32 port preview · DIY240</span>
 <h1>Flipper 1.5.1<br>untuk ESP32-S3.</h1>
-<p>Port firmware untuk <strong>ESP32-S3 N16R8</strong> dengan layar <strong>ST7789 240×240</strong>, microSD SPI3, dan enam tombol. Source resmi Flipper 1.5.1 dipakai sebagai acuan; lapisan ESP-IDF dan sejumlah API disesuaikan agar dapat berjalan pada Xtensa.</p>
+<p>Port firmware untuk <strong>ESP32-S3 N16R8</strong> dengan layar <strong>ST7789 240×240 8-pin</strong> dengan CS ke GPIO10, microSD SPI3, dan enam tombol. Source resmi Flipper 1.5.1 dipakai sebagai acuan; lapisan ESP-IDF dan sejumlah API disesuaikan agar dapat berjalan pada Xtensa.</p>
 <p>Aplikasi Flipper akan menerima identitas <code>1.5.1-ESP32-preview</code>. Tanggal build internal diisi otomatis oleh compiler.</p>
 <span class="tag"><span class="dot"></span> Build ESP-IDF dan paket flash diverifikasi di CI · boot board fisik perlu diuji</span>
 </section>
@@ -53,9 +53,9 @@ button{border:0;border-radius:10px;background:#79e8cd;padding:14px 20px;color:#0
 <h2>Profil wiring ST7789</h2>
 <table><thead><tr><th>Modul</th><th>ESP32-S3</th></tr></thead><tbody>
 <tr><td>VDD / GND</td><td>3V3 / GND</td></tr>
-<tr><td>SCL / SDA (SPI clock / MOSI)</td><td>GPIO12 / GPIO11</td></tr>
+<tr><td>SCL / SDA (SPI clock / MOSI)</td><td>GPIO12 / GPIO11 · SPI 10 MHz</td></tr>
 <tr><td>RES / DC</td><td>GPIO16 / GPIO15</td></tr>
-<tr><td>CS</td><td>Tidak ada · driver memakai CS -1</td></tr>
+<tr><td>CS</td><td>GPIO10 · sambungkan wajib (aktif-rendah)</td></tr>
 <tr><td>BLK / LED</td><td>Ikuti rangkaian backlight modul; jangan langsung ke GPIO</td></tr>
 <tr><td>microSD</td><td>SPI3: CLK 40, MOSI 39, MISO 38, CS 14</td></tr>
 <tr><td>Tombol</td><td>UP 4, DWN 5, LET 6, RHT 17, MID 8, SET 18</td></tr>
