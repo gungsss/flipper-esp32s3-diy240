@@ -91,6 +91,10 @@ def patch_generator(s):
 def patch_fam_config(s):
     marker = "# DIY_ST7735_PIN_CAPABILITY_FILTERS"
     if marker in s:
+        s = s.replace(
+            'os.path.join(os.path.dirname(__file__), "Pinout.txt")',
+            'os.path.join(os.environ.get("FLIPPER_FAM_CONFIG_DIR", os.getcwd()), "Pinout.txt")',
+        )
         nfc_activation = '    if _diy_has("NFC_SDA", "NFC_SCL") and "nfc" not in APPS:\n'
         if nfc_activation not in s:
             anchor = '    (_boards_without_nfc.discard if _diy_has("NFC_SDA", "NFC_SCL") else _boards_without_nfc.add)("DIY")\n'
@@ -112,7 +116,7 @@ def patch_fam_config(s):
 _diy_pinout = {}
 if _board == "DIY":
     try:
-        with open(os.path.join(os.path.dirname(__file__), "Pinout.txt"), encoding="utf-8") as _pinout_file:
+        with open(os.path.join(os.environ.get("FLIPPER_FAM_CONFIG_DIR", os.getcwd()), "Pinout.txt"), encoding="utf-8") as _pinout_file:
             for _line in _pinout_file:
                 _line = _line.split("#", 1)[0].strip()
                 if "=" in _line:
@@ -197,10 +201,20 @@ def patch_component_cmake(s):
 
 
 def patch_build(s):
-    return replace_once(s, 'cd "${SCRIPT_DIR}"\n# shellcheck source=/dev/null',
-                        'cd "${SCRIPT_DIR}"\n'
-                        'python3 "${SCRIPT_DIR}/tools/gen_diy_board.py" "${SCRIPT_DIR}/Pinout.txt"\n'
-                        '# shellcheck source=/dev/null', "regenerate board profile before build")
+    export_line = 'export FLIPPER_FAM_CONFIG_DIR="${SCRIPT_DIR}"\n'
+    generator_line = 'python3 "${SCRIPT_DIR}/tools/gen_diy_board.py" "${SCRIPT_DIR}/Pinout.txt"\n'
+    if export_line not in s:
+        if generator_line in s:
+            s = replace_once(s, generator_line, export_line + generator_line,
+                             "export source path for FAM configuration")
+        else:
+            s = replace_once(s, 'cd "${SCRIPT_DIR}"\n# shellcheck source=/dev/null',
+                             'cd "${SCRIPT_DIR}"\n' + export_line + generator_line +
+                             '# shellcheck source=/dev/null', "regenerate board profile before build")
+    elif generator_line not in s:
+        s = replace_once(s, export_line, export_line + generator_line,
+                         "regenerate board profile before build")
+    return s
 
 
 def main():
