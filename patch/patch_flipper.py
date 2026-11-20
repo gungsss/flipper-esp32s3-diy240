@@ -42,7 +42,7 @@ def patch_generator(s: str) -> str:
     s = replace_one(s, '#define BOARD_LCD_H_RES 320\n#define BOARD_LCD_V_RES 172',
         '#define BOARD_OTA_PROFILE_ST7789 1\n#define BOARD_LCD_H_RES 240\n#define BOARD_LCD_V_RES 240', tag)
     s = replace_one(s, '#define BOARD_LCD_SPI_FREQ_HZ (40 * 1000 * 1000)',
-        '#define BOARD_LCD_SPI_FREQ_HZ (20 * 1000 * 1000)', tag)
+        '#define BOARD_LCD_SPI_FREQ_HZ (10 * 1000 * 1000)', tag)
     s = replace_one(s, '#define BOARD_LCD_SWAP_XY true', '#define BOARD_LCD_SWAP_XY false', tag)
     s = replace_one(s, '#define BOARD_LCD_MIRROR_X true', '#define BOARD_LCD_MIRROR_X false', tag)
     s = replace_one(s, '#define BOARD_LCD_GAP_Y 35', '#define BOARD_LCD_GAP_Y 0', tag)
@@ -156,8 +156,9 @@ def main():
     expected = {
         '#define BOARD_LCD_H_RES 240', '#define BOARD_LCD_V_RES 240',
         '#define BOARD_OTA_PROFILE_ST7789 1',
-        '#define BOARD_PIN_LCD_CS   UINT16_MAX',
+        '#define BOARD_PIN_LCD_CS   10',
         '#define BOARD_SD_BUS_NOT_SHARED 1', '#define BOARD_SD_SPI_HOST SPI3_HOST',
+        '#define BOARD_LCD_SPI_FREQ_HZ (10 * 1000 * 1000)',
         '#define BOARD_PIN_SD_MISO2 38', '#define BOARD_PIN_SD_MOSI  39',
         '#define BOARD_PIN_SD_SCK   40', '#define BOARD_PIN_SD_CS    14',
         '#define BOARD_PIN_BTN_OK     8',
