@@ -336,8 +336,8 @@ def patch_bubble_home(s):
     /* Give the extra panel height a purpose: a compact clock/date header above
      * the original pixel-art animation. Both remain sharp at native resolution. */
     DateTime datetime;
-    char time_text[6];
-    char date_text[11];
+    char time_text[9];
+    char date_text[16];
     furi_hal_rtc_get_datetime(&datetime);
     snprintf(
         time_text,
