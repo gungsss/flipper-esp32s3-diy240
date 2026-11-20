@@ -1,6 +1,6 @@
 # Flipper ESP32-S3 DIY 240
 
-**Adaptasi hardware untuk ESP32-S3 N16R8, ST7789 240×240 7-pin, microSD SPI3, dan keypad 6 tombol.**
+**Adaptasi hardware untuk ESP32-S3 N16R8, ST7789 240×240 8-pin, microSD SPI3, dan keypad 6 tombol.**
 
 > [!IMPORTANT]
 > **Status: firmware berhasil dibangun dan diverifikasi melalui GitHub Actions; belum diuji pada ESP32-S3 fisik.**
@@ -16,7 +16,7 @@ Proyek ini adalah **repositori integrasi/patch**, bukan salinan penuh source ups
 
 Situs menyediakan flashing USB berbasis [ESP Web Tools](https://esphome.github.io/esp-web-tools/) pada browser yang kompatibel, file merged `.bin`, perintah esptool manual, diagram wiring, serta panduan Windows/Linux/macOS/Android/iOS.
 
-- Profil firmware: **ESP32-S3 N16R8**, ST7789 240×240 tanpa CS, microSD SPI3, enam tombol.
+- Profil firmware: **ESP32-S3 N16R8**, ST7789 240×240 dengan CS GPIO10, microSD SPI3, enam tombol.
 - Firmware web dibangun dari empat image pada [build CI sukses](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43889135916), digabung menggunakan `esptool` dan diverifikasi checksum/offset.
 - **Windows**: utamakan Chrome atau Edge desktop. Linux dan macOS didukung pada browser kompatibel.
 - **Android**: memerlukan browser/perangkat yang mendukung USB Serial/OTG; dukungan tidak universal.
@@ -30,7 +30,7 @@ Source situs dan dokumentasi: [`web/`](web/README.md).
 | Komponen | Konfigurasi |
 |---|---|
 | MCU | ESP32-S3 **N16R8** (flash 16 MB, PSRAM 8 MB) |
-| Display | TFT **ST7789 240×240 7-pin, tanpa CS**, SPI2 |
+| Display | TFT **ST7789 240×240 8-pin, CS GPIO10**, SPI2 |
 | Storage | microSD reader **SPI 6 pin 3,3 V**, SPI3, FAT32 |
 | Navigasi | PCB `COM / UP / DWN / LET / RHT / MID / SET / RST`; **6 tombol** untuk menu |
 | Power | USB dari board; sambungan modul menggunakan **3V3 & GND bersama** |
@@ -46,7 +46,7 @@ Source situs dan dokumentasi: [`web/`](web/README.md).
 6. **[Troubleshooting](docs/TROUBLESHOOTING.md)** — driver Windows, COM port, layar putih/hitam, panel offset, SD, boot loop.
 
 > [!CAUTION]
-> Modul LCD **tanpa CS** tidak boleh berbagi jalur SPI2 dengan perangkat lain tanpa perancangan khusus. microSD menggunakan **SPI3 terpisah**. Sambungan BLK/backlight berbeda antar modul; jangan mengalirkan arus LED secara langsung dari GPIO ESP32.
+> Pin CS LCD pada modul di foto wajib tersambung ke **GPIO10**. LCD memakai **SPI2** dan microSD memakai **SPI3 terpisah**. Sambungan BLK/backlight berbeda antar modul; jangan mengalirkan arus LED secara langsung dari GPIO ESP32.
 
 ## Windows — jalur utama untuk pengguna
 
@@ -89,10 +89,10 @@ Untuk menguji TFT, microSD dan enam tombol sebelum full firmware tersedia, terse
 ```mermaid
 flowchart LR
     MCU[ESP32-S3 N16R8]
-    LCD[ST7789 240×240\nSPI2 tanpa CS]
+    LCD[ST7789 240×240\nSPI2, CS GPIO10]
     SD[MicroSD FAT32\nSPI3, CS14]
     BT[6 Tombol\nActive-low ke GND]
-    MCU -->|12 SCK, 11 MOSI, 15 DC, 16 RST| LCD
+    MCU -->|12 SCK, 11 MOSI, 10 CS, 15 DC, 16 RST| LCD
     MCU -->|40 CLK, 39 MOSI, 38 MISO, 14 CS| SD
     MCU -->|4, 5, 6, 17, 8, 18| BT
 ```
