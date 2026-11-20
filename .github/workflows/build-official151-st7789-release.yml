@@ -8,6 +8,10 @@ on:
       - 'patch/loader_151_port.patch'
       - 'patch/loader_cli_151_port.patch'
       - 'patch/patch_flipper.py'
+      - 'patch/Pinout_ESP32S3_ST7789_240.txt'
+      - 'docs/HARDWARE.md'
+      - 'README.md'
+      - 'docs/INSTALL_WINDOWS.md'
       - 'scripts/package_artifacts.py'
       - 'tests/compat151/check_ota_profile_image.py'
       - 'scripts/flash_package.sh'
@@ -44,6 +48,8 @@ jobs:
             git -C .work/upstream apply "$GITHUB_WORKSPACE/$patch"
           done
           python3 patch/patch_flipper.py .work/upstream
+          grep -F '#define BOARD_PIN_LCD_CS   10' .work/upstream/components/furi_hal/boards/board_DIY.h
+          grep -F '#define BOARD_LCD_SPI_FREQ_HZ (10 * 1000 * 1000)' .work/upstream/components/furi_hal/boards/board_DIY.h
           grep -F '1.5.1-ESP32-preview' .work/upstream/components/toolbox/version.c
           grep -F '1.5.1-ESP32-preview' .work/upstream/components/ble_serial/ble_serial.c
       - name: Compile ESP32-S3 ST7789 firmware
@@ -110,7 +116,7 @@ jobs:
               "esp_app_api_version": "1.0 (ESP32 port)",
               "official_app_api_version": "88.2",
               "board": "DIY ESP32-S3 N16R8",
-              "lcd": "ST7789 240x240 7-pin, no CS",
+              "lcd": "ST7789 240x240 8-pin, CS GPIO10, 10 MHz SPI",
               "artifact_created_at_utc": created,
               "scope": "Selected portable Flipper 1.5.1 changes and ESP32 adaptations; not complete official source, SDK, runtime, or hardware parity.",
               "hardware_validation": "Firmware compiled and flash offsets verified in CI; physical ESP32-S3 validation remains pending."
