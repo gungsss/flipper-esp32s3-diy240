@@ -46,11 +46,10 @@ Tombol RST pada PCB eksternal **tidak disambungkan** pada profil awal. Jika perl
 
 ## 6. Ekspektasi layar ST7735S 160×128
 
-Build utama memakai framebuffer Flipper **128×64** yang diskalakan memenuhi
-seluruh panel **160×128 landscape**. Tidak ada bar kosong di atas atau bawah.
-Karena rasio framebuffer berbeda dari rasio panel, UI tampak lebih tinggi
-dibanding tampilan Flipper asli. Beberapa aplikasi yang menggambar langsung ke
-layar masih memerlukan penyesuaian resolusi tersendiri.
+Build utama memakai kanvas native **160×128 landscape**. Beranda menampilkan
+jam dan tanggal di atas animasi Flipper, launcher menyediakan lima baris penuh,
+dan submenu umum menampilkan lebih banyak pilihan. Beberapa aplikasi yang
+menggambar dengan koordinat tetap 128×64 masih dapat memerlukan penyesuaian.
 
 ## 7. Checklist hasil uji awal
 
@@ -58,7 +57,7 @@ layar masih memerlukan penyesuaian resolusi tersendiri.
 |---|---|---|
 | Flash selesai | Belum diuji fisik | Log flashing |
 | Boot tanpa panic | Belum diuji fisik | Log serial 30–60 detik |
-| UI 240×240 | Belum diuji fisik | Foto layar |
+| UI ST7735S 160×128 landscape | Belum diuji fisik | Foto layar |
 | UP / DWN / LET / RHT | Belum diuji fisik | Foto/video navigasi |
 | MID / SET | Belum diuji fisik | Foto/video pemilihan/back |
 | microSD FAT32 | Belum diuji fisik | Log mount / daftar file |
