@@ -26,6 +26,16 @@ class PackageContractTest(unittest.TestCase):
             '0x10000 furi_esp32.bin '
             '0xbf0000 ota_data_initial.bin\n'
         )
+        board = source / 'components/furi_hal/boards/board_DIY.h'
+        board.parent.mkdir(parents=True, exist_ok=True)
+        board.write_text(
+            '#define BOARD_HAS_SUBGHZ 0\n'
+            '#define BOARD_HAS_NRF24 0\n'
+            '#define BOARD_HAS_NFC 0\n'
+            '#define BOARD_HAS_IR 0\n'
+            '#define BOARD_HAS_RFID 0\n'
+        )
+        (source / 'Pinout.txt').write_text('LCD_CS=-1\nBTN_OK=8\n')
         return source, build
 
     def _run(self, source, dest):
@@ -43,6 +53,8 @@ class PackageContractTest(unittest.TestCase):
             manifest = json.loads((dst / 'BUILD_INFO.json').read_text())
             self.assertEqual(manifest['board'], 'DIY ESP32-S3 N16R8')
             self.assertEqual(len(manifest['images']), 4)
+            self.assertIn('all legacy Canvas views', manifest['ui_rendering'])
+            self.assertIn('physical display validation remains separate', manifest['ui_rendering'])
             for entry in manifest['images']:
                 path = dst / entry['file']
                 self.assertTrue(path.is_file())

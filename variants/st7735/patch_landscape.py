@@ -180,12 +180,365 @@ def patch_gui_header(s):
     )
 
 
+def patch_canvas_internal_header(s):
+    s = replace_once(
+        s,
+        "    size_t height;\n    CompressIcon* compress_icon;",
+        "    size_t height;\n    bool legacy_scale_active;\n    CompressIcon* compress_icon;",
+        "track legacy-layout scaling state",
+    )
+    return replace_once(
+        s,
+        "void canvas_frame_set(\n",
+        "void canvas_set_legacy_scale(Canvas* canvas, bool enabled);\nbool canvas_get_legacy_scale(const Canvas* canvas);\n\n"
+        "void canvas_frame_set(\n",
+        "legacy-layout scaling API",
+    )
+
+
+def patch_canvas_header(s):
+    if "#include <stdbool.h>" not in s:
+        s = replace_once(
+            s,
+            "#include <stdint.h>\n",
+            "#include <stdint.h>\n#include <stdbool.h>\n",
+            "bool type for native view layout",
+        )
+    return s
+
+
+def patch_canvas(s):
+    s = replace_once(
+        s,
+        "#include <u8g2_glue.h>\n",
+        "#include <u8g2_glue.h>\n#include <boards/board.h>\n",
+        "board geometry for legacy layout scaling",
+    )
+    s = replace_once(
+        s,
+        "    canvas->orientation = CanvasOrientationHorizontal;\n",
+        "    canvas->orientation = CanvasOrientationHorizontal;\n"
+        "    canvas->legacy_scale_active = false;\n",
+        "initialize native canvas layout state",
+    )
+    s = replace_once(
+        s,
+        "size_t canvas_width(const Canvas* canvas) {\n    furi_check(canvas);\n    return canvas->width;\n}\n\nsize_t canvas_height(const Canvas* canvas) {\n    furi_check(canvas);\n    return canvas->height;\n}",
+        """static size_t canvas_legacy_logical_width(const Canvas* canvas) {
+    return (canvas->orientation == CanvasOrientationVertical ||
+            canvas->orientation == CanvasOrientationVerticalFlip) ?
+               64 :
+               128;
+}
+
+static size_t canvas_legacy_logical_height(const Canvas* canvas) {
+    return (canvas->orientation == CanvasOrientationVertical ||
+            canvas->orientation == CanvasOrientationVerticalFlip) ?
+               128 :
+               64;
+}
+
+void canvas_set_legacy_scale(Canvas* canvas, bool enabled) {
+    furi_check(canvas);
+#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD
+    /* Small status-bar viewports keep their native geometry. Full application
+     * views that still use Flipper's 128x64 coordinates are scaled across the
+     * entire ST7735S canvas, including portrait-oriented viewports. */
+    canvas->legacy_scale_active = enabled && canvas->width >= 96 && canvas->height >= 64;
+#else
+    UNUSED(enabled);
+    canvas->legacy_scale_active = false;
+#endif
+}
+
+bool canvas_get_legacy_scale(const Canvas* canvas) {
+    furi_check(canvas);
+    return canvas->legacy_scale_active;
+}
+
+static int32_t canvas_scale_x(const Canvas* canvas, int32_t value) {
+    if(!canvas->legacy_scale_active) return value;
+    return (int32_t)(((int64_t)value * (int64_t)canvas->width) /
+                     (int64_t)canvas_legacy_logical_width(canvas));
+}
+
+static int32_t canvas_scale_y(const Canvas* canvas, int32_t value) {
+    if(!canvas->legacy_scale_active) return value;
+    return (int32_t)(((int64_t)value * (int64_t)canvas->height) /
+                     (int64_t)canvas_legacy_logical_height(canvas));
+}
+
+static size_t canvas_scale_width(const Canvas* canvas, size_t value) {
+    if(!canvas->legacy_scale_active) return value;
+    return (size_t)(((uint64_t)value * (uint64_t)canvas->width +
+                     canvas_legacy_logical_width(canvas) - 1) /
+                    canvas_legacy_logical_width(canvas));
+}
+
+static size_t canvas_scale_height(const Canvas* canvas, size_t value) {
+    if(!canvas->legacy_scale_active) return value;
+    return (size_t)(((uint64_t)value * (uint64_t)canvas->height +
+                     canvas_legacy_logical_height(canvas) - 1) /
+                    canvas_legacy_logical_height(canvas));
+}
+
+size_t canvas_width(const Canvas* canvas) {
+    furi_check(canvas);
+    if(canvas->legacy_scale_active) return canvas_legacy_logical_width(canvas);
+    return canvas->width;
+}
+
+size_t canvas_height(const Canvas* canvas) {
+    furi_check(canvas);
+    if(canvas->legacy_scale_active) return canvas_legacy_logical_height(canvas);
+    return canvas->height;
+}""",
+        "legacy app canvases use full-screen geometry",
+    )
+    s = replace_once(
+        s,
+        "size_t canvas_current_font_height(const Canvas* canvas) {",
+        """static void canvas_draw_legacy_bitmap(
+    Canvas* canvas,
+    int32_t x,
+    int32_t y,
+    size_t width,
+    size_t height,
+    const uint8_t* bitmap,
+    IconRotation rotation) {
+    if(!width || !height || !bitmap) return;
+    x = canvas_scale_x(canvas, x) + canvas->offset_x;
+    y = canvas_scale_y(canvas, y) + canvas->offset_y;
+    if(!canvas->legacy_scale_active || (width < 48 && height < 32)) {
+        canvas_draw_u8g2_bitmap(&canvas->fb, x, y, width, height, bitmap, rotation);
+        return;
+    }
+#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD
+    size_t scaled_width = MIN(canvas_scale_width(canvas, width), canvas->width);
+    size_t scaled_height = MIN(canvas_scale_height(canvas, height), canvas->height);
+    const size_t scaled_stride = (scaled_width + 7) / 8;
+    const size_t source_stride = (width + 7) / 8;
+    uint8_t scaled_bitmap[(BOARD_LCD_H_RES * BOARD_LCD_V_RES + 7) / 8] = {0};
+    for(size_t target_y = 0; target_y < scaled_height; target_y++) {
+        const size_t source_y = target_y * height / scaled_height;
+        for(size_t target_x = 0; target_x < scaled_width; target_x++) {
+            const size_t source_x = target_x * width / scaled_width;
+            const uint8_t source_byte =
+                u8x8_pgm_read(bitmap + source_y * source_stride + source_x / 8);
+            if(source_byte & (1u << (source_x & 7))) {
+                scaled_bitmap[target_y * scaled_stride + target_x / 8] |=
+                    (uint8_t)(1u << (target_x & 7));
+            }
+        }
+    }
+    canvas_draw_u8g2_bitmap(
+        &canvas->fb, x, y, scaled_width, scaled_height, scaled_bitmap, rotation);
+#else
+    canvas_draw_u8g2_bitmap(&canvas->fb, x, y, width, height, bitmap, rotation);
+#endif
+}
+
+size_t canvas_current_font_height(const Canvas* canvas) {""",
+        "native scaling for large legacy bitmap screens",
+    )
+    # Map primitive coordinates and dimensions at the Canvas boundary. This
+    # covers built-in apps and third-party screens without editing each page.
+    pairs = (
+        ("    x += canvas->offset_x;\n    y += canvas->offset_y;\n    u8g2_DrawUTF8(&canvas->fb, x, y, str);",
+         "    x = canvas_scale_x(canvas, x) + canvas->offset_x;\n    y = canvas_scale_y(canvas, y) + canvas->offset_y;\n    u8g2_DrawUTF8(&canvas->fb, x, y, str);", "scale legacy strings"),
+        ("    x += canvas->offset_x;\n    y += canvas->offset_y;\n\n    switch(horizontal) {",
+         "    x = canvas_scale_x(canvas, x) + canvas->offset_x;\n    y = canvas_scale_y(canvas, y) + canvas->offset_y;\n\n    switch(horizontal) {", "scale aligned legacy strings"),
+        ("    x += canvas->offset_x;\n    y += canvas->offset_y;\n    uint8_t* bitmap_data = NULL;\n    compress_icon_decode(canvas->compress_icon, compressed_bitmap_data, &bitmap_data);\n    canvas_draw_u8g2_bitmap(&canvas->fb, x, y, width, height, bitmap_data, IconRotation0);",
+         "    uint8_t* bitmap_data = NULL;\n    compress_icon_decode(canvas->compress_icon, compressed_bitmap_data, &bitmap_data);\n    canvas_draw_legacy_bitmap(canvas, x, y, width, height, bitmap_data, IconRotation0);", "scale legacy bitmap positions"),
+        ("    x += canvas->offset_x;\n    y += canvas->offset_y;\n    uint8_t* icon_data = NULL;\n    compress_icon_decode(\n        canvas->compress_icon, icon_animation_get_data(icon_animation), &icon_data);\n    const int32_t width = (icon_animation_get_width(icon_animation) * width_scale) / 100;\n    const int32_t height = (icon_animation_get_height(icon_animation) * height_scale) / 100;\n    canvas_draw_u8g2_bitmap(\n        &canvas->fb, x, y, width, height, icon_data, IconRotation0);",
+         "    uint8_t* icon_data = NULL;\n    compress_icon_decode(\n        canvas->compress_icon, icon_animation_get_data(icon_animation), &icon_data);\n    const int32_t width = (icon_animation_get_width(icon_animation) * width_scale) / 100;\n    const int32_t height = (icon_animation_get_height(icon_animation) * height_scale) / 100;\n    canvas_draw_legacy_bitmap(canvas, x, y, width, height, icon_data, IconRotation0);", "scale legacy animation images"),
+        ("    x += canvas->offset_x;\n    y += canvas->offset_y;\n    uint8_t* icon_data = NULL;\n    compress_icon_decode(canvas->compress_icon, icon_get_frame_data(icon, 0), &icon_data);",
+         "    x = canvas_scale_x(canvas, x) + canvas->offset_x;\n    y = canvas_scale_y(canvas, y) + canvas->offset_y;\n    uint8_t* icon_data = NULL;\n    compress_icon_decode(canvas->compress_icon, icon_get_frame_data(icon, 0), &icon_data);", "scale legacy icon positions"),
+        ("    x += canvas->offset_x;\n    y += canvas->offset_y;\n    u8g2_DrawPixel(&canvas->fb, x, y);",
+         "    x = canvas_scale_x(canvas, x) + canvas->offset_x;\n    y = canvas_scale_y(canvas, y) + canvas->offset_y;\n    u8g2_DrawPixel(&canvas->fb, x, y);", "scale legacy dots"),
+        ("    x += canvas->offset_x;\n    y += canvas->offset_y;\n    u8g2_DrawBox(&canvas->fb, x, y, width, height);",
+         "    x = canvas_scale_x(canvas, x) + canvas->offset_x;\n    y = canvas_scale_y(canvas, y) + canvas->offset_y;\n    width = canvas_scale_width(canvas, width);\n    height = canvas_scale_height(canvas, height);\n    u8g2_DrawBox(&canvas->fb, x, y, width, height);", "scale legacy boxes"),
+        ("    x += canvas->offset_x;\n    y += canvas->offset_y;\n    u8g2_DrawRBox(&canvas->fb, x, y, width, height, radius);",
+         "    x = canvas_scale_x(canvas, x) + canvas->offset_x;\n    y = canvas_scale_y(canvas, y) + canvas->offset_y;\n    width = canvas_scale_width(canvas, width);\n    height = canvas_scale_height(canvas, height);\n    if(canvas->legacy_scale_active) radius = canvas_scale_width(canvas, radius);\n    u8g2_DrawRBox(&canvas->fb, x, y, width, height, radius);", "scale legacy rounded boxes"),
+        ("    x += canvas->offset_x;\n    y += canvas->offset_y;\n    u8g2_DrawFrame(&canvas->fb, x, y, width, height);",
+         "    x = canvas_scale_x(canvas, x) + canvas->offset_x;\n    y = canvas_scale_y(canvas, y) + canvas->offset_y;\n    width = canvas_scale_width(canvas, width);\n    height = canvas_scale_height(canvas, height);\n    u8g2_DrawFrame(&canvas->fb, x, y, width, height);", "scale legacy frames"),
+        ("    x += canvas->offset_x;\n    y += canvas->offset_y;\n    u8g2_DrawRFrame(&canvas->fb, x, y, width, height, radius);",
+         "    x = canvas_scale_x(canvas, x) + canvas->offset_x;\n    y = canvas_scale_y(canvas, y) + canvas->offset_y;\n    width = canvas_scale_width(canvas, width);\n    height = canvas_scale_height(canvas, height);\n    if(canvas->legacy_scale_active) radius = canvas_scale_width(canvas, radius);\n    u8g2_DrawRFrame(&canvas->fb, x, y, width, height, radius);", "scale legacy rounded frames"),
+        ("    x1 += canvas->offset_x;\n    y1 += canvas->offset_y;\n    x2 += canvas->offset_x;\n    y2 += canvas->offset_y;",
+         "    x1 = canvas_scale_x(canvas, x1) + canvas->offset_x;\n    y1 = canvas_scale_y(canvas, y1) + canvas->offset_y;\n    x2 = canvas_scale_x(canvas, x2) + canvas->offset_x;\n    y2 = canvas_scale_y(canvas, y2) + canvas->offset_y;", "scale legacy lines"),
+        ("    x += canvas->offset_x;\n    y += canvas->offset_y;\n    u8g2_DrawCircle(&canvas->fb, x, y, radius, U8G2_DRAW_ALL);",
+         "    x = canvas_scale_x(canvas, x) + canvas->offset_x;\n    y = canvas_scale_y(canvas, y) + canvas->offset_y;\n    if(canvas->legacy_scale_active) radius = canvas_scale_width(canvas, radius);\n    u8g2_DrawCircle(&canvas->fb, x, y, radius, U8G2_DRAW_ALL);", "scale legacy circles"),
+        ("    x += canvas->offset_x;\n    y += canvas->offset_y;\n    u8g2_DrawDisc(&canvas->fb, x, y, radius, U8G2_DRAW_ALL);",
+         "    x = canvas_scale_x(canvas, x) + canvas->offset_x;\n    y = canvas_scale_y(canvas, y) + canvas->offset_y;\n    if(canvas->legacy_scale_active) radius = canvas_scale_width(canvas, radius);\n    u8g2_DrawDisc(&canvas->fb, x, y, radius, U8G2_DRAW_ALL);", "scale legacy discs"),
+        ("    x += canvas->offset_x;\n    y += canvas->offset_y;\n    canvas_draw_u8g2_bitmap(&canvas->fb, x, y, width, height, bitmap_data, rotation);",
+         "    canvas_draw_legacy_bitmap(canvas, x, y, width, height, bitmap_data, rotation);", "scale legacy xbm images"),
+        ("    x += canvas->offset_x;\n    y += canvas->offset_y;\n    u8g2_DrawGlyph(&canvas->fb, x, y, ch);",
+         "    x = canvas_scale_x(canvas, x) + canvas->offset_x;\n    y = canvas_scale_y(canvas, y) + canvas->offset_y;\n    u8g2_DrawGlyph(&canvas->fb, x, y, ch);", "scale legacy glyph positions"),
+    )
+    for before, after, label in pairs:
+        if label == "scale legacy icon positions":
+            if after in s:
+                continue
+            if s.count(before) != 3:
+                raise ValueError(f"{label}: expected 3 source anchors, found {s.count(before)}")
+            s = s.replace(before, after)
+        else:
+            s = replace_once(s, before, after, label)
+    return s
+
+
+def patch_view_header(s):
+    s = replace_once(
+        s,
+        "void view_set_orientation(View* view, ViewOrientation orientation);",
+        "void view_set_orientation(View* view, ViewOrientation orientation);\n\n"
+        "/* Native-layout GUI modules opt out of legacy 128x64 canvas scaling. */\n"
+        "void view_set_native_layout(View* view, bool native_layout);",
+        "select native full-screen layouts",
+    )
+    return s
+
+
+def patch_view_internal_header(s):
+    return replace_once(
+        s,
+        "    ViewOrientation orientation;\n    ViewInputMode input_mode;",
+        "    ViewOrientation orientation;\n    ViewInputMode input_mode;\n    bool native_layout;",
+        "store native-layout module preference",
+    )
+
+
+def patch_view(s):
+    s = replace_once(
+        s,
+        '#include "view_i.h"\n',
+        '#include "view_i.h"\n#include "canvas_i.h"\n',
+        "canvas scaling for legacy application views",
+    )
+    s = replace_once(
+        s,
+        "void view_set_orientation(View* view, ViewOrientation orientation) {\n    furi_check(view);\n    view->orientation = orientation;\n}\n",
+        "void view_set_orientation(View* view, ViewOrientation orientation) {\n    furi_check(view);\n    view->orientation = orientation;\n}\n\n"
+        "void view_set_native_layout(View* view, bool native_layout) {\n"
+        "    furi_check(view);\n    view->native_layout = native_layout;\n}\n",
+        "native view layout opt-out",
+    )
+    return replace_once(
+        s,
+        "void view_draw(View* view, Canvas* canvas) {\n    furi_check(view);\n    if(view->draw_callback) {\n        void* data = view_get_model(view);\n        view->draw_callback(canvas, data);\n        view_unlock_model(view);\n    }\n}",
+        """void view_draw(View* view, Canvas* canvas) {
+    furi_check(view);
+    if(view->draw_callback) {
+        const bool legacy_scale = canvas_get_legacy_scale(canvas);
+        canvas_set_legacy_scale(canvas, !view->native_layout);
+        void* data = view_get_model(view);
+        view->draw_callback(canvas, data);
+        view_unlock_model(view);
+        canvas_set_legacy_scale(canvas, legacy_scale);
+    }
+}""",
+        "scale every legacy app view to native screen",
+    )
+
+
+def patch_view_port(s):
+    s = replace_once(
+        s,
+        '#include "gui_i.h"\n',
+        '#include "gui_i.h"\n#include "canvas_i.h"\n',
+        "canvas scaling for full-screen viewport apps",
+    )
+    return replace_once(
+        s,
+        "    if(view_port->draw_callback) {\n        view_port_setup_canvas_orientation(view_port, canvas);\n        view_port->draw_callback(canvas, view_port->draw_callback_context);\n    }",
+        "    if(view_port->draw_callback) {\n"
+        "        view_port_setup_canvas_orientation(view_port, canvas);\n"
+        "        const bool legacy_scale = canvas_get_legacy_scale(canvas);\n"
+        "        canvas_set_legacy_scale(canvas, true);\n"
+        "        view_port->draw_callback(canvas, view_port->draw_callback_context);\n"
+        "        canvas_set_legacy_scale(canvas, legacy_scale);\n"
+        "    }",
+        "scale full-screen custom viewport apps",
+    )
+
+
+def patch_mark_native_layout(s, view_expr, draw_callback):
+    return replace_once(
+        s,
+        f"    view_set_draw_callback({view_expr}, {draw_callback});",
+        f"    view_set_draw_callback({view_expr}, {draw_callback});\n"
+        f"    view_set_native_layout({view_expr}, true);",
+        f"native 160x128 view layout: {draw_callback}",
+    )
+
+
+def patch_multiline_elements(s):
+    return replace_once(
+        s,
+        "    } while(end && y < 64);",
+        "    } while(end && y < canvas_height(canvas));",
+        "multiline text follows active full-screen canvas",
+    )
+
+
+def patch_interface_menu_style(s):
+    s = replace_once(
+        s,
+        "#include <power/power_service/power.h>\n",
+        "#include <power/power_service/power.h>\n#include <boards/board.h>\n",
+        "board-aware menu style options",
+    )
+    s = replace_once(
+        s,
+        "static const char* const menu_style_text[MenuStyleCount] = {\n"
+        '    "List",\n    "Wii",\n    "DSi",\n    "PS4",\n    "Vertical",\n    "C64",\n'
+        '    "Compact",\n    "MNTM",\n    "CoverFlow",\n};',
+        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
+        'static const char* const menu_style_text[] = {"Fullscreen list"};\n'
+        "#define MENU_STYLE_COUNT 1\n#else\n"
+        "static const char* const menu_style_text[MenuStyleCount] = {\n"
+        '    "List",\n    "Wii",\n    "DSi",\n    "PS4",\n    "Vertical",\n    "C64",\n'
+        '    "Compact",\n    "MNTM",\n    "CoverFlow",\n};\n#define MENU_STYLE_COUNT MenuStyleCount\n#endif',
+        "hide unsupported 64px launcher layouts on native LCD",
+    )
+    s = replace_once(
+        s,
+        "    VariableItem* item = variable_item_list_add(\n        app->variable_item_list, \"Menu style\", MenuStyleCount, menu_style_changed, app);\n    uint8_t value_index = (uint8_t)menu_get_style();",
+        "    VariableItem* item = variable_item_list_add(\n"
+        "        app->variable_item_list, \"Menu style\", MENU_STYLE_COUNT, menu_style_changed, app);\n"
+        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
+        "    uint8_t value_index = 0;\n#else\n    uint8_t value_index = (uint8_t)menu_get_style();\n#endif",
+        "native LCD interface menu style selector",
+    )
+    return s
+
+
 def patch_menu(s):
     s = replace_once(
         s,
         "#include <furi_hal.h>\n",
         "#include <furi_hal.h>\n#include <boards/board.h>\n",
         "board geometry include for responsive app menu",
+    )
+    s = replace_once(
+        s,
+        "    FURI_CRITICAL_ENTER();\n    if(!g_menu_style_loaded && valid) g_menu_style = loaded;\n    g_menu_style_loaded = true;",
+        "    FURI_CRITICAL_ENTER();\n"
+        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
+        "    UNUSED(valid);\n"
+        "    if(!g_menu_style_loaded) g_menu_style = MenuStyleList;\n"
+        "#else\n    if(!g_menu_style_loaded && valid) g_menu_style = loaded;\n#endif\n"
+        "    g_menu_style_loaded = true;",
+        "force native launcher style on 160x128 profile",
+    )
+    s = replace_once(
+        s,
+        "void menu_set_style(MenuStyle style) {\n    if(((int)style < 0) || ((int)style >= (int)MenuStyleCount)) {",
+        "void menu_set_style(MenuStyle style) {\n"
+        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
+        "    UNUSED(style);\n    style = MenuStyleList;\n#endif\n"
+        "    if(((int)style < 0) || ((int)style >= (int)MenuStyleCount)) {",
+        "keep launcher and interface setting in sync",
     )
     old = """        case MenuStyleList: {
             for(uint8_t i = 0; i < 3; i++) {
@@ -207,8 +560,9 @@ def patch_menu(s):
             /* Five generous rows fill the native 160x128 panel. The selected row
              * stays centered, matching the Flipper list while using the extra
              * height for more apps and a wider text area. */
-            const size_t row_height = 25;
             const size_t row_count = MIN((size_t)5, items_count);
+            if(row_count == 0) break;
+            const size_t row_height = MIN((size_t)25, canvas_height(canvas) / row_count);
             const size_t center_row = row_count / 2;
             const size_t top = (canvas_height(canvas) - row_count * row_height) / 2;
             const size_t left = 2;
@@ -257,6 +611,15 @@ def patch_menu(s):
 #endif
             break;
         }"""
+    if "const size_t row_height = 25;" in s:
+        s = replace_once(
+            s,
+            "const size_t row_height = 25;",
+            "const size_t row_height = MIN((size_t)25, canvas_height(canvas) / row_count);",
+            "fit native launcher rows to available height",
+        )
+    if "const size_t row_height = MIN((size_t)25, canvas_height(canvas) / row_count);" in s:
+        return s
     return replace_once(s, old, new, "native full-height app menu")
 
 
@@ -265,7 +628,7 @@ def patch_file_browser(s):
         s,
         "#define LIST_ITEMS   5u\n#define MAX_LEN_PX   110\n#define FRAME_HEIGHT 12\n#define Y_OFFSET     3",
         "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "#define LIST_ITEMS   10u\n#define MAX_LEN_PX   142\n#define FRAME_HEIGHT 12\n#define Y_OFFSET     4\n"
+        "#define LIST_ITEMS   9u\n#define MAX_LEN_PX   142\n#define FRAME_HEIGHT 12\n#define Y_OFFSET     3\n"
         "#else\n#define LIST_ITEMS   5u\n#define MAX_LEN_PX   110\n#define FRAME_HEIGHT 12\n#define Y_OFFSET     3\n#endif",
         "full-height native file browser rows",
     )
@@ -322,20 +685,24 @@ def patch_text_box(s):
         "#include <stdint.h>\n#include <boards/board.h>\n",
         "board geometry include for native text box",
     )
-    s = replace_once(
-        s,
-        "#define TEXT_BOX_TEXT_WIDTH           (120)\n#define TEXT_BOX_TEXT_HEIGHT          (56)\n#define TEXT_BOX_MAX_LINES_PER_SCREEN (10)",
+    first_define = s.index("#define TEXT_BOX_TEXT_WIDTH")
+    previous_if = s.rfind("#if defined(BOARD_GUI_NATIVE_LCD)", 0, first_define)
+    line_start = s.rfind("\n", 0, first_define) + 1
+    if previous_if >= 0 and not s[line_start:first_define].strip():
+        line_start = previous_if
+    layout_end = s.index("#define TEXT_BOX_LINES_SCROLL_SPEED_MEDIUM", first_define)
+    layout = (
         "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
         "#define TEXT_BOX_TEXT_WIDTH           (BOARD_LCD_H_RES - 16)\n"
-        "#define TEXT_BOX_TEXT_HEIGHT          (BOARD_LCD_V_RES - 18)\n"
-        "#define TEXT_BOX_MAX_LINES_PER_SCREEN 24\n"
+        "#define TEXT_BOX_TEXT_HEIGHT          (BOARD_LCD_V_RES - 24)\n"
+        "#define TEXT_BOX_MAX_LINES_PER_SCREEN 20\n"
         "#else\n"
         "#define TEXT_BOX_TEXT_WIDTH           (120)\n"
         "#define TEXT_BOX_TEXT_HEIGHT          (56)\n"
         "#define TEXT_BOX_MAX_LINES_PER_SCREEN (10)\n"
-        "#endif",
-        "native text box line wrapping and viewport",
+        "#endif\n\n"
     )
+    s = s[:line_start] + layout + s[layout_end:]
     s = replace_once(
         s,
         "    elements_slightly_rounded_frame(canvas, 0, 0, 124, 64);\n    elements_scrollbar(canvas, model->scroll_pos, model->scroll_num);",
@@ -391,7 +758,8 @@ def patch_text_input(s):
     key_geometry += "            if(keys[column].text == ENTER_KEY || keys[column].text == SWITCH_KEYBOARD_KEY) key_y -= 11;\n"
     key_geometry += "            if(keys[column].text == BACKSPACE_KEY) key_y -= 9;\n"
     key_geometry += "#endif\n"
-    chunk = replace_once(chunk, key_anchor, key_geometry, "native text input keyboard geometry")
+    if "key_y = row == 0 ? 50 : (row == 1 ? 78 : 106);" not in chunk:
+        chunk = replace_once(chunk, key_anchor, key_geometry, "native text input keyboard geometry")
     chunk = chunk.replace("keyboard_origin_x + keys[column].x", "key_x")
     chunk = chunk.replace("keyboard_origin_y + keys[column].y", "key_y")
     chunk = chunk.replace("int32_t key_x = key_x;", "int32_t key_x = keyboard_origin_x + keys[column].x;")
@@ -441,14 +809,18 @@ def patch_variable_item_list(s):
         "#else\n    size_t res = 4;\n#endif",
         "native settings list row count",
     )
-    s = replace_once(
-        s,
-        "    const uint8_t item_height = 16;",
+    native_row_height = (
         "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "    const uint8_t item_height = 18;\n"
-        "#else\n    const uint8_t item_height = 16;\n#endif",
-        "native settings list row height",
+        "    const uint8_t item_height = 16;\n"
+        "#else\n    const uint8_t item_height = 16;\n#endif"
     )
+    if native_row_height not in s:
+        s = replace_once(
+            s,
+            "    const uint8_t item_height = 16;",
+            native_row_height,
+            "native settings list row height",
+        )
     s = replace_once(
         s,
         "            uint8_t temp_x_default = 73;\n            uint8_t temp_w_default = 66;",
@@ -526,8 +898,9 @@ def patch_number_input(s):
     coords += "                key_x = canvas_width(canvas) - 26;\n                key_y = 99;\n"
     coords += "            } else {\n"
     coords += "                key_x = 15 + (keys[column].x * 18) / 10;\n"
-    coords += "                key_y = row == 0 ? 78 : 110;\n            }\n#endif\n"
-    chunk = replace_once(chunk, anchor, coords, "native number keyboard geometry")
+    coords += "                key_y = row == 0 ? 72 : 104;\n            }\n#endif\n"
+    if "key_y = row == 0 ? 72 : 104;" not in chunk:
+        chunk = replace_once(chunk, anchor, coords, "native number keyboard geometry")
     chunk = chunk.replace("keyboard_origin_x + keys[column].x", "key_x")
     chunk = chunk.replace("keyboard_origin_y + keys[column].y", "key_y")
     chunk = chunk.replace("int32_t key_x = key_x;", "int32_t key_x = keyboard_origin_x + keys[column].x;")
@@ -596,13 +969,14 @@ def patch_byte_input(s):
     coords += "                int32_t key_y = keyboard_origin_y + keys[column].y;\n"
     coords += "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
     coords += "                if(keys[column].value == backspace_symbol) {\n"
-    coords += "                    key_x = canvas_width(canvas) - 26;\n                    key_y = 77;\n"
+    coords += "                    key_x = canvas_width(canvas) - 26;\n                    key_y = 74;\n"
     coords += "                } else if(keys[column].value == enter_symbol) {\n"
-    coords += "                    key_x = canvas_width(canvas) - 27;\n                    key_y = 105;\n"
+    coords += "                    key_x = canvas_width(canvas) - 27;\n                    key_y = 100;\n"
     coords += "                } else {\n"
     coords += "                    key_x = 16 + (keys[column].x * 14) / 10;\n"
-    coords += "                    key_y = row == 0 ? 86 : 116;\n                }\n#endif\n"
-    chunk = replace_once(chunk, anchor, coords, "native byte editor keyboard geometry")
+    coords += "                    key_y = row == 0 ? 82 : 106;\n                }\n#endif\n"
+    if "key_y = row == 0 ? 82 : 106;" not in chunk:
+        chunk = replace_once(chunk, anchor, coords, "native byte editor keyboard geometry")
     chunk = chunk.replace("keyboard_origin_x + keys[column].x", "key_x")
     chunk = chunk.replace("keyboard_origin_y + keys[column].y", "key_y")
     chunk = chunk.replace("int32_t key_x = key_x;", "int32_t key_x = keyboard_origin_x + keys[column].x;")
@@ -617,12 +991,28 @@ def patch_date_time_input(s):
         "#include <assets_icons.h>\n#include <boards/board.h>\n",
         "board geometry include for native date and time input",
     )
+    previous_native_layout = (
+        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
+        "#define ROW_0_Y (34)\n#define ROW_0_H (23)\n"
+        "#define ROW_1_Y (82)\n#define ROW_1_H (23)\n"
+        "#define DATE_TIME_X(x) ((x) + ((BOARD_LCD_H_RES - 128) / 2))\n"
+        "#define DATE_TIME_LABEL_Y(y) ((y) - 14)\n"
+    )
+    updated_native_layout = (
+        "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
+        "#define ROW_0_Y (33)\n#define ROW_0_H (22)\n"
+        "#define ROW_1_Y (78)\n#define ROW_1_H (22)\n"
+        "#define DATE_TIME_X(x) ((x) + ((BOARD_LCD_H_RES - 128) / 2))\n"
+        "#define DATE_TIME_LABEL_Y(y) ((y) - 14)\n"
+    )
+    if previous_native_layout in s:
+        s = s.replace(previous_native_layout, updated_native_layout, 1)
     s = replace_once(
         s,
         "#define ROW_0_Y (9)\n#define ROW_0_H (20)\n\n#define ROW_1_Y (40)\n#define ROW_1_H (20)",
         "#if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD\n"
-        "#define ROW_0_Y (34)\n#define ROW_0_H (23)\n"
-        "#define ROW_1_Y (82)\n#define ROW_1_H (23)\n"
+        "#define ROW_0_Y (33)\n#define ROW_0_H (22)\n"
+        "#define ROW_1_Y (78)\n#define ROW_1_H (22)\n"
         "#define DATE_TIME_X(x) ((x) + ((BOARD_LCD_H_RES - 128) / 2))\n"
         "#define DATE_TIME_LABEL_Y(y) ((y) - 14)\n"
         "#else\n"
@@ -680,7 +1070,7 @@ def patch_submenu(s):
 }""",
         """static size_t submenu_items_on_screen(SubmenuModel* model) {
 #if defined(BOARD_GUI_NATIVE_LCD) && BOARD_GUI_NATIVE_LCD
-    size_t res = (model->is_vertical) ? 10 : 7;
+    size_t res = (model->is_vertical) ? 9 : 7;
 #else
     size_t res = (model->is_vertical) ? 10 : 4;
 #endif
@@ -807,10 +1197,18 @@ def patch_bubble_home(s):
 
 def patch_native_ui(root):
     paths = {
+        "components/gui/canvas.h": patch_canvas_header,
+        "components/gui/canvas_i.h": patch_canvas_internal_header,
+        "components/gui/canvas.c": patch_canvas,
         "components/furi_hal/furi_hal_display.c": patch_display_hal,
         "components/u8g2/u8g2_glue.c": patch_u8g2,
         "components/u8g2/CMakeLists.txt": patch_u8g2_cmake,
+        "components/gui/view.h": patch_view_header,
+        "components/gui/view_i.h": patch_view_internal_header,
+        "components/gui/view.c": patch_view,
+        "components/gui/view_port.c": patch_view_port,
         "components/gui/gui_i.h": patch_gui_header,
+        "components/gui/elements.c": patch_multiline_elements,
         "components/gui/modules/menu.c": patch_menu,
         "components/gui/modules/file_browser.c": patch_file_browser,
         "components/gui/modules/text_box.c": patch_text_box,
@@ -821,10 +1219,32 @@ def patch_native_ui(root):
         "components/gui/modules/date_time_input.c": patch_date_time_input,
         "components/gui/modules/submenu.c": patch_submenu,
         "applications/services/desktop/animations/views/bubble_animation_view.c": patch_bubble_home,
+        "applications/settings/interface_settings/interface_settings_app.c": patch_interface_menu_style,
     }
     for relative_path, transform in paths.items():
         path = root / relative_path
         path.write_text(transform(path.read_text(encoding="utf-8")), encoding="utf-8")
+    native_views = {
+        "components/gui/modules/menu.c": ("menu->view", "menu_draw_callback"),
+        "components/gui/modules/file_browser.c": ("browser->view", "file_browser_view_draw_callback"),
+        "components/gui/modules/text_box.c": ("text_box->view", "text_box_view_draw_callback"),
+        "components/gui/modules/text_input.c": ("text_input->view", "text_input_view_draw_callback"),
+        "components/gui/modules/variable_item_list.c": ("variable_item_list->view", "variable_item_list_draw_callback"),
+        "components/gui/modules/number_input.c": ("number_input->view", "number_input_view_draw_callback"),
+        "components/gui/modules/byte_input.c": ("byte_input->view", "byte_input_view_draw_callback"),
+        "components/gui/modules/date_time_input.c": ("date_time_input->view", "date_time_input_view_draw_callback"),
+        "components/gui/modules/submenu.c": ("submenu->view", "submenu_view_draw_callback"),
+        "applications/services/desktop/animations/views/bubble_animation_view.c": (
+            "view->view",
+            "bubble_animation_draw_callback",
+        ),
+    }
+    for relative_path, (view_expr, callback) in native_views.items():
+        path = root / relative_path
+        path.write_text(
+            patch_mark_native_layout(path.read_text(encoding="utf-8"), view_expr, callback),
+            encoding="utf-8",
+        )
 
 
 def main():

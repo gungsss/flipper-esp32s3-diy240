@@ -14,7 +14,7 @@ SPEC.loader.exec_module(PATCH)
 
 class PatchContractTest(unittest.TestCase):
     def test_pinout_isolates_buses_and_avoids_strapping(self):
-        content = (ROOT / 'patch' / 'Pinout_ESP32S3_ST7789_240.txt').read_text()
+        content = (ROOT / 'patch' / 'Pinout_ESP32S3_ST7735S_160.txt').read_text()
         cfg = {}
         for line in content.splitlines():
             line = line.split('#', 1)[0].strip()

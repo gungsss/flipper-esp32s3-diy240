@@ -35,7 +35,7 @@
   <section class="card">
     <span class="eyebrow">ESP32-S3 N16R8 · ST7735S 160×128 landscape</span>
     <h1>Flipper 1.5.1 ESP32 backport</h1>
-    <p>Port ESP32-S3 ini memakai kanvas UI native 160×128 untuk panel ST7735S landscape. Beranda pixel-art, launcher, browser berkas, daftar pengaturan, kotak teks, keyboard, editor angka/byte, tanggal-waktu, dan submenu umum dirapikan untuk memakai area layar penuh. Parser hotel NFC 1.5.1 serta layout BadUSB Jepang juga disertakan. Ini <strong>bukan firmware resmi Flipper Zero</strong>; sebagian aplikasi dan periferal tetap dibatasi hardware ESP32.</p>
+    <p>Port ESP32-S3 ini memakai kanvas UI native 160×128 untuk panel ST7735S landscape. Halaman inti memiliki layout khusus; aplikasi Flipper lama yang memakai API Canvas bersama dipetakan ke seluruh panel. Audit source memeriksa jalur gambar dan callback aplikasi sebelum kompilasi. Parser hotel NFC 1.5.1 serta layout BadUSB Jepang juga disertakan. Ini <strong>bukan firmware resmi Flipper Zero</strong>; sebagian aplikasi dan periferal tetap dibatasi hardware ESP32.</p>
   </section>
   <section class="card notice">
     <h2>Sebelum memilih build</h2>

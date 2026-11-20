@@ -8,6 +8,7 @@ on:
       - 'patch/**'
       - 'variants/st7735/**'
       - 'scripts/build_local.sh'
+      - 'scripts/audit_st7735_ui.py'
       - 'scripts/fetch_upstream.sh'
       - 'scripts/package_artifacts.py'
   workflow_dispatch:

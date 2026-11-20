@@ -7,7 +7,7 @@ belum memiliki kesetaraan penuh dengan semua aplikasi, HAL, dan aksesori resmi.
 
 | Area | Status port |
 |---|---|
-| UI dan navigasi | Kanvas native 160×128 1-bit. Beranda pixel-art, launcher lima baris, browser berkas, daftar pengaturan, kotak teks, keyboard teks, editor angka/byte, editor tanggal-waktu, dan submenu umum memakai area layar landscape. Beberapa aplikasi atau plugin pihak ketiga yang menggambar pada koordinat 128×64 masih dapat menyisakan ruang atau perlu layout khusus. |
+| UI dan navigasi | Kanvas native 160×128 1-bit. Beranda pixel-art, launcher lima baris, browser berkas, daftar pengaturan, kotak teks, keyboard teks, editor angka/byte, editor tanggal-waktu, dan submenu umum memakai area layar landscape. Semua aplikasi yang memakai API Canvas bersama dipetakan dari koordinat lama 128×64 ke panel 160×128; halaman inti yang sudah didesain native tidak terkena skala ganda. Audit source memeriksa seluruh primitive Canvas dan kedua jalur callback GUI. Pemeriksaan fisik setiap halaman tetap perlu dilakukan di board. |
 | microSD / Archive | Bus SPI3 terpisah dari LCD dan radio; perlu uji pada kartu fisik. |
 | Wi-Fi dan BLE | Fitur ESP32-S3 dari port; beberapa penggunaan radio bersamaan bisa berbagi resource. |
 | USB HID / BadUSB | Didukung oleh port ESP32-S3; perlu uji pada perangkat target dan hanya untuk sistem yang berizin. |
