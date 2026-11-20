@@ -10,7 +10,7 @@ display_controller = int(sys.argv[2]) if len(sys.argv) > 2 else 7735
 offset = 24 + 8 + 256
 expected = struct.pack(
     '<8sHH16H', b'DIYOTA1\0', 1, display_controller,
-    11, 12, 15, 16, 65535, 7,
+    11, 12, 15, 16, 10, 7,
     40, 39, 38, 14, 4, 5, 6, 17, 8, 18,
 )
 assert len(image) >= offset + len(expected), 'application image too small'
