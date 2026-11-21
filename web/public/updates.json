@@ -1,0 +1,18 @@
+{
+  "current_version": "1.5.1-ESP32-preview",
+  "releases": [
+    {
+      "version": "1.5.1-ESP32-preview",
+      "date": "2026-11-21",
+      "title": "M4145 Universal · ST7735S landscape",
+      "scope": "Port komunitas by m4145 dari perubahan terpilih Flipper 1.5.1. Bukan firmware resmi atau port penuh; uji hardware tetap diperlukan.",
+      "build_url": "https://github.com/gungsss/flipper-esp32s3-diy240/actions/workflows/build-st7735s-151-modules.yml",
+      "changes": [
+        "Satu build universal untuk ESP32-S3 N16R8 dan ST7735S 160×128 landscape, dengan menu modul opsional disertakan dalam image yang sama.",
+        "Perbaikan ruang buffer saat keyboard menggambar cursor dan teks panjang, termasuk kolom password Wi-Fi.",
+        "Navigasi teks dimulai dengan huruf kecil; Caps Lock diaktifkan dengan tahan OK pada tombol layout.",
+        "Penyesuaian pemetaan D-pad dan tampilan pairing BLE untuk layar 160×128."
+      ]
+    }
+  ]
+}

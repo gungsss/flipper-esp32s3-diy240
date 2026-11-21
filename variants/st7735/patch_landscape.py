@@ -727,6 +727,16 @@ def patch_text_box(s):
     return s
 
 
+def patch_text_input_render_buffer(s):
+    return replace_once(
+        s,
+        "    char buf[text_length + 1];",
+        "    /* Extra room for the transient cursor and the trailing \"...\". */\n"
+        "    char buf[text_length + 5];",
+        "reserve text-input draw buffer for cursor and ellipsis",
+    )
+
+
 def patch_text_input(s):
     s = replace_once(
         s,
@@ -743,6 +753,7 @@ def patch_text_input(s):
     start = s.index("static void text_input_view_draw_callback(Canvas* canvas, void* _model) {")
     end = s.index("\nstatic void text_input_handle_up(", start)
     chunk = s[start:end]
+    chunk = patch_text_input_render_buffer(chunk)
     chunk = replace_once(
         chunk,
         "    TextInputModel* model = _model;\n",

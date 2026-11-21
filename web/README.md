@@ -1,14 +1,15 @@
-# DIY240 Web Flasher
+# M4145 Flipper ESP32-S3 Flasher
 
-Website untuk memasang firmware ESP32-S3 N16R8 / ST7789 240×240 melalui USB Serial dan memberikan panduan lintas platform.
+Situs firmware komunitas by m4145 untuk **ESP32-S3 N16R8 + ST7735S 160×128 landscape**. Root situs menampilkan satu opsi flash universal, panduan wiring, dan riwayat rilis. Vercel yang sama dipakai untuk seluruh pembaruan.
 
-## Arsitektur
+## Isi dan build
 
-- Frontend: HTML, CSS, JavaScript (Vite untuk bundling dan menyalin `public/` ke `dist/`).
-- Installer: [ESP Web Tools](https://esphome.github.io/esp-web-tools/) versi mayor 10; dialog flashing mengikuti implementasi library, bukan simulasi.
-- Image web: **merged firmware** dari empat image yang dibangun/terverifikasi di GitHub Actions. Manifest di `public/firmware/manifest.json` menggunakan `chipFamily: ESP32-S3`, offset `0`, dan `new_install_prompt_erase: true`.
-- Output firmware diterbitkan oleh [`.github/workflows/publish-web-firmware.yml`](../.github/workflows/publish-web-firmware.yml) dari artifact CI sukses `43889135916`, bukan ditulis ulang secara manual. Sumber ZIP asli diverifikasi terhadap `BUILD_INFO.json`.
-- Deployment: Vercel dari GitHub, **Root Directory = `web`**, Build Command = `npm run build`, Output Directory = `dist`. Push berikutnya membangun ulang situs secara otomatis.
+- Frontend statis HTML, CSS, dan JavaScript; Vite menyalin direktori `public/` ke `dist/`.
+- Installer menggunakan ESP Web Tools 10 dan manifest empat partisi di `public/flipper-st7735-151/landscape/manifest.json`.
+- Metadata `BUILD_INFO.json` menjadi sumber validasi board, versi, modul, ukuran, offset, dan SHA256.
+- Riwayat versi ditulis di `public/updates.json`; setiap rilis baru ditambahkan di bagian paling atas.
+- Project Vercel tetap `flipper-diy240-flasher`, Root Directory `web`, Build Command `npm run build`, Output Directory `dist`. Domain utama yang sudah terpasang: `diy240.vercel.app`.
+- Rilis baru tidak memerlukan project Vercel baru. Workflow firmware mengganti direktori paket universal; Git integration Vercel membangun ulang situs dari project yang sama.
 
 ## Development
 
@@ -18,20 +19,17 @@ npm install
 npm run dev
 ```
 
-Situs hanya mengaktifkan installer jika manifest, file binary, dan metadata tersedia serta pengguna mengonfirmasi model board. Pemeriksaan `HEAD` menghindari mengunduh ~12 MB hanya untuk status. Browser yang tidak mendukung USB Serial menerima instruksi manual, bukan tombol palsu.
+Installer hanya aktif setelah pengguna memeriksa hardware dan menyetujui konfirmasi. Pemeriksaan awal memastikan satu target ESP32-S3, empat partisi, offset yang cocok, file yang tersedia, serta metadata build universal.
 
-## Batasan
+## Pembaruan firmware
 
-- Web Serial/USB di browser memiliki keterbatasan platform. Windows/Linux/macOS melalui Chromium umumnya didukung. Android hanya pada perangkat/browser dengan USB OTG dan dukungan terkait. iOS **tidak bisa melakukan flashing USB dari website ini**.
-- **Firmware yang sama tidak boleh dipasang pada board selain ESP32-S3 N16R8 dengan pinout DIY240**.
-- Sukses build + flashing tidak otomatis membuktikan TFT, SD card, tombol atau semua aplikasi bekerja; lakukan pengujian hardware.
-- Flashing adalah operasi penulisan flash internal. Backup data yang diperlukan.
-- Firmware port komunitas by m4145 memakai source ESP32 berlisensi yang dicatat di metadata dan dokumen pengembangan. Situs tidak melakukan telemetry atau menyimpan data port USB.
-- Perangkat mungkin memakai driver USB-UART spesifik (mis. CP210x/CH34x) bergantung desain board, bukan ditentukan oleh website.
+1. Jalankan workflow `.github/workflows/build-st7735s-151-modules.yml` dan tunggu build serta pemeriksaan CI berhasil.
+2. Workflow menerbitkan satu paket ke `public/flipper-st7735-151/landscape/`; tidak ada pilihan profil core/all-modules pada halaman flash.
+3. Tambahkan catatan versi baru di awal `public/updates.json`, termasuk tanggal, perubahan, batasan yang relevan, dan tautan build.
+4. Commit perubahan ke branch yang terhubung ke project Vercel yang sama. Vercel akan membuat deployment project yang sama; alias utama tetap `diy240.vercel.app`.
 
-## Sources
+## Kompatibilitas dan batasan
 
-- [Firmware integration](https://github.com/gungsss/flipper-esp32s3-diy240)
-- [Build artifact](https://github.com/gungsss/flipper-esp32s3-diy240/actions/runs/43889135916)
-- [Source dasar ESP32](https://github.com/Sor3nt/Flipper-Zero-ESP32-Port)
-- [ESP Web Tools official documentation](https://esphome.github.io/esp-web-tools/)
+Firmware ini bukan firmware resmi Flipper Zero dan bukan implementasi penuh source, SDK, runtime, atau hardware Flipper. Modul opsional harus dipasang dan memakai pinout yang benar. RDM6300 read-only; iButton HAL belum tersedia; file FAP ARM tidak kompatibel langsung dengan ESP32-S3. Build CI dan flashing sukses belum menggantikan tes fisik layar, tombol, microSD, Wi-Fi, BLE, dan modul.
+
+Flashing USB browser membutuhkan HTTPS dan dukungan Web Serial/WebUSB. iOS tidak dapat flash langsung dari halaman ini; Android bergantung pada USB OTG dan browser.

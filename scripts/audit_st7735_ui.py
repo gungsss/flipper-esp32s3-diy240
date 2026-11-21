@@ -173,6 +173,12 @@ def main():
         require("#if defined(BOARD_INPUT_DPAD) && BOARD_INPUT_DPAD" in read(relative),
                 f"D-pad-specific navigation is missing in {relative}")
     text_input = read("components/gui/modules/text_input.c")
+    require(
+        "char buf[text_length + 5];" in text_input,
+        "text input draw buffer does not reserve cursor + ellipsis bytes")
+    require(
+        "char buf[text_length + 1];" not in text_input,
+        "text input draw buffer can overflow while rendering longer strings")
     for token in (
         "bool caps_lock;",
         "bool uppercase = model->caps_lock && !symbols_active;",

@@ -123,6 +123,13 @@ class PatchContractTest(unittest.TestCase):
         self.assertIn('canvas_draw_line(canvas, 24, 31, canvas_width(canvas) - 25, 31)', moved)
         self.assertEqual(moved, LANDSCAPE.patch_bubble_home(moved))
 
+    def test_text_input_render_buffer_reserves_cursor_and_ellipsis(self):
+        source = '    char buf[text_length + 1];\n'
+        fixed = LANDSCAPE.patch_text_input_render_buffer(source)
+        self.assertIn('char buf[text_length + 5];', fixed)
+        self.assertNotIn('char buf[text_length + 1];', fixed)
+        self.assertEqual(fixed, LANDSCAPE.patch_text_input_render_buffer(fixed))
+
 
 if __name__ == '__main__':
     unittest.main()

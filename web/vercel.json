@@ -2,18 +2,18 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "redirects": [
+    { "source": "/flipper-st7735-151", "destination": "/#flash", "permanent": true },
+    { "source": "/flipper-st7735-151/", "destination": "/#flash", "permanent": true },
+    { "source": "/flipper-st7735", "destination": "/#flash", "permanent": true },
+    { "source": "/flipper-st7735/", "destination": "/#flash", "permanent": true }
+  ],
   "headers": [
     {
-      "source": "/firmware/(.*)",
+      "source": "/flipper-st7735-151/landscape/(.*)",
       "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        }
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
       ]
     }
   ]
