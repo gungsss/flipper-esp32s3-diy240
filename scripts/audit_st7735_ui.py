@@ -243,17 +243,27 @@ def main():
             "BLE pairing screen incorrectly maps the left arrow to Back")
 
     subghz = read("applications/main/subghz/subghz.c")
-    require("furi_hal_subghz_is_connected()" in subghz and "CC1101 not detected" in subghz,
-            "Sub-GHz does not check and report the CC1101 module")
+    require("furi_hal_subghz_refresh_connection()" in subghz and "CC1101 not detected" in subghz,
+            "Sub-GHz does not refresh and report the CC1101 module")
     nfc = read("applications/main/nfc/nfc_app.c")
     require("PN532 not detected" in nfc and "SDA GPIO41, SCL GPIO42" in nfc,
             "NFC does not report the PN532 mode and wiring")
     nrf24 = function_body(read("applications/main/nrf24/nrf24_app.c"), "nrf24_app")
-    require("nrf24_hw_probe()" in nrf24 and "nRF24L01+ not detected" in nrf24,
-            "nRF24 app does not probe and identify its required module")
-    require(nrf24.index("furi_hal_shared_pins_release(&owner)") <
-            nrf24.index("m4145_show_module_notice("),
-            "nRF24 module notice holds the shared radio pins while waiting")
+    require("nrf24_hw_probe()" in nrf24 and "app->module_detected = module_detected" in nrf24,
+            "nRF24 app does not cache the module probe for its status menu")
+    nrf_menu = read("applications/main/nrf24/scenes/scene_menu.c")
+    for menu_item in ("Passive 2.4 GHz Survey", '"Jammer"', '"MouseJacker"',
+                      "Module status: detected", "Module status: missing"):
+        require(menu_item in nrf_menu, f"nRF24 app menu is missing ({menu_item})")
+    require("submenu_change_item_label(" in nrf_menu and
+            "SubmenuIndexModuleStatus" in nrf_menu,
+            "nRF24 status label does not update after a fresh probe")
+    require("RF disruption is disabled in this build." in nrf_menu and
+            "Injection is disabled in this build." in nrf_menu,
+            "nRF24 transmit actions are not visibly gated in the menu")
+    require("case SubmenuIndexJammer:\n            scene_manager_next_scene" not in nrf_menu and
+            "case SubmenuIndexMouseJacker:\n            scene_manager_next_scene" not in nrf_menu,
+            "nRF24 menu still routes disabled entries to transmit scenes")
     infrared = read("applications/main/infrared/infrared_app.c")
     require("IR has no module ID pin." in infrared and "38kHz receiver" in infrared,
             "IR app does not explain the manual hardware check")

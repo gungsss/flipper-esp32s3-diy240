@@ -38,6 +38,12 @@ SCK/MOSI/MISO/CSN/CE = GPIO41/42/47/1/2. Dua radio memakai bus SPI terpisah;
 microSD tetap pada SPI3. Pindahkan CC1101 CSN dari GPIO46 ke pad TX/GPIO43 sebelum
 menyalakan firmware ini. PN532, IR, dan LF RFID tidak diaktifkan di profil ini.
 
+CC1101 sekarang diprobe ulang saat membuka **Settings → About → Module status**
+atau membuka **Sub-GHz**. Jika expansion diberi daya setelah ESP32-S3 boot, buka
+halaman status itu lagi agar firmware mencoba ulang. nRF24 diprobe saat aplikasinya
+dibuka dan dapat dicek ulang lewat baris **Module status** di menu nRF24. Pastikan
+rail modul stabil di 3,3 V dan GND expansion tersambung ke GND ESP32-S3.
+
 ## Board tidak terdeteksi saat flash
 
 - Gunakan kabel USB data dan coba port board yang berbeda.

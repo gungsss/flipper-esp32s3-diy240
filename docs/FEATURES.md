@@ -16,7 +16,7 @@ dan aksesori resmi.
 | Wi-Fi dan BLE | Koneksi biasa tersedia dari port. App serangan Wi-Fi, raw-frame TX, stack Wifite WPS/Pixie Dust, dan Bluetooth spam tidak dimasukkan di image uji ini. |
 | USB HID / BadUSB | Didukung oleh port ESP32-S3; perlu uji pada perangkat target dan hanya untuk sistem yang berizin. |
 | Sub-GHz | App memeriksa respons CC1101 saat dibuka dan menampilkan nama modul serta pinout jika tidak terdeteksi. Band serta protokol dibatasi oleh CC1101, antena, dan aturan setempat. |
-| 2,4 GHz nRF24 | Probe mengecek baca-tulis register. Menu uji hanya menyediakan survei kanal pasif; bus SPI memakai GPIO tersendiri dari CC1101. |
+| 2,4 GHz nRF24 | Probe mengecek baca-tulis register. Spectrum Analyzer bekerja pasif; item Jammer dan MouseJacker tetap terlihat di menu, tetapi menampilkan penjelasan dan tidak mengirim frame. Bus SPI memakai GPIO tersendiri dari CC1101. |
 | NFC | Belum diaktifkan di profil uji radio ini. PN532 bukan front-end ST25R3916 Flipper Zero sehingga kapabilitasnya berbeda. |
 | BadUSB | Layout keyboard Jepang `ja-JP` tersedia di isi kartu SD, mengikuti perubahan 1.5.1. |
 | Infrared | Belum diaktifkan di profil uji radio ini. |
@@ -30,7 +30,9 @@ Build uji ini mengaktifkan CC1101 dan nRF24 saja. Hubungkan modul ke GPIO pada
 `patch/Pinout_ESP32S3_ST7735S_160.txt`; jangan pindah pin tanpa membangun ulang.
 Display CS terikat ke GND, microSD memakai SPI3, dan dua radio memiliki bus SPI
 mandiri. CC1101 dicek saat inisialisasi; nRF24 dicek saat app dibuka. Aplikasi
-nRF24 hanya menampilkan survei kanal pasif selama pemeriksaan wiring ini. Menu
+nRF24 menyediakan survei kanal pasif selama pemeriksaan wiring ini. Menu
+Jammer dan MouseJacker tetap terlihat tetapi dinonaktifkan dengan keterangan.
+Menu status dapat mengulang probe modul tanpa keluar dari aplikasi. Menu
 App serangan Wi-Fi untuk deauth/raw-frame TX, stack Wifite WPS/Pixie Dust,
 Bluetooth spam, dan FAP eksternal tidak disertakan. Streaming tetap memakai
 tampilan daftar LAN umum. PN532, IR, dan LF RFID juga belum diaktifkan pada profil ini.

@@ -30,6 +30,6 @@ Installer hanya aktif setelah pengguna memeriksa hardware dan menyetujui konfirm
 
 ## Kompatibilitas dan batasan
 
-Firmware ini bukan firmware resmi Flipper Zero dan bukan implementasi penuh source, SDK, runtime, atau hardware Flipper. Profil ini menyiapkan CC1101 dan nRF24; nRF24 hanya menampilkan survei kanal pasif. App serangan Wi-Fi, raw-frame TX, stack Wifite WPS/Pixie Dust, Bluetooth spam, dan FAP eksternal tidak disertakan. PN532, IR, dan LF RFID belum diaktifkan. Build CI dan flashing sukses belum menggantikan tes fisik layar, tombol, microSD, dan radio.
+Firmware ini bukan firmware resmi Flipper Zero dan bukan implementasi penuh source, SDK, runtime, atau hardware Flipper. Profil ini menyiapkan CC1101 dan nRF24; nRF24 menyediakan survei kanal pasif, sementara Jammer dan MouseJacker tetap tampil sebagai item nonaktif. App serangan Wi-Fi, raw-frame TX, stack Wifite WPS/Pixie Dust, Bluetooth spam, dan FAP eksternal tidak disertakan. PN532, IR, dan LF RFID belum diaktifkan. Build CI dan flashing sukses belum menggantikan tes fisik layar, tombol, microSD, dan radio.
 
 Flashing USB browser membutuhkan HTTPS dan dukungan Web Serial/WebUSB. iOS tidak dapat flash langsung dari halaman ini; Android bergantung pada USB OTG dan browser.

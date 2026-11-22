@@ -35,7 +35,9 @@ yang sudah dipasang. Pin layar, SD, dan tombol tetap sama; pin kedua radio ada d
 tertera dan level 3,3 V, tidak perlu build atau flash ulang. Pin tambahan belum
 diverifikasi pada setiap varian PCB, jadi cocokkan dengan board sebelum
 memasang kabel. PN532, Infrared, dan LF RFID belum diaktifkan pada image ini.
-Menu nRF24 hanya menyediakan survei kanal pasif. App serangan Wi-Fi, raw-frame
+Menu nRF24 tetap menampilkan Spectrum Analyzer pasif, Jammer, dan MouseJacker;
+menu Jammer/MouseJacker memberi keterangan bahwa transmisi dinonaktifkan pada
+image uji ini. App serangan Wi-Fi, raw-frame
 TX, stack Wifite WPS/Pixie Dust, dan Bluetooth spam tidak disertakan dalam
 build uji ini. Detail di
 [variants/st7735/README.md](variants/st7735/README.md).

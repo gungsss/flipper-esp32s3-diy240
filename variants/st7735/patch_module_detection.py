@@ -167,7 +167,9 @@ def patch_subghz(root):
         ("void furi_hal_subghz_init(void);\n",
          "void furi_hal_subghz_init(void);\n"
          "/* True when the CC1101 answered the boot-time SPI identity probe. */\n"
-         "bool furi_hal_subghz_is_connected(void);\n",
+         "bool furi_hal_subghz_is_connected(void);\n"
+         "/* Recheck the CC1101 over SPI if its external power rail starts later. */\n"
+         "bool furi_hal_subghz_refresh_connection(void);\n",
          "CC1101 readiness API"),
     ])
     patch_file(root, "components/furi_hal/furi_hal_subghz.c", [
@@ -175,8 +177,15 @@ def patch_subghz(root):
          "bool furi_hal_subghz_is_connected(void) {\n"
          "    return furi_hal_subghz.connected;\n"
          "}\n\n"
+         "bool furi_hal_subghz_refresh_connection(void) {\n"
+         "    FuriHalSubGhzProbe probe = {0};\n"
+         "    furi_hal_subghz.connected = furi_hal_subghz_probe_read(&probe, true);\n"
+         "    furi_hal_subghz_log_probe(&probe, furi_hal_subghz.connected);\n"
+         "    if(furi_hal_subghz.connected) furi_hal_subghz_sleep();\n"
+         "    return furi_hal_subghz.connected;\n"
+         "}\n\n"
          "void furi_hal_subghz_init(void) {\n",
-         "CC1101 readiness getter"),
+         "CC1101 refreshable readiness API"),
     ])
 
 
@@ -337,7 +346,7 @@ def patch_app_guards(root):
          "#include \"../m4145_module_guard.h\"\n",
          "Sub-GHz guard include"),
         ("    FURI_LOG_D(\n        TAG,\n        \"heap before alloc: internal=%zu spiram=%zu\",\n",
-         "    if(!furi_hal_subghz_is_connected()) {\n"
+         "    if(!furi_hal_subghz_refresh_connection()) {\n"
          "        m4145_show_module_notice(\n"
          "            \"CC1101 not detected\",\n"
          "            \"CC1101 wiring required:\\nSCK 9, MOSI 10, MISO 21,\\nCSN TX/GPIO43, GDO0 13.\",\n"
@@ -377,17 +386,15 @@ def patch_app_guards(root):
          "    nrf24_hw_power_down();\n"
          "    nrf24_hw_release();\n"
          "    nrf24_hw_deinit();\n"
-         "    if(!module_detected) {\n"
-        "        furi_hal_shared_pins_release(&owner);\n"
-         "        m4145_show_module_notice(\n"
-         "            \"nRF24L01+ not detected\",\n"
-         "            \"Needs nRF24L01+ module.\\nSCK 41, MOSI 42, MISO 47,\\nCSN 1, CE 2; use 3.3V.\",\n"
-         "            NULL,\n"
-         "            \"OK\");\n"
-         "        return -1;\n"
-         "    }\n\n"
-         "    Nrf24App* app = nrf24_app_alloc();\n",
-         "nRF24 runtime SPI probe"),
+         "    Nrf24App* app = nrf24_app_alloc();\n"
+         "    app->module_detected = module_detected;\n",
+         "keep nRF24 menu available when probe fails"),
+    ])
+    patch_file(root, "applications/main/nrf24/nrf24_app.h", [
+        ("    Nrf24JamState jam;\n",
+         "    Nrf24JamState jam;\n"
+         "    bool module_detected; /* Cached register probe for the status menu. */\n",
+         "nRF24 detection status in app model"),
     ])
     fam = root / "applications/main/nrf24/application.fam"
     fam_text = fam.read_text(encoding="utf-8")
@@ -520,7 +527,7 @@ def patch_about(root):
          "module status HAL includes"),
         ("static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage* message) {\n",
          "static DialogMessageButton module_status_screen(DialogsApp* dialogs, DialogMessage* message) {\n"
-         "    const bool cc1101 = furi_hal_subghz_is_connected();\n"
+         "    const bool cc1101 = furi_hal_subghz_refresh_connection();\n"
          "    FuriString* text = furi_string_alloc_printf(\n"
          "        \"CC1101: %s\\nnRF24: open app to test\\n\"\n"
          "        \"PN532 / IR / LF RFID: not in this test build\\n\"\n"
@@ -544,50 +551,113 @@ def patch_about(root):
 
 
 def patch_nrf24_passive_test_menu(root):
-    """Keep the bring-up menu to chip detection and passive channel survey."""
-    path = root / "applications/main/nrf24/scenes/scene_menu.c"
-    text = path.read_text(encoding="utf-8")
-    if "Passive 2.4 GHz Survey" in text:
-        return
-    replacement = '''#include "../nrf24_app.h"
-
-enum SubmenuIndex {
-    SubmenuIndexPassiveSurvey,
-};
-
-static void nrf24_scene_menu_submenu_callback(void* context, uint32_t index) {
-    Nrf24App* app = context;
-    view_dispatcher_send_custom_event(app->view_dispatcher, index);
-}
-
-void nrf24_app_scene_menu_on_enter(void* context) {
-    Nrf24App* app = context;
-    submenu_add_item(
-        app->submenu,
-        "Passive 2.4 GHz Survey",
-        SubmenuIndexPassiveSurvey,
-        nrf24_scene_menu_submenu_callback,
-        app);
-    view_dispatcher_switch_to_view(app->view_dispatcher, Nrf24ViewSubmenu);
-}
-
-bool nrf24_app_scene_menu_on_event(void* context, SceneManagerEvent event) {
-    Nrf24App* app = context;
-    if(event.type == SceneManagerEventTypeCustom && event.event == SubmenuIndexPassiveSurvey) {
-        scene_manager_next_scene(app->scene_manager, Nrf24AppSceneSpectrum);
-        return true;
-    }
-    return false;
-}
-
-void nrf24_app_scene_menu_on_exit(void* context) {
-    Nrf24App* app = context;
-    submenu_reset(app->submenu);
-}
-'''
-    if "SubmenuIndexMouseJacker" not in text or "SubmenuIndexJammer" not in text:
-        raise ValueError("nRF24 test menu source differs from the expected upstream menu")
-    path.write_text(replacement, encoding="utf-8")
+    """Keep original radio menu entries visible and gate disruptive modes safely."""
+    patch_file(root, "applications/main/nrf24/scenes/scene_menu.c", [
+        ('#include "../nrf24_app.h"\n',
+         '#include "../nrf24_app.h"\n'
+         '#include "../nrf24_hw.h"\n'
+         '#include "../../m4145_module_guard.h"\n',
+         "radio menu status helper"),
+        ("enum SubmenuIndex {\n"
+         "    SubmenuIndexSpectrum,\n"
+         "    SubmenuIndexJammer,\n"
+         "    SubmenuIndexMouseJacker,\n"
+         "};\n",
+         "enum SubmenuIndex {\n"
+         "    SubmenuIndexSpectrum,\n"
+         "    SubmenuIndexJammer,\n"
+         "    SubmenuIndexMouseJacker,\n"
+         "    SubmenuIndexModuleStatus,\n"
+         "};\n",
+         "add nRF24 detection menu row"),
+        ('        "Spectrum Analyzer",\n',
+         '        "Passive 2.4 GHz Survey",\n',
+         "label passive nRF24 survey clearly"),
+        ('        "MouseJacker",\n'
+         '        SubmenuIndexMouseJacker,\n'
+         '        nrf24_scene_menu_submenu_callback,\n'
+         '        app);\n',
+         '        "MouseJacker",\n'
+         '        SubmenuIndexMouseJacker,\n'
+         '        nrf24_scene_menu_submenu_callback,\n'
+         '        app);\n'
+         '    submenu_add_item(\n'
+         '        app->submenu,\n'
+         '        app->module_detected ? "Module status: detected" : "Module status: missing",\n'
+         '        SubmenuIndexModuleStatus,\n'
+         '        nrf24_scene_menu_submenu_callback,\n'
+         '        app);\n',
+         "show nRF24 module status in the app menu"),
+        ("        case SubmenuIndexJammer:\n"
+         "            scene_manager_next_scene(app->scene_manager, Nrf24AppSceneJam);\n"
+         "            consumed = true;\n"
+         "            break;\n",
+         "        case SubmenuIndexJammer:\n"
+         "            m4145_show_module_notice(\n"
+         "                \"Jammer unavailable\",\n"
+         "                \"Menu entry kept visible.\\nRF disruption is disabled in this build.\",\n"
+         "                NULL,\n"
+         "                \"OK\");\n"
+         "            consumed = true;\n"
+         "            break;\n",
+         "keep Jammer menu entry visible but inert"),
+        ("        case SubmenuIndexMouseJacker:\n"
+         "            scene_manager_next_scene(app->scene_manager, Nrf24AppSceneMjMenu);\n"
+         "            consumed = true;\n"
+         "            break;\n",
+         "        case SubmenuIndexMouseJacker:\n"
+         "            m4145_show_module_notice(\n"
+         "                \"MouseJacker unavailable\",\n"
+         "                \"Menu entry kept visible.\\nInjection is disabled in this build.\",\n"
+         "                NULL,\n"
+         "                \"OK\");\n"
+         "            consumed = true;\n"
+         "            break;\n",
+         "keep MouseJacker menu entry visible but inert"),
+        ("        case SubmenuIndexMouseJacker:\n"
+         "            m4145_show_module_notice(\n"
+         "                \"MouseJacker unavailable\",\n"
+         "                \"Menu entry kept visible.\\nInjection is disabled in this build.\",\n"
+         "                NULL,\n"
+         "                \"OK\");\n"
+         "            consumed = true;\n"
+         "            break;\n"
+         "        default:\n",
+         "        case SubmenuIndexMouseJacker:\n"
+         "            m4145_show_module_notice(\n"
+         "                \"MouseJacker unavailable\",\n"
+         "                \"Menu entry kept visible.\\nInjection is disabled in this build.\",\n"
+         "                NULL,\n"
+         "                \"OK\");\n"
+         "            consumed = true;\n"
+         "            break;\n"
+         "        case SubmenuIndexModuleStatus: {\n"
+         "            nrf24_hw_init();\n"
+         "            nrf24_hw_acquire();\n"
+         "            app->module_detected = nrf24_hw_probe();\n"
+         "            nrf24_hw_power_down();\n"
+         "            nrf24_hw_release();\n"
+         "            nrf24_hw_deinit();\n"
+         "            m4145_show_module_notice(\n"
+         "                app->module_detected ? \"nRF24L01+ detected\" : \"nRF24L01+ not detected\",\n"
+         "                \"Check SCK 41, MOSI 42, MISO 47,\\nCSN 1, CE 2, 3V3, and common GND.\",\n"
+         "                NULL,\n"
+         "                \"OK\");\n"
+         "            consumed = true;\n"
+         "            break;\n"
+         "        }\n"
+         "        default:\n",
+         "add a repeatable nRF24 connection check"),
+        ("            nrf24_hw_deinit();\n"
+         "            m4145_show_module_notice(\n",
+         "            nrf24_hw_deinit();\n"
+         "            submenu_change_item_label(\n"
+         "                app->submenu,\n"
+         "                SubmenuIndexModuleStatus,\n"
+         "                app->module_detected ? \"Module status: detected\" : \"Module status: missing\");\n"
+         "            m4145_show_module_notice(\n",
+         "refresh the visible nRF24 status label"),
+    ])
 
 
 def patch_radio_bringup_profile(root):

@@ -12,7 +12,7 @@ will build one flash package for the current radio wiring profile.
 
 | Profile | Build result | Contents |
 |---|---|---|
-| Radio bring-up | Awaiting this commit's CI result | ST7735S landscape, six buttons, microSD, CC1101 Sub-GHz, and nRF24L01+. The nRF24 menu is passive-survey only. |
+| Radio bring-up | Awaiting this commit's CI result | ST7735S landscape, six buttons, microSD, CC1101 Sub-GHz, and nRF24L01+. nRF24 spectrum survey is passive; Jammer and MouseJacker stay visible but transmit is disabled. |
 
 The ST7735S renderer now uses a native 160×128 canvas. The home screen places a
 clock and date above the centered pixel-art animation; the app launcher uses

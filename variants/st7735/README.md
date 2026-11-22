@@ -26,8 +26,10 @@ physical screen-by-screen check.
 The current hardware test profile keeps the tested display, SD, and button
 assignments unchanged and enables only CC1101 and nRF24L01+ on independent
 bit-banged SPI buses. The exact wiring is in `docs/HARDWARE.md` and the selected
-pinout. CC1101 is probed at startup; nRF24 is checked when its app opens. During
-hardware bring-up, the nRF24 menu is limited to a passive channel survey. The
+pinout. CC1101 is probed at startup and again when its status/app is opened;
+nRF24 is checked when its app opens and from its status row. During hardware
+bring-up, Jammer and MouseJacker remain visible but show that transmit actions
+are unavailable; the spectrum survey is passive. The
 build is tailored to test these two modules first; PN532, IR, and LF RFID pins
 are disabled until their wiring is separately assigned.
 
