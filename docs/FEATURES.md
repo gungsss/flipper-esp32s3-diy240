@@ -13,7 +13,7 @@ dan aksesori resmi.
 | Keyboard teks | Huruf mulai lowercase. Tombol keyboard di kiri bawah berpindah ke layout simbol dengan tekan singkat; tahan OK saat tombol itu dipilih untuk mengaktifkan atau mematikan Caps Lock. Status `abc`/`CAPS`/`SYM` terlihat di bawah. |
 | Pairing BLE | Kode pairing tampil pada layar penuh native 160×128, dengan kode besar dan petunjuk jelas. Tombol BACK menutup overlay kode. |
 | microSD / Archive | Bus SPI3 terpisah dari LCD dan radio; perlu uji pada kartu fisik. |
-| Wi-Fi dan BLE | Koneksi biasa tersedia dari port. App Wi-Fi deauth, raw-frame TX, WPS PIN, dan Bluetooth spam tidak dimasukkan di image uji ini. |
+| Wi-Fi dan BLE | Koneksi biasa tersedia dari port. App serangan Wi-Fi, raw-frame TX, stack Wifite WPS/Pixie Dust, dan Bluetooth spam tidak dimasukkan di image uji ini. |
 | USB HID / BadUSB | Didukung oleh port ESP32-S3; perlu uji pada perangkat target dan hanya untuk sistem yang berizin. |
 | Sub-GHz | App memeriksa respons CC1101 saat dibuka dan menampilkan nama modul serta pinout jika tidak terdeteksi. Band serta protokol dibatasi oleh CC1101, antena, dan aturan setempat. |
 | 2,4 GHz nRF24 | Probe mengecek baca-tulis register. Menu uji hanya menyediakan survei kanal pasif; bus SPI memakai GPIO tersendiri dari CC1101. |
@@ -31,8 +31,9 @@ Build uji ini mengaktifkan CC1101 dan nRF24 saja. Hubungkan modul ke GPIO pada
 Display CS terikat ke GND, microSD memakai SPI3, dan dua radio memiliki bus SPI
 mandiri. CC1101 dicek saat inisialisasi; nRF24 dicek saat app dibuka. Aplikasi
 nRF24 hanya menampilkan survei kanal pasif selama pemeriksaan wiring ini. Menu
-Wi-Fi untuk deauth/raw-frame TX, WPS PIN adapter, Bluetooth spam, dan FAP eksternal
-tidak disertakan. PN532, IR, dan LF RFID juga belum diaktifkan pada profil ini.
+App serangan Wi-Fi untuk deauth/raw-frame TX, stack Wifite WPS/Pixie Dust,
+Bluetooth spam, dan FAP eksternal tidak disertakan. Streaming tetap memakai
+tampilan daftar LAN umum. PN532, IR, dan LF RFID juga belum diaktifkan pada profil ini.
 
 Fitur yang tidak punya HAL setara memerlukan desain tambahan, bukan sekadar
 menambah menu. iButton belum memiliki modul dan driver pengganti di rilis ini;

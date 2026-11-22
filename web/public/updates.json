@@ -9,7 +9,7 @@
       "build_url": "https://github.com/gungsss/flipper-esp32s3-diy240/actions/workflows/build-st7735s-151-modules.yml",
       "changes": [
         "Satu image untuk wiring saat ini: deteksi CC1101, deteksi nRF24, dan survei kanal pasif nRF24.",
-        "Wi-Fi deauth/raw-frame TX, WPS PIN, Bluetooth spam, dan FAP eksternal tidak disertakan pada image uji.",
+        "App serangan Wi-Fi, raw-frame TX, Wifite WPS/Pixie Dust, Bluetooth spam, dan FAP eksternal tidak disertakan pada image uji.",
         "Pinout radio diperbarui: CC1101 CSN ke pad TX/GPIO43 dan bus nRF24 terpisah di GPIO41/42/47.",
         "Perbaikan ruang buffer saat keyboard menggambar cursor dan teks panjang, termasuk kolom password Wi-Fi.",
         "Navigasi teks dimulai dengan huruf kecil; Caps Lock diaktifkan dengan tahan OK pada tombol layout.",

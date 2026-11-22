@@ -631,6 +631,30 @@ def patch_radio_bringup_profile(root):
     )
     cmake_path.write_text(cmake, encoding="utf-8")
 
+    # Wifite is an attack stack (including WPS/Pixie Dust workflows), not a
+    # prerequisite for ordinary Wi-Fi scanning or connection. Removing the
+    # app alone leaves its SDK bridge symbols in the Wi-Fi component, so omit
+    # the attack sources from the firmware image as well.
+    patch_file(root, "components/wifi/CMakeLists.txt", [
+        ('        "wifite/core.c"\n'
+         '        "wifite/pixie.c"\n'
+         '        "wifite/radio.c"\n'
+         '        "wifite/link.c"\n',
+         '        # M4145 bring-up excludes the Wifite/WPS attack stack.\n',
+         "exclude Wifite/WPS attack stack from Wi-Fi component"),
+    ])
+
+    # Streaming reuses only the generic LAN list view from the Wi-Fi app.
+    # Compile that view directly so its UI stays available without including
+    # the Wi-Fi attack app and its scenes.
+    patch_file(root, "applications/main/streaming/application.fam", [
+        ('    entry_point="streaming_app",\n',
+         '    entry_point="streaming_app",\n'
+         '    sources=["../wlan_app/views/wlan_lan_view.c",\n'
+         '             "../wlan_app/views/wlan_view_common.c"],\n',
+         "bundle generic LAN view with Streaming"),
+    ])
+
 
 def patch(root):
     header = root / "applications/main/m4145_module_guard.h"

@@ -121,7 +121,7 @@ def main():
         'display_driver':'waveshare/esp_lcd_st7735==2.0.0',
         'sd':'SPI3_HOST',
         'enabled_optional_modules':enabled_modules,
-        'module_behavior':'This single image uses the current wiring profile: CC1101 and nRF24L01+ detection are enabled. The nRF24 app exposes passive channel survey only. Wi-Fi deauthentication/raw-TX support, the WPS PIN adapter, Bluetooth spam, and external attack FAPs are excluded from this bring-up build. Other module GPIOs remain disabled until assigned and built.',
+        'module_behavior':'This single image uses the current wiring profile: CC1101 and nRF24L01+ detection are enabled. The nRF24 app exposes passive channel survey only. The Wi-Fi attack app, raw-frame TX patch, Wifite WPS/Pixie Dust attack stack, Bluetooth spam, and external attack FAPs are excluded from this bring-up build; ordinary Wi-Fi scanning and connections remain available where exposed by the port. Other module GPIOs remain disabled until assigned and built.',
         'unsupported_or_limited_features':[
             'iButton HAL is not implemented for this ESP32 port.',
             'LF RFID through RDM6300 is read-only; writing and emulation need another compatible frontend and firmware support.',

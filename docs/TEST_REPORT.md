@@ -53,7 +53,8 @@ strapping pin. The nRF24 test menu exposes module detection and passive channel
 survey only.
 
 Source patch application and the static UI audit passed. The build profile
-excludes Wi-Fi deauth/raw-frame TX, the WPS PIN adapter, Bluetooth spam, and
-external attack FAPs. Physical display, button, SD, and radio-module checks are
-still pending. The CC1101 CSN wire must go to the board pad marked TX/GPIO43;
+excludes the Wi-Fi attack app, raw-frame TX patch, Wifite WPS/Pixie Dust stack,
+Bluetooth spam, and external attack FAPs. Streaming includes only the shared
+LAN-list view it needs. Physical display, button, SD, and radio-module checks
+are still pending. The CC1101 CSN wire must go to the board pad marked TX/GPIO43;
 do not use GPIO46.

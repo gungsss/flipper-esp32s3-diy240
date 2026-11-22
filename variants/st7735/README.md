@@ -45,8 +45,8 @@ external frontend and a separate M4145 driver/app implementation; they are not
 presented as working until implemented. ESP32-S3 also lacks the onboard speaker
 and several dedicated Flipper Zero circuits.
 
-The hardware bring-up image excludes the Wi-Fi deauthentication/raw-frame
-transmit app, WPS PIN adapter, Bluetooth spam app, and external attack FAPs.
+The hardware bring-up image excludes the Wi-Fi attack app, raw-frame transmit
+patch, Wifite WPS/Pixie Dust stack, Bluetooth spam app, and external attack FAPs.
 These are not needed to check the CC1101/nRF24 wiring. PN532, IR, and LF RFID
 remain disabled in this pinout until their GPIOs are assigned and a new profile
 is built.
