@@ -1,0 +1,56 @@
+{
+  "project_name": "M4145 Flipper ESP32-S3",
+  "firmware_author": "m4145",
+  "source_base_repository": "Sor3nt/Flipper-Zero-ESP32-Port",
+  "source_base_commit": "e6ec11972a8e025d7ab686a6ef3016cf52360834",
+  "official_flipper_tag": "1.5.1",
+  "official_flipper_commit": "9e810dc399e027e48ce07751df72168abbb19065",
+  "reported_flipper_version": "1.5.1-ESP32-preview",
+  "reported_ble_software_revision": "1.5.1-ESP32-preview",
+  "firmware_build_date": "Compiler-generated from __DATE__ at build time",
+  "scope": "Selected portable Flipper 1.5.1 changes adapted to the ESP32 port; not full official source, SDK, runtime, or hardware parity.",
+  "build_profile": "m4145-unified",
+  "pinout_sha256": "b154574a0d1acc7b915306f563a6cc8f0b4ca1e5fa492a5a584914182bd46c12",
+  "board": "DIY ESP32-S3 N16R8",
+  "lcd": "ST7735S landscape 160x128, CS tied to GND, 5 MHz SPI",
+  "ui_rendering": "Full-panel 160x128 native GUI canvas; all legacy Canvas views use the shared 128x64-to-160x128 adapter, while core screen modules use native layouts. Static source audit covers all Canvas draw APIs and GUI callback paths; physical display validation remains separate.",
+  "display_driver": "waveshare/esp_lcd_st7735==2.0.0",
+  "sd": "SPI3_HOST",
+  "enabled_optional_modules": [
+    "CC1101 Sub-GHz",
+    "nRF24L01+"
+  ],
+  "module_behavior": "This single image uses the current wiring profile: CC1101 and nRF24L01+ detection are enabled. The nRF24 app exposes passive channel survey only. The Wi-Fi attack app, raw-frame TX patch, Wifite WPS/Pixie Dust attack stack, Bluetooth spam, and external attack FAPs are excluded from this bring-up build; ordinary Wi-Fi scanning and connections remain available where exposed by the port. Other module GPIOs remain disabled until assigned and built.",
+  "unsupported_or_limited_features": [
+    "iButton HAL is not implemented for this ESP32 port.",
+    "LF RFID through RDM6300 is read-only; writing and emulation need another compatible frontend and firmware support.",
+    "ARM-targeted FAP files are not binary-compatible with ESP32-S3 and must be ported and rebuilt."
+  ],
+  "hardware_validation": "Build packaging does not verify physical LCD, buttons, SD, or optional modules.",
+  "images": [
+    {
+      "file": "bootloader/bootloader.bin",
+      "offset": "0x0",
+      "size_bytes": 20672,
+      "sha256": "61ab7403e0c1276f7f3c5e40afb0dd93ecd84dadc9c65ec42628992e41c6cb7d"
+    },
+    {
+      "file": "partition_table/partition-table.bin",
+      "offset": "0x8000",
+      "size_bytes": 3072,
+      "sha256": "9170702b52423ec0ec06f98cb832e73d147b29bf04b47665c0b04574ddd5443e"
+    },
+    {
+      "file": "furi_esp32.bin",
+      "offset": "0x10000",
+      "size_bytes": 2941648,
+      "sha256": "c994b5cbbfaaf5089b23499d6d1b4136aecce4e9b429f9d2de8e9310ba87f760"
+    },
+    {
+      "file": "ota_data_initial.bin",
+      "offset": "0xbf0000",
+      "size_bytes": 8192,
+      "sha256": "7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f"
+    }
+  ]
+}
