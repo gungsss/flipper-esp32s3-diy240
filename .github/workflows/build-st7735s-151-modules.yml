@@ -68,8 +68,13 @@ jobs:
           wifi_component = Path('.work/upstream/components/wifi/CMakeLists.txt').read_text()
           if any(source in wifi_component for source in ('wifite/core.c', 'wifite/pixie.c', 'wifite/radio.c', 'wifite/link.c')):
               raise SystemExit('Wifite/WPS attack sources remain in the firmware image')
+          if 'm4145_safe_profile_stubs.c' not in wifi_component:
+              raise SystemExit('Safe inert stubs for unused exported API entries are missing')
+          stubs = Path('.work/upstream/components/wifi/m4145_safe_profile_stubs.c').read_text()
+          if 'WifiteJob* wifite_start' not in stubs or 'bool wlan_hal_evil_portal_is_running' not in stubs:
+              raise SystemExit('Required safe profile symbols are not defined')
           streaming = Path('.work/upstream/applications/main/streaming/application.fam').read_text()
-          if '../wlan_app/views/wlan_lan_view.c' not in streaming or '../wlan_app/views/wlan_view_common.c' not in streaming:
+          if 'sources=["*.c*"' not in streaming or '../wlan_app/views/wlan_lan_view.c' not in streaming or '../wlan_app/views/wlan_view_common.c' not in streaming:
               raise SystemExit('Safe shared LAN view sources are missing from Streaming')
           print('Packaged', info['build_profile'], 'with modules:', info['enabled_optional_modules'])
           PY

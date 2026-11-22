@@ -634,13 +634,55 @@ def patch_radio_bringup_profile(root):
     # Wifite is an attack stack (including WPS/Pixie Dust workflows), not a
     # prerequisite for ordinary Wi-Fi scanning or connection. Removing the
     # app alone leaves its SDK bridge symbols in the Wi-Fi component, so omit
-    # the attack sources from the firmware image as well.
+    # the attack sources from the firmware image as well. The port's exported
+    # FAP API still names the Wifite functions, so retain inert stubs only.
+    stubs = root / "components/wifi/m4145_safe_profile_stubs.c"
+    stubs_source = '''/* Safe bring-up stubs for unused attack-only firmware API entries. */
+#include <stddef.h>
+#include "wlan_hal.h"
+#include "wifite.h"
+
+WifiteJob* wifite_start(WifiteMode mode, const WfTarget* target, const char* pin) {
+    (void)mode;
+    (void)target;
+    (void)pin;
+    return NULL;
+}
+
+bool wifite_poll(WifiteJob* job, WifiteEvent* event) {
+    (void)job;
+    (void)event;
+    return false;
+}
+
+void wifite_cancel(WifiteJob* job) {
+    (void)job;
+}
+
+bool wifite_finished(WifiteJob* job) {
+    (void)job;
+    return true;
+}
+
+void wifite_free(WifiteJob* job) {
+    (void)job;
+}
+
+bool wlan_hal_evil_portal_is_running(void) {
+    return false;
+}
+'''
+    if not stubs.exists():
+        stubs.write_text(stubs_source, encoding="utf-8")
+    elif stubs.read_text(encoding="utf-8") != stubs_source:
+        raise ValueError("safe bring-up stub file exists with unexpected contents")
+
     patch_file(root, "components/wifi/CMakeLists.txt", [
         ('        "wifite/core.c"\n'
          '        "wifite/pixie.c"\n'
          '        "wifite/radio.c"\n'
          '        "wifite/link.c"\n',
-         '        # M4145 bring-up excludes the Wifite/WPS attack stack.\n',
+         '        "m4145_safe_profile_stubs.c"\n',
          "exclude Wifite/WPS attack stack from Wi-Fi component"),
     ])
 
@@ -650,7 +692,7 @@ def patch_radio_bringup_profile(root):
     patch_file(root, "applications/main/streaming/application.fam", [
         ('    entry_point="streaming_app",\n',
          '    entry_point="streaming_app",\n'
-         '    sources=["../wlan_app/views/wlan_lan_view.c",\n'
+         '    sources=["*.c*", "../wlan_app/views/wlan_lan_view.c",\n'
          '             "../wlan_app/views/wlan_view_common.c"],\n',
          "bundle generic LAN view with Streaming"),
     ])
