@@ -34,6 +34,13 @@ class RadioIntegrationContract(unittest.TestCase):
         self.assertIn("nrf24_hw_acquire()", patch)
         self.assertIn("nrf24_hw_release()", patch)
 
+    def test_nrf24_probe_logs_are_hardware_backed(self):
+        patch = PATCH.read_text()
+        self.assertIn('nRF24 initial SPI probe: %s', patch)
+        self.assertIn('nRF24 manual SPI probe: %s', patch)
+        self.assertIn('module_detected ? "detected" : "missing"', patch)
+        self.assertIn('app->module_detected ? "detected" : "missing"', patch)
+
     def test_disabled_actions_are_not_claimed_operational(self):
         patch = PATCH.read_text()
         self.assertIn("Jammer unavailable", patch)
