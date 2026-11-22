@@ -8,6 +8,8 @@ on:
       - 'patch/**'
       - 'variants/st7735/**'
       - 'scripts/build_local.sh'
+      - 'scripts/validate_m4145_pinout.py'
+      - 'tests/**'
       - 'scripts/audit_st7735_ui.py'
       - 'scripts/fetch_upstream.sh'
       - 'scripts/package_artifacts.py'
