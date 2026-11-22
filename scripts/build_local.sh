@@ -22,6 +22,7 @@ done
 python3 "$ROOT/patch/patch_flipper.py" "$SOURCE"
 python3 "$ROOT/patch/patch_hotels_151.py" "$SOURCE"
 ST7735_PINOUT="${ST7735_PINOUT:-$ROOT/patch/Pinout_ESP32S3_ST7735S_160.txt}"
+python3 "$ROOT/scripts/validate_m4145_pinout.py" "$ST7735_PINOUT"
 python3 "$ROOT/variants/st7735/patch_st7735.py" "$SOURCE" --pinout "$ST7735_PINOUT"
 python3 "$ROOT/variants/st7735/patch_landscape.py" "$SOURCE"
 python3 "$ROOT/variants/st7735/patch_module_detection.py" "$SOURCE"
