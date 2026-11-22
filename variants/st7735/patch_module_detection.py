@@ -368,7 +368,7 @@ def patch_app_guards(root):
          "        dialog_message_set_header(message, \"PN532 not detected\", 64, 0, AlignCenter, AlignTop);\n"
          "        dialog_message_set_text(\n"
          "            message,\n"
-         "            \"Needs PN532 V3 in I2C mode.\\nSDA GPIO41, SCL GPIO42.\\nCheck 3V3 and GND.\",\n"
+         "            \"PN532 disabled in this profile.\\nGPIO41/42 belong to nRF24 SPI.\\nUse a new pinout before wiring.\",\n"
          "            2, 20, AlignLeft, AlignTop);\n",
          "NFC exact module notice"),
     ])
@@ -417,7 +417,7 @@ def patch_app_guards(root):
          "int32_t infrared_app(void* p) {\n"
          "    if(m4145_show_module_notice(\n"
          "           \"IR hardware check\",\n"
-         "           \"IR has no module ID pin.\\nNeeds an IR LED + driver on TX GPIO1\\nand a 38kHz receiver on RX GPIO2.\",\n"
+         "           \"IR is disabled in this profile.\\nGPIO1/2 belong to nRF24.\\nAssign free GPIOs before wiring.\",\n"
          "           \"Back\",\n"
          "           \"Continue\") != DialogMessageButtonRight) {\n"
          "        return -1;\n"
