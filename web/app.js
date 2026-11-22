@@ -5,7 +5,8 @@ const EXPECTED_IMAGES = [
   { file: 'furi_esp32.bin', offset: 0x10000 },
   { file: 'ota_data_initial.bin', offset: 0xbf0000 },
 ];
-const EXPECTED_MODULES = ['CC1101 Sub-GHz', 'nRF24L01+', 'PN532 NFC', 'Infrared', 'LF RFID read-only'];
+const EXPECTED_MODULES = ['CC1101 Sub-GHz', 'nRF24L01+'];
+const EXPECTED_PINOUT_SHA256 = 'b154574a0d1acc7b915306f563a6cc8f0b4ca1e5fa492a5a584914182bd46c12';
 const $ = (selector) => document.querySelector(selector);
 const elements = {
   confirm: $('#hardware-confirm'), locked: $('#installer-locked'), wrapper: $('#installer-wrap'),
@@ -73,11 +74,10 @@ async function readJson(url) {
 
 function validateParts(manifest, info) {
   if (info.project_name !== 'M4145 Flipper ESP32-S3' || info.firmware_author !== 'm4145') throw new Error('Identitas build tidak sesuai.');
-  if (info.build_profile !== 'm4145-unified' || info.board !== 'DIY ESP32-S3 N16R8') throw new Error('Profil board bukan firmware universal ST7735S.');
+  if (info.build_profile !== 'm4145-unified' || info.board !== 'DIY ESP32-S3 N16R8') throw new Error('Profil board bukan firmware ST7735S untuk wiring saat ini.');
   if (!String(info.lcd || '').includes('ST7735S landscape 160x128')) throw new Error('Build bukan ST7735S landscape 160×128.');
-  for (const moduleName of EXPECTED_MODULES) {
-    if (!info.enabled_optional_modules.includes(moduleName)) throw new Error('Fitur modul tidak lengkap: ' + moduleName);
-  }
+  if (info.pinout_sha256 !== EXPECTED_PINOUT_SHA256) throw new Error('Pinout firmware bukan wiring radio yang sudah ditetapkan.');
+  if (!Array.isArray(info.enabled_optional_modules) || EXPECTED_MODULES.length !== info.enabled_optional_modules.length || EXPECTED_MODULES.some((name) => !info.enabled_optional_modules.includes(name))) throw new Error('Daftar modul tidak cocok dengan profil uji radio saat ini.');
   if (!Array.isArray(manifest.builds) || manifest.builds.length !== 1 || manifest.builds[0].chipFamily !== 'ESP32-S3') throw new Error('Manifest bukan satu build ESP32-S3.');
   const parts = manifest.builds[0].parts;
   if (parts.length !== EXPECTED_IMAGES.length || info.images.length !== EXPECTED_IMAGES.length) throw new Error('Jumlah partisi tidak cocok.');
@@ -119,7 +119,7 @@ function setBuildInfo(info) {
   elements.version.textContent = info.reported_flipper_version;
   $('#panel-board').textContent = info.board.replace('DIY ', '');
   $('#panel-display').textContent = 'ST7735S · 160×128';
-  $('#panel-build-profile').textContent = 'Universal';
+  $('#panel-build-profile').textContent = 'Uji radio';
   const appImage = info.images.find((item) => item.file === 'furi_esp32.bin');
   $('#panel-file-size').textContent = prettyBytes(appImage.size_bytes);
   $('#panel-sha').textContent = appImage.sha256.slice(0, 16) + '…';

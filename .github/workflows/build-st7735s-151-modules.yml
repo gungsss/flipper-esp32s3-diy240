@@ -1,4 +1,4 @@
-name: Build M4145 Flipper 1.5.1 ST7735S universal firmware
+name: Build M4145 Flipper 1.5.1 ST7735S radio test firmware
 
 on:
   push:
@@ -54,14 +54,17 @@ jobs:
               raise SystemExit(f"Display is not configured full-screen: {info['ui_rendering']}")
           if info['official_flipper_tag'] != '1.5.1':
               raise SystemExit('Unexpected Flipper source tag')
-          expected_modules = {
-              'CC1101 Sub-GHz', 'nRF24L01+', 'PN532 NFC', 'Infrared',
-              'LF RFID read-only',
-          }
+          expected_modules = {'CC1101 Sub-GHz', 'nRF24L01+'}
           if set(info['enabled_optional_modules']) != expected_modules:
-              raise SystemExit(f"Universal image is missing optional modules: {info['enabled_optional_modules']}")
+              raise SystemExit(f"Radio test image has an unexpected module set: {info['enabled_optional_modules']}")
           if info['firmware_author'] != 'm4145':
               raise SystemExit('Firmware author branding is not m4145')
+          apps = Path('.work/upstream/fam_config.py').read_text()
+          if 'APPS = [app for app in APPS if app not in ("wlan", "ble_spam")]' not in apps:
+              raise SystemExit('Active Wi-Fi/BLE disruption apps were not excluded')
+          cmake = Path('.work/upstream/CMakeLists.txt').read_text()
+          if 'tools/patch_wifi_lib.py' in cmake or 'include(cmake/wifite_sdk_adapter.cmake)' in cmake:
+              raise SystemExit('Raw Wi-Fi TX or WPS PIN adapter remains enabled')
           print('Packaged', info['build_profile'], 'with modules:', info['enabled_optional_modules'])
           PY
       - uses: actions/upload-artifact@v4
@@ -85,7 +88,7 @@ jobs:
         with:
           name: m4145-flipper-151-st7735s-unified
           path: ${{ runner.temp }}/m4145-st7735s
-      - name: Stage the single universal flasher image
+      - name: Stage the single ST7735S flasher image
         run: |
           set -euo pipefail
           preview='web/public/flipper-st7735-151'

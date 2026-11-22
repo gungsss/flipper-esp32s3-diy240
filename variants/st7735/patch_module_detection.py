@@ -340,7 +340,7 @@ def patch_app_guards(root):
          "    if(!furi_hal_subghz_is_connected()) {\n"
          "        m4145_show_module_notice(\n"
          "            \"CC1101 not detected\",\n"
-         "            \"Sub-GHz needs a CC1101 module.\\nSCK 9, MOSI 10, MISO 21,\\nCS 22, GDO0 23, 3V3 and GND.\",\n"
+         "            \"CC1101 wiring required:\\nSCK 9, MOSI 10, MISO 21,\\nCSN TX/GPIO43, GDO0 13.\",\n"
          "            NULL,\n"
          "            \"OK\");\n"
          "        return -1;\n"
@@ -381,7 +381,7 @@ def patch_app_guards(root):
         "        furi_hal_shared_pins_release(&owner);\n"
          "        m4145_show_module_notice(\n"
          "            \"nRF24L01+ not detected\",\n"
-         "            \"Needs nRF24L01+ module.\\nSPI 9/10/21, CS 24, CE 25.\\nUse a stable 3.3V supply.\",\n"
+         "            \"Needs nRF24L01+ module.\\nSCK 41, MOSI 42, MISO 47,\\nCSN 1, CE 2; use 3.3V.\",\n"
          "            NULL,\n"
          "            \"OK\");\n"
          "        return -1;\n"
@@ -516,22 +516,16 @@ def patch_about(root):
     patch_file(root, "applications/settings/about/about.c", [
         ("#include <furi_hal_info.h>\n",
          "#include <furi_hal_info.h>\n"
-         "#include <furi_hal_nfc.h>\n"
-         "#include <furi_hal_subghz.h>\n"
-         "#include <furi_hal_rfid.h>\n",
+         "#include <furi_hal_subghz.h>\n",
          "module status HAL includes"),
         ("static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage* message) {\n",
          "static DialogMessageButton module_status_screen(DialogsApp* dialogs, DialogMessage* message) {\n"
          "    const bool cc1101 = furi_hal_subghz_is_connected();\n"
-         "    const bool pn532 = furi_hal_nfc_is_hal_ready() == FuriHalNfcErrorNone;\n"
-         "    const bool rdm6300 = furi_hal_rfid_has_seen_tag();\n"
          "    FuriString* text = furi_string_alloc_printf(\n"
-         "        \"CC1101: %s\\nPN532 I2C: %s\\nnRF24: open app to test\\n\"\n"
-         "        \"RDM6300: %s\\nIR: test with wired parts\\n\"\n"
-         "        \"iButton / LF write: not supported\",\n"
-         "        cc1101 ? \"detected\" : \"not detected\",\n"
-         "        pn532 ? \"detected\" : \"not detected\",\n"
-         "        rdm6300 ? \"tag seen\" : \"waiting for EM4100 tag\");\n"
+         "        \"CC1101: %s\\nnRF24: open app to test\\n\"\n"
+         "        \"PN532 / IR / LF RFID: not in this test build\\n\"\n"
+         "        \"iButton: not supported\",\n"
+         "        cc1101 ? \"detected\" : \"not detected\");\n"
          "    dialog_message_set_header(message, \"Module status\", 0, 0, AlignLeft, AlignTop);\n"
          "    dialog_message_set_text(message, furi_string_get_cstr(text), 0, 13, AlignLeft, AlignTop);\n"
          "    DialogMessageButton result = dialog_message_show(dialogs, message);\n"
@@ -547,6 +541,95 @@ def patch_about(root):
          "    module_status_screen};\n",
          "append module status page"),
     ])
+
+
+def patch_nrf24_passive_test_menu(root):
+    """Keep the bring-up menu to chip detection and passive channel survey."""
+    path = root / "applications/main/nrf24/scenes/scene_menu.c"
+    text = path.read_text(encoding="utf-8")
+    if "Passive 2.4 GHz Survey" in text:
+        return
+    replacement = '''#include "../nrf24_app.h"
+
+enum SubmenuIndex {
+    SubmenuIndexPassiveSurvey,
+};
+
+static void nrf24_scene_menu_submenu_callback(void* context, uint32_t index) {
+    Nrf24App* app = context;
+    view_dispatcher_send_custom_event(app->view_dispatcher, index);
+}
+
+void nrf24_app_scene_menu_on_enter(void* context) {
+    Nrf24App* app = context;
+    submenu_add_item(
+        app->submenu,
+        "Passive 2.4 GHz Survey",
+        SubmenuIndexPassiveSurvey,
+        nrf24_scene_menu_submenu_callback,
+        app);
+    view_dispatcher_switch_to_view(app->view_dispatcher, Nrf24ViewSubmenu);
+}
+
+bool nrf24_app_scene_menu_on_event(void* context, SceneManagerEvent event) {
+    Nrf24App* app = context;
+    if(event.type == SceneManagerEventTypeCustom && event.event == SubmenuIndexPassiveSurvey) {
+        scene_manager_next_scene(app->scene_manager, Nrf24AppSceneSpectrum);
+        return true;
+    }
+    return false;
+}
+
+void nrf24_app_scene_menu_on_exit(void* context) {
+    Nrf24App* app = context;
+    submenu_reset(app->submenu);
+}
+'''
+    if "SubmenuIndexMouseJacker" not in text or "SubmenuIndexJammer" not in text:
+        raise ValueError("nRF24 test menu source differs from the expected upstream menu")
+    path.write_text(replacement, encoding="utf-8")
+
+
+def patch_radio_bringup_profile(root):
+    """Keep the hardware test image to passive radio checks and surveys."""
+    patch_file(root, "fam_config.py", [
+        ("EXTRA_EXT_APPS = []\n",
+         "EXTRA_EXT_APPS = []\n\n"
+         "# M4145 hardware bring-up profile: omit active Wi-Fi/BLE disruption apps.\n"
+         "APPS = [app for app in APPS if app not in (\"wlan\", \"ble_spam\")]\n",
+         "passive-only bring-up app filter"),
+    ])
+
+    cmake_path = root / "CMakeLists.txt"
+    cmake = cmake_path.read_text(encoding="utf-8")
+    start_marker = (
+        "# ---------------------------------------------------------------------------\n"
+        "# Patch libnet80211.a to allow raw TX of deauth/disassoc management frames."
+    )
+    end_marker = (
+        "# ---------------------------------------------------------------------------\n"
+        "# App-Descriptor-Version"
+    )
+    if start_marker in cmake:
+        start = cmake.index(start_marker)
+        end = cmake.find(end_marker, start)
+        if end < 0:
+            raise ValueError("Wi-Fi raw-TX patch block has no ending anchor")
+        cmake = (
+            cmake[:start]
+            + "# M4145 ST7735S bring-up keeps the ESP-IDF Wi-Fi raw-TX guard intact.\n"
+            + cmake[end:]
+        )
+    elif "M4145 ST7735S bring-up keeps the ESP-IDF Wi-Fi raw-TX guard intact." not in cmake:
+        raise ValueError("Wi-Fi raw-TX patch block or safe-profile marker is missing")
+
+    cmake = replace_once(
+        cmake,
+        "include(cmake/wifite_sdk_adapter.cmake)\n",
+        "# WPS PIN attack adapter is omitted from the M4145 hardware bring-up image.\n",
+        "disable WPS attack adapter",
+    )
+    cmake_path.write_text(cmake, encoding="utf-8")
 
 
 def patch(root):
@@ -585,6 +668,8 @@ static inline DialogMessageButton m4145_show_module_notice(
     patch_lfrfid_view(root)
     patch_app_guards(root)
     patch_about(root)
+    patch_nrf24_passive_test_menu(root)
+    patch_radio_bringup_profile(root)
 
 
 def main():

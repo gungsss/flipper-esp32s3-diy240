@@ -262,9 +262,9 @@ def main():
             "LF RFID app does not identify the required reader and test tag")
     status_page = read("applications/settings/about/about.c")
     for status in (
-        "CC1101: %s", "PN532 I2C: %s", "nRF24: open app to test",
-        "RDM6300: %s", "IR: test with wired parts",
-        "iButton / LF write: not supported",
+        "CC1101: %s", "nRF24: open app to test",
+        "PN532 / IR / LF RFID: not in this test build",
+        "iButton: not supported",
     ):
         require(status in status_page, f"About module status is missing ({status})")
 

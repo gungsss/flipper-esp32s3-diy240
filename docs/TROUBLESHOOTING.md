@@ -32,10 +32,11 @@ board tidak masuk ke mode download ketika boot.
 
 ## Fitur modul tidak muncul
 
-Menu Sub-GHz, nRF24, NFC, IR, dan LF RFID hanya dibangun saat pin yang diwajibkan
-diisi pada pinout. Setelah mengubah `ST7735_PINOUT`, build ulang firmware. Pastikan
-CC1101/nRF24 memakai dedicated radio SPI dan tidak berbagi pin dengan panel tanpa
-CS atau microSD. LF RFID saat ini read-only melalui modul RDM6300.
+Menu Sub-GHz dan nRF24 dibangun saat pin wajibnya terisi pada pinout. Profil uji
+ini memakai CC1101 SCK/MOSI/MISO/CSN/GDO0 = GPIO9/10/21/43/13 dan nRF24
+SCK/MOSI/MISO/CSN/CE = GPIO41/42/47/1/2. Dua radio memakai bus SPI terpisah;
+microSD tetap pada SPI3. Pindahkan CC1101 CSN dari GPIO46 ke pad TX/GPIO43 sebelum
+menyalakan firmware ini. PN532, IR, dan LF RFID tidak diaktifkan di profil ini.
 
 ## Board tidak terdeteksi saat flash
 

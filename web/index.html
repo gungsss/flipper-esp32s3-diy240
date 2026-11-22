@@ -33,7 +33,7 @@
       <div class="hero-left">
         <div class="eyebrow"><span class="pulse-dot"></span> PORT KOMUNITAS · FLIPPER 1.5.1 PREVIEW</div>
         <h1 id="hero-title">Flipper 1.5.1<br /><span>untuk ESP32-S3.</span></h1>
-        <p class="hero-description">Firmware by m4145 untuk ESP32-S3 N16R8 dengan TFT ST7735S landscape 160×128. Satu build universal, satu halaman flash, dan semua catatan versi tetap di alamat yang sama.</p>
+        <p class="hero-description">Firmware port by m4145 untuk ESP32-S3 N16R8 dengan TFT ST7735S landscape 160×128. Satu paket untuk rangkaian radio yang sedang diuji, satu halaman flash, dan riwayat versi di alamat yang sama.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#flash"><span class="arrow-circle" aria-hidden="true">↓</span> Flash firmware</a>
           <a class="btn btn-ghost" href="#updates">Lihat riwayat update <span aria-hidden="true">↘</span></a>
@@ -49,7 +49,7 @@
               <div class="screen-status"><span>M4145 · 1.5.1</span><span>ESP32 ▰▰</span></div>
               <div class="screen-emblem">FLIPPER ZERO</div>
               <div class="screen-title">Sub-GHz</div>
-              <div class="screen-subtitle">NFC &nbsp; Infrared &nbsp; RFID</div>
+              <div class="screen-subtitle">CC1101 &nbsp; nRF24</div>
               <div class="screen-footer"><span>◂ BACK</span><span>OK ▸</span></div>
             </div>
             <div class="device-controls"><div class="control-left"><i></i><i></i><i></i><i></i><b></b></div><div class="control-right"><i></i><i></i></div></div>
@@ -66,20 +66,20 @@
       <div><span class="strip-icon" aria-hidden="true">▣</span><span><strong>ESP32-S3 N16R8</strong><small>Board target</small></span></div>
       <div><span class="strip-icon" aria-hidden="true">▤</span><span><strong>ST7735S 160×128</strong><small>Landscape fullscreen</small></span></div>
       <div><span class="strip-icon" aria-hidden="true">⌘</span><span><strong>6 tombol</strong><small>D-pad sesuai arah</small></span></div>
-      <div><span class="strip-icon" aria-hidden="true">⌁</span><span><strong>Modul opsional</strong><small>Satu firmware universal</small></span></div>
+      <div><span class="strip-icon" aria-hidden="true">⌁</span><span><strong>2 radio terpasang</strong><small>CC1101 + nRF24</small></span></div>
     </div>
 
     <section class="section shell" id="flash" aria-labelledby="flash-title">
       <div class="section-heading">
-        <div><p class="section-kicker">01 / INSTALLER</p><h2 id="flash-title">Sambungkan, lalu flash.</h2><p>Installer memakai satu manifest yang berisi semua partisi firmware universal ST7735S.</p></div>
+        <div><p class="section-kicker">01 / INSTALLER</p><h2 id="flash-title">Sambungkan, lalu flash.</h2><p>Installer memakai satu manifest dan empat partisi dari build ST7735S untuk wiring saat ini.</p></div>
         <div class="version-pill"><span class="live-dot"></span><span id="release-version">Memeriksa versi…</span></div>
       </div>
       <div class="flash-layout">
         <div class="flash-main panel">
           <div class="panel-top"><span class="panel-label">WEB FLASHER · ESP32-S3</span><span class="panel-index">ST7735S / 160×128</span></div>
           <div class="flash-icon" aria-hidden="true"><svg viewBox="0 0 48 48" width="48" height="48" fill="none"><rect x="7" y="9" width="34" height="28" rx="4" stroke="currentColor" stroke-width="1.8"/><path d="M13 17h22M13 23h15M13 29h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M24 2v7m0 28v7M3 23h4m34 0h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="35" cy="32" r="5" fill="#75e9c7" stroke="#07131b" stroke-width="2"/></svg></div>
-          <h3>Satu opsi firmware: M4145 Universal</h3>
-          <p class="panel-description">Paket ini khusus ESP32-S3 N16R8, layar ST7735S 160×128 landscape, microSD SPI, dan tombol 6 arah. Jangan gunakan pada ESP32 biasa, ESP32-C3/C6, layar ST7789, atau rangkaian dengan pin berbeda.</p>
+          <h3>Satu opsi firmware: M4145 Radio Test</h3>
+          <p class="panel-description">Paket ini khusus ESP32-S3 N16R8, ST7735S 160×128 landscape, microSD SPI, tombol 6 arah, CC1101, dan nRF24 sesuai tabel wiring. Jangan gunakan pada ESP32 biasa, ESP32-C3/C6, layar ST7789, atau rangkaian dengan pin berbeda.</p>
           <div class="check-list">
             <div class="check-line"><span class="mini-check" id="browser-dot">··</span><span>Dukungan browser / USB</span><strong id="browser-label">Memeriksa…</strong></div>
             <div class="check-line"><span class="mini-check" id="firmware-dot">··</span><span>Empat file firmware</span><strong id="firmware-label">Memeriksa…</strong></div>
@@ -98,7 +98,7 @@
         </div>
         <aside class="flash-sidebar">
           <div class="panel info-panel">
-            <div class="panel-top"><span class="panel-label">BUILD SAAT INI</span><span class="chip-tag">UNIVERSAL</span></div>
+            <div class="panel-top"><span class="panel-label">BUILD SAAT INI</span><span class="chip-tag">RADIO TEST</span></div>
             <div class="info-title">M4145 <span>Flipper 1.5.1</span></div>
             <p class="info-sub">Build komunitas untuk ESP32-S3 · bukan rilis resmi Flipper Devices.</p>
             <div class="info-divider"></div>
@@ -124,16 +124,13 @@
     </section>
 
     <section class="section shell" id="fitur" aria-labelledby="features-title">
-      <div class="section-heading"><div><p class="section-kicker">02 / SATU BUILD</p><h2 id="features-title">Modul tambahan ikut dalam firmware.</h2><p>Fitur yang membutuhkan hardware menampilkan informasi ketersediaan sesuai dukungan driver. Modul fisik tetap perlu dipasang dan dihubungkan ke pinout yang benar.</p></div></div>
+        <div class="section-heading"><div><p class="section-kicker">02 / PROFIL UJI</p><h2 id="features-title">Dukungan modul yang dipakai.</h2><p>Firmware ini menyiapkan deteksi CC1101 dan nRF24L01+ pada pinout yang sudah dipasang. Modul lain belum diaktifkan dalam profil ini.</p></div></div>
       <div class="module-grid">
         <article class="panel module-card"><span class="module-symbol">RF</span><h3>Sub-GHz</h3><p>Menu modul CC1101 pada pinout radio khusus. Pastikan modul dan frekuensi yang dipakai sesuai aturan wilayah.</p><span class="module-requirement">Perlu: CC1101</span></article>
-        <article class="panel module-card"><span class="module-symbol">24</span><h3>2.4 GHz</h3><p>Dukungan perangkat nRF24L01+ dengan bus radio serta pin enable dan chip select tersendiri.</p><span class="module-requirement">Perlu: nRF24L01+</span></article>
-        <article class="panel module-card"><span class="module-symbol">NFC</span><h3>NFC</h3><p>Driver modul NFC eksternal melalui antarmuka I²C. Periksa level logika dan alamat modul sebelum disambungkan.</p><span class="module-requirement">Perlu: PN532</span></article>
-        <article class="panel module-card"><span class="module-symbol">IR</span><h3>Infrared</h3><p>Fitur IR memerlukan pemancar dan penerima eksternal yang sesuai dengan pinout firmware.</p><span class="module-requirement">Perlu: LED IR + receiver</span></article>
-        <article class="panel module-card"><span class="module-symbol">LF</span><h3>LF RFID</h3><p>Reader UART eksternal dapat membaca tag yang didukung. Fungsi tulis dan emulasi belum tersedia.</p><span class="module-requirement">Perlu: RDM6300 · read-only</span></article>
-        <article class="panel module-card module-note"><span class="module-symbol">i</span><h3>Deteksi &amp; batas fitur</h3><p>Firmware menampilkan petunjuk saat modul yang diperlukan belum siap. iButton HAL dan aplikasi FAP ARM tidak kompatibel langsung dengan ESP32-S3.</p><a href="/flipper-st7735-151/landscape/HARDWARE.md">Detail pin &amp; batas dukungan ↗</a></article>
+        <article class="panel module-card"><span class="module-symbol">24</span><h3>2.4 GHz</h3><p>Deteksi nRF24L01+ dan survei kanal pasif. Menu uji tidak menyediakan jammer atau MouseJacker.</p><span class="module-requirement">Terpasang: nRF24L01+</span></article>
+        <article class="panel module-card module-note"><span class="module-symbol">i</span><h3>Modul lain</h3><p>PN532 NFC, Infrared, dan LF RFID belum diaktifkan pada build ini. GPIO perlu dialokasikan dan image dibangun ulang sebelum modul tersebut dipakai.</p><a href="/flipper-st7735-151/landscape/HARDWARE.md">Detail pin &amp; batas dukungan ↗</a></article>
       </div>
-      <p class="section-footnote">Daftar ini menjelaskan driver yang ada di build; pembacaan modul fisik dan kestabilannya tetap harus diverifikasi di perangkat kamu.</p>
+      <p class="section-footnote">App Wi-Fi deauth/raw-frame TX, WPS PIN, Bluetooth spam, dan FAP eksternal tidak disertakan pada profil uji ini. Build sukses tetap perlu dilanjutkan dengan uji modul fisik.</p>
     </section>
 
     <section class="section shell" id="hardware" aria-labelledby="hardware-title">

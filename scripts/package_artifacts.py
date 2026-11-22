@@ -90,7 +90,7 @@ def main():
         ('LF RFID read-only', 'BOARD_HAS_RFID'),
     ) if board_flag(flag)]
     manifest = {
-        'name': 'M4145 Flipper 1.5.1 ESP32-S3 ST7735S (universal modules)',
+        'name': 'M4145 Flipper 1.5.1 ESP32-S3 ST7735S radio bring-up',
         'version': '1.5.1-m4145-esp32s3-st7735s-unified',
         'new_install_prompt_erase': False,
         'builds': [{
@@ -121,7 +121,7 @@ def main():
         'display_driver':'waveshare/esp_lcd_st7735==2.0.0',
         'sd':'SPI3_HOST',
         'enabled_optional_modules':enabled_modules,
-        'module_behavior':'All module menus and drivers are compiled into this single image. Attach and wire each module to the listed pinout; no rebuild or reflash is needed when adding a supported module.',
+        'module_behavior':'Single image for the current wiring profile: CC1101 and nRF24L01+ detection are enabled. The nRF24 app exposes passive channel survey only. Wi-Fi deauthentication/raw-TX support, the WPS PIN adapter, Bluetooth spam, and external attack FAPs are excluded from this bring-up build. Other module GPIOs remain disabled until assigned and built.',
         'unsupported_or_limited_features':[
             'iButton HAL is not implemented for this ESP32 port.',
             'LF RFID through RDM6300 is read-only; writing and emulation need another compatible frontend and firmware support.',

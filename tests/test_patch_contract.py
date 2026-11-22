@@ -14,6 +14,10 @@ LANDSCAPE_SPEC = importlib.util.spec_from_file_location(
     'patch_landscape', ROOT / 'variants' / 'st7735' / 'patch_landscape.py')
 LANDSCAPE = importlib.util.module_from_spec(LANDSCAPE_SPEC)
 LANDSCAPE_SPEC.loader.exec_module(LANDSCAPE)
+ST7735_SPEC = importlib.util.spec_from_file_location(
+    'patch_st7735', ROOT / 'variants' / 'st7735' / 'patch_st7735.py')
+ST7735 = importlib.util.module_from_spec(ST7735_SPEC)
+ST7735_SPEC.loader.exec_module(ST7735)
 
 
 class PatchContractTest(unittest.TestCase):
@@ -34,16 +38,73 @@ class PatchContractTest(unittest.TestCase):
         }
         self.assertEqual({key:cfg[key] for key in required}, required)
         module_pins = {
-            'CC1101_CS':22, 'CC1101_SCK':9, 'CC1101_MOSI':10,
-            'CC1101_MISO':21, 'CC1101_GDO0':23,
-            'NRF24_CS':24, 'NRF24_CE':25,
-            'NFC_SDA':41, 'NFC_SCL':42,
-            'IR_TX':1, 'IR_RX':2, 'RFID_TX':47, 'RFID_RX':48,
+            'CC1101_CS':43, 'CC1101_SCK':9, 'CC1101_MOSI':10,
+            'CC1101_MISO':21, 'CC1101_GDO0':13,
+            'NRF24_SCK':41, 'NRF24_MOSI':42, 'NRF24_MISO':47,
+            'NRF24_CS':1, 'NRF24_CE':2,
+            'NFC_SDA':-1, 'NFC_SCL':-1,
+            'IR_TX':-1, 'IR_RX':-1, 'RFID_TX':-1, 'RFID_RX':-1,
         }
         self.assertEqual({key:cfg[key] for key in module_pins}, module_pins)
         assigned = [val for val in cfg.values() if val >= 0]
-        self.assertEqual(len(assigned), len(set(assigned)))
-        self.assertFalse(set(assigned) & {0, 3, 19, 20, *range(26, 38), 43, 44, 45, 46})
+        self.assertEqual({v for v in assigned if assigned.count(v) > 1}, {13})
+        self.assertEqual(cfg['SPI_MISO'], cfg['CC1101_GDO0'])
+        self.assertEqual(cfg['CC1101_CS'], 43)  # board silkscreen labels this pad TX
+        self.assertFalse(set(assigned) & {0, 3, 19, 20, *range(26, 38), 44, 45, 46})
+
+    def test_nrf24_uses_an_independent_spi_bus(self):
+        source = '''REQ = ["SPI_SCK","SPI_MOSI","SPI_MISO","LCD_CS","LCD_DC","LCD_RST","LCD_BL","SD_CS",
+       "CC1101_CS","CC1101_GDO0","CC1101_GDO2","NRF24_CS","NRF24_CE","NFC_SDA","NFC_SCL",
+       "NFC_IRQ","NFC_RST","IR_TX","IR_RX","BTN_UP","BTN_DOWN","BTN_LEFT","BTN_RIGHT",
+       "BTN_OK","BTN_BACK"]
+spi = {"SPI_SCK","SPI_MOSI","SPI_MISO"}
+spi_seen = {}
+for k in sorted(spi):
+    if p[k] < 0: sys.exit(f"{k}: SPI signal must have a GPIO")
+    if p[k] in seen: sys.exit(f"Conflict: {k} and {seen[p[k]]} both use GPIO{p[k]}")
+    if p[k] in spi_seen: sys.exit(f"Conflict: {k} and {spi_seen[p[k]]} both use GPIO{p[k]}")
+    spi_seen[p[k]] = k
+nrf = p["NRF24_CS"] >= 0 and p["NRF24_CE"] >= 0
+nfc_irq_macro = f'#define BOARD_PIN_NFC_IRQ {g("NFC_IRQ")}\\n' if p["NFC_IRQ"] >= 0 else ""
+nfc_rst_macro = f'#define BOARD_PIN_NFC_RST {g("NFC_RST")}\\n' if p["NFC_RST"] >= 0 else ""
+/* Buttons (active low, wired to GND) */
+#define BOARD_OTA_PROFILE_ST7735 1
+#define BOARD_LCD_H_RES 160
+#define BOARD_LCD_V_RES 128
+/* LCD ST7789 */
+#define BOARD_LCD_SPI_FREQ_HZ (10 * 1000 * 1000)
+#define BOARD_OTA_PROFILE_ST7789 1
+#define BOARD_LCD_H_RES 240
+#define BOARD_LCD_V_RES 240
+#define BOARD_PIN_CC1101_SCK  {g("SPI_SCK")}
+#define BOARD_PIN_CC1101_CSN  {g("CC1101_CS")}
+#define BOARD_PIN_CC1101_MISO {g("SPI_MISO")}
+#define BOARD_PIN_CC1101_MOSI {g("SPI_MOSI")}
+#define BOARD_CC1101_SPI_SHARED 1
+#define BOARD_PIN_NRF24_SCK  {g("SPI_SCK")}
+#define BOARD_PIN_NRF24_MISO {g("SPI_MISO")}
+#define BOARD_PIN_NRF24_MOSI {g("SPI_MOSI")}
+#define BOARD_PIN_NFC_IRQ {g("NFC_IRQ")}\n#define BOARD_PIN_NFC_RST {g("NFC_RST")}
+#define BOARD_HAS_IR {1 if p["IR_TX"] >= 0 else 0}\n#define BOARD_HAS_IBUTTON 0\n#define BOARD_HAS_RFID 0\n#define BOARD_HAS_NFC 0\n#define BOARD_HAS_SUBGHZ 0
+#define BOARD_PIN_RFID_RX UINT16_MAX
+#define BOARD_PIN_RFID_TX UINT16_MAX
+#define BOARD_LCD_MIRROR_Y false
+#define BOARD_LCD_INVERT_COLOR true
+#define BOARD_LCD_MIRROR_X false
+'''
+        patched = ST7735.patch_generator(source)
+        self.assertIn('"NRF24_SCK","NRF24_MOSI","NRF24_MISO"', patched)
+        self.assertIn('#define BOARD_PIN_NRF24_SCK  {g("NRF24_SCK")}', patched)
+        self.assertIn('#define BOARD_NRF24_SPI_SEPARATE 1', patched)
+        self.assertIn('shared_lcd_miso_gdo', patched)
+        self.assertEqual(patched, ST7735.patch_generator(patched))
+
+    def test_cc1101_tx_pad_does_not_share_app_uart_console(self):
+        source = '# Target: ESP32-S3\n'
+        patched = ST7735.patch_sdkconfig(source)
+        self.assertIn('CONFIG_ESP_CONSOLE_NONE=y', patched)
+        self.assertIn('GPIO43/TX is the CC1101 CSN pin', patched)
+        self.assertEqual(patched, ST7735.patch_sdkconfig(patched))
 
     def test_display_patch_converts_absent_cs_to_minus_one(self):
         base = '.cs_gpio_num = gpio_lcd_cs.pin,'

@@ -21,25 +21,23 @@ overlapping text. Source audit checks the Canvas primitives, shared GUI paths,
 keyboard/navigation contracts, and pairing geometry; the board still needs a
 physical screen-by-screen check.
 
-## Single universal firmware and optional modules
+## Single firmware for the current radio wiring
 
-The single downloadable firmware compiles all module menus and drivers listed
-below. The tested display, SD, and button assignments stay unchanged; optional
-module GPIOs are reserved in `patch/Pinout_ESP32S3_ST7735S_160.txt`. Connect a
-supported module to those exact GPIOs and 3.3 V. No rebuild or reflash is needed
-when adding a supported module. Check that the selected ESP32-S3 board exposes
-each GPIO and has no onboard component using it. CC1101 is probed at startup;
-PN532 and nRF24 are checked when their app opens. IR and RDM6300 have no module
-identity signal, so their screens explain how to confirm the wiring and test
-them instead of claiming automatic presence detection.
+The current hardware test profile keeps the tested display, SD, and button
+assignments unchanged and enables only CC1101 and nRF24L01+ on independent
+bit-banged SPI buses. The exact wiring is in `docs/HARDWARE.md` and the selected
+pinout. CC1101 is probed at startup; nRF24 is checked when its app opens. During
+hardware bring-up, the nRF24 menu is limited to a passive channel survey. The
+build is tailored to test these two modules first; PN532, IR, and LF RFID pins
+are disabled until their wiring is separately assigned.
 
 | Module | Required pin fields | Current ESP32 port support |
 |---|---|---|
-| CC1101 Sub-GHz | `CC1101_SCK`, `CC1101_MOSI`, `CC1101_MISO`, `CC1101_CS`, `CC1101_GDO0` | Dedicated bit-banged SPI bus, isolated from the CS-less display and microSD. |
-| nRF24L01+ | Radio bus pins above, `NRF24_CS`, `NRF24_CE` | Shares the dedicated radio bus with CC1101; can be used without a CC1101 if wired to that same bus. |
-| PN532 NFC | `NFC_SDA`, `NFC_SCL` | PN532 I²C HAL; `NFC_IRQ` and `NFC_RST` optional. Different capabilities from the stock ST25R3916 hardware. |
-| Infrared | `IR_TX`, `IR_RX` | ESP32 RMT transmit and receive; IR LED driver and receiver are separate hardware. |
-| LF RFID | `RFID_TX`, `RFID_RX` | RDM6300 UART read-only support. No writing or emulation. |
+| CC1101 Sub-GHz | `CC1101_SCK`, `CC1101_MOSI`, `CC1101_MISO`, `CC1101_CS`, `CC1101_GDO0` | Dedicated bit-banged SPI on GPIO9/10/21; CSN TX/GPIO43; GDO0 GPIO13. |
+| nRF24L01+ | `NRF24_SCK`, `NRF24_MOSI`, `NRF24_MISO`, `NRF24_CS`, `NRF24_CE` | Independent bit-banged SPI on GPIO41/42/47; CSN GPIO1; CE GPIO2. |
+| PN532 NFC | `NFC_SDA`, `NFC_SCL` | Disabled in this test profile pending separate pin assignment. |
+| Infrared | `IR_TX`, `IR_RX` | Disabled in this test profile pending separate pin assignment. |
+| LF RFID | `RFID_TX`, `RFID_RX` | Disabled in this test profile pending separate pin assignment. |
 
 The current port does not implement the iButton HAL. RDM6300 is read-only, and
 does not replace LF RFID writing or emulation. Those functions need a compatible
@@ -47,15 +45,23 @@ external frontend and a separate M4145 driver/app implementation; they are not
 presented as working until implemented. ESP32-S3 also lacks the onboard speaker
 and several dedicated Flipper Zero circuits.
 
+The hardware bring-up image excludes the Wi-Fi deauthentication/raw-frame
+transmit app, WPS PIN adapter, Bluetooth spam app, and external attack FAPs.
+These are not needed to check the CC1101/nRF24 wiring. PN532, IR, and LF RFID
+remain disabled in this pinout until their GPIOs are assigned and a new profile
+is built.
+
 To build, install ESP-IDF v5.4.1 and run:
 
 ```sh
 bash scripts/build_local.sh
 ```
 
-The sole default pinout is `patch/Pinout_ESP32S3_ST7735S_160.txt`; it preserves
-the existing display, SD, and button wiring and reserves the module pins above.
-The build script regenerates the board header from that file before compiling.
+The default pinout is `patch/Pinout_ESP32S3_ST7735S_160.txt`; it preserves the
+existing display, SD, and button wiring. GPIO46 is not used because it is an
+ESP32-S3 strap pin. The board labels GPIO43 as TX; move the CC1101 CSN lead from
+GPIO46 to TX before flashing. The build script disables the UART console and
+regenerates the board header from that file.
 
 The Flipper 1.5.1 changes are an ESP32 backport, not the official Flipper Zero
 firmware binary or full feature parity. A successful compile still needs a

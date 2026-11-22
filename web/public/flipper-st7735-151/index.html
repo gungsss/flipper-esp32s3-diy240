@@ -35,17 +35,16 @@
   <section class="card">
     <span class="eyebrow">M4145 · ESP32-S3 N16R8 · ST7735S 160×128 landscape</span>
     <h1>Flipper 1.5.1 untuk ESP32-S3</h1>
-    <p>Firmware port komunitas <strong>by m4145</strong>, dengan layar ST7735S landscape fullscreen dan dukungan modul opsional yang sudah dikompilasi dalam satu image. Ini bukan binary resmi Flipper Zero. Perubahan 1.5.1 diadaptasi ke ESP32-S3; fungsi yang membutuhkan hardware atau HAL berbeda tetap memiliki batas port.</p>
+    <p>Firmware port komunitas <strong>by m4145</strong> untuk layar ST7735S landscape fullscreen dan wiring CC1101 + nRF24 yang sedang diuji. Ini bukan binary resmi Flipper Zero. Perubahan 1.5.1 diadaptasi ke ESP32-S3; fungsi yang membutuhkan hardware atau HAL berbeda tetap memiliki batas port.</p>
   </section>
   <section class="card notice">
-    <h2>Satu firmware, dukungan modul opsional</h2>
-    <p>Image tunggal ini menyertakan menu dan driver untuk <strong>CC1101 Sub-GHz, nRF24L01+, PN532 NFC, Infrared, dan RDM6300 LF RFID</strong>. Layar, microSD, dan tombol tetap memakai wiring yang sekarang. Saat modul tambahan dipasang, hubungkan ke GPIO yang tercantum pada pinout firmware; tidak perlu build atau flash ulang. GPIO modul harus tersedia pada board dan memakai level 3,3 V.</p>
-    <p>RDM6300 hanya membaca. iButton serta tulis/emulasi LF RFID belum tersedia pada port ESP32 ini; fitur tersebut perlu driver dan hardware padanan tersendiri.</p>
+    <h2>Satu firmware untuk wiring saat ini</h2>
+    <p>Image tunggal ini menyiapkan <strong>CC1101 Sub-GHz dan nRF24L01+</strong> pada pinout yang tercantum. nRF24 hanya menyediakan survei kanal pasif. PN532, Infrared, dan LF RFID belum diaktifkan. App Wi-Fi deauth/raw-frame TX, WPS PIN, Bluetooth spam, dan FAP eksternal tidak disertakan pada build uji ini.</p>
     <label><input id="confirm" type="checkbox"><span>Saya memakai ESP32-S3 N16R8 dan ST7735S 160×128 landscape dengan CS layar ke GND, sudah mencocokkan pin modul tambahan dengan board, dan memahami firmware di flash akan ditimpa.</span></label>
     <div class="buttons" id="buttons" hidden>
       <esp-web-install-button manifest="landscape/manifest.json"><button slot="activate">Flash firmware m4145</button><span slot="unsupported">Gunakan Chrome atau Edge pada komputer.</span><span slot="not-allowed">Buka halaman ini melalui HTTPS.</span></esp-web-install-button>
     </div>
-    <p class="small"><a href="landscape/Pinout.txt">Pinout firmware tunggal</a> · <a href="landscape/BUILD_INFO.json">Metadata dan batas fitur</a></p>
+    <p class="small"><a href="landscape/Pinout.txt">Pinout firmware</a> · <a href="landscape/BUILD_INFO.json">Metadata dan batas fitur</a></p>
   </section>
 </main>
 <script>document.getElementById('confirm').addEventListener('change', e => { document.getElementById('buttons').hidden = !e.target.checked; });</script>

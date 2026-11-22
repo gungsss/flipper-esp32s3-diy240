@@ -55,33 +55,45 @@ Tombol aktif-rendah menggunakan pull-up internal: saat ditekan, pin ditarik ke
 GND. Tidak perlu menyambungkan 3V3 ke keypad. Pastikan dengan multimeter bahwa
 setiap sakelar menghubungkan label tombol ke COM saat ditekan.
 
-## 4. Modul tambahan pada image tunggal
+## 4. Modul yang sedang diuji: CC1101 dan nRF24L01+
 
-Firmware ST7735S universal sudah mengompilasi menu dan driver modul di bawah.
-Display, microSD, dan keypad memakai sambungan yang sama seperti sebelumnya.
-Untuk menambah modul, sambungkan sinyalnya ke GPIO pada tabel ini; tidak perlu
-rebuild atau reflash. Board pengguna harus mengekspos pin itu dan tidak boleh
-memakainya untuk rangkaian lain. Semua sinyal memakai logika 3,3 V; cek tegangan
-dan kebutuhan arus modul sebelum menyalakannya.
+Kedua radio memakai bus SPI bit-bang yang terpisah. Jangan satukan kabel SCK,
+MOSI, atau MISO keduanya. Daya modul diambil dari keluaran 3V3 expansion sesuai
+rangkaian yang sudah dibuat; GND expansion harus tersambung ke GND ESP32-S3.
+Gunakan tegangan logika 3,3 V.
 
-CC1101 dan nRF24 berbagi bus radio, terpisah dari LCD CS yang terikat GND dan
-microSD SPI3. Generator menolak pin bentrok dan GPIO yang dicadangkan untuk
-flash, PSRAM, atau USB. Pinout image ini adalah:
+| Pin modul | ESP32-S3 | Catatan |
+|---|---:|---|
+| **CC1101 SCK** | GPIO9 | Bus CC1101 |
+| **CC1101 MOSI / SI** | GPIO10 | Bus CC1101 |
+| **CC1101 MISO / SO** | GPIO21 | Bus CC1101 |
+| **CC1101 CSN / CS** | **GPIO43 (pad TX)** | Pindahkan dari GPIO46 ke pin bertanda TX |
+| **CC1101 GDO0** | GPIO13 | Input status radio; TFT tidak membaca jalur MISO |
+| CC1101 GDO2 | — | Tidak dipakai |
+| **nRF24 SCK** | GPIO41 | Bus nRF24 tersendiri |
+| **nRF24 MOSI** | GPIO42 | Bus nRF24 tersendiri |
+| **nRF24 MISO** | GPIO47 | Bus nRF24 tersendiri |
+| **nRF24 CSN** | GPIO1 | Chip select |
+| **nRF24 CE** | GPIO2 | Enable radio |
+| nRF24 IRQ | — | Tidak dipakai |
 
-| Fungsi modul | GPIO |
-|---|---:|
-| CC1101: SCK / MOSI / MISO / CS / GDO0 | 9 / 10 / 21 / 22 / 23 |
-| nRF24: CS / CE, bus radio bersama | 24 / 25 |
-| PN532: SDA / SCL | 41 / 42 |
-| IR: TX / RX | 1 / 2 |
-| RDM6300: UART TX / RX | 47 / 48 |
+Angka GPIO43 tidak dicetak di board kamu; pad bertanda `TX` adalah GPIO43.
+Firmware mematikan console UART0 aplikasi agar log serial tidak mengambil alih
+pin CSN itu. GPIO46 dihindari karena merupakan pin strap ESP32-S3 saat boot.
+Untuk PN532, IR, dan LF RFID, pin belum dialokasikan pada build uji ini supaya
+tidak berbagi GPIO dengan kedua radio.
 
-Tabel ini mengikuti firmware tunggal. Periksa skema atau label PCB ESP32-S3-mu
-sebelum memasang kabel; GPIO yang tidak tersedia di board tertentu tidak dapat
-digunakan meski drivernya sudah ada di image. PN532 memakai mode I²C. Modul
-RDM6300 hanya memberikan fungsi baca. iButton dan fungsi tulis/emulasi LF RFID
-belum memiliki padanan driver di rilis ini. Lihat
-[daftar kompatibilitas modul](../variants/st7735/README.md).
+### Urutan uji setelah flash
+
+1. Nyalakan board dan buka **Settings → About → Module status**. Pastikan CC1101
+   terbaca sebagai `detected`; halaman ini hanya melaporkan koneksi.
+2. Buka aplikasi **NRF 2.4GHz**. Jika probe berhasil, masuk ke **Passive 2.4 GHz
+   Survey** untuk melihat aktivitas kanal tanpa mengirim paket.
+3. Buka **Sub-GHz** untuk memastikan app mengenali CC1101. Untuk uji pertama,
+   gunakan layar penerimaan/spectrum saja; jangan memancarkan sinyal saat
+   memeriksa sambungan.
+4. Jika modul tertulis tidak terdeteksi, matikan daya lalu cek CSN, arah kabel,
+   GND bersama, dan tegangan 3,3 V. Jangan mencabut kabel saat board menyala.
 
 ## 5. Sebelum dinyalakan
 
@@ -89,4 +101,6 @@ belum memiliki padanan driver di rilis ini. Lihat
 - Pastikan microSD pada SPI3: GPIO40 / 39 / 38 / 14.
 - Pastikan keenam tombol active-low dan ground-nya bersama.
 - Periksa label tegangan dan polaritas setiap modul.
-- Jangan memakai pin opsional hanya karena tertulis di contoh; pastikan cocok dengan board dan wiring fisik.
+- Pastikan CC1101 CSN sudah di pad TX/GPIO43, bukan GPIO46.
+- Pastikan keenam sinyal radio cocok dengan tabel dan kedua bus tidak disatukan.
+- Jangan menghubungkan keluaran 5 V ke pin ESP32-S3 atau modul radio.

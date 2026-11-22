@@ -29,7 +29,8 @@ def patch_generator(s):
         in s
     )
     legacy_req = ('       "CC1101_CS","CC1101_SCK","CC1101_MOSI","CC1101_MISO","CC1101_GDO0","CC1101_GDO2",\n'
-                  '       "NRF24_CS","NRF24_CE","NFC_SDA","NFC_SCL","NFC_IRQ","NFC_RST",\n'
+                  '       "NRF24_SCK","NRF24_MOSI","NRF24_MISO","NRF24_CS","NRF24_CE",\n'
+                  '       "NFC_SDA","NFC_SCL","NFC_IRQ","NFC_RST",\n'
                   '       "IR_TX","IR_RX","RFID_TX","RFID_RX","IBUTTON_PIN",\n'
                   '       "BTN_UP","BTN_DOWN","BTN_LEFT","BTN_RIGHT","BTN_OK","BTN_BACK"]')
     canonical_req = legacy_req.replace('"RFID_TX","RFID_RX","IBUTTON_PIN"', '"RFID_TX","RFID_RX"')
@@ -43,11 +44,12 @@ def patch_generator(s):
          '       "NFC_IRQ","NFC_RST","IR_TX","IR_RX","BTN_UP","BTN_DOWN","BTN_LEFT","BTN_RIGHT",\n'
          '       "BTN_OK","BTN_BACK"]',
          '       "CC1101_CS","CC1101_SCK","CC1101_MOSI","CC1101_MISO","CC1101_GDO0","CC1101_GDO2",\n'
-         '       "NRF24_CS","NRF24_CE","NFC_SDA","NFC_SCL","NFC_IRQ","NFC_RST",\n'
+         '       "NRF24_SCK","NRF24_MOSI","NRF24_MISO","NRF24_CS","NRF24_CE",\n'
+         '       "NFC_SDA","NFC_SCL","NFC_IRQ","NFC_RST",\n'
          '       "IR_TX","IR_RX","RFID_TX","RFID_RX",\n'
          '       "BTN_UP","BTN_DOWN","BTN_LEFT","BTN_RIGHT","BTN_OK","BTN_BACK"]'),
         ('nrf = p["NRF24_CS"] >= 0 and p["NRF24_CE"] >= 0',
-         'nrf = (p["CC1101_SCK"] >= 0 and p["CC1101_MOSI"] >= 0 and p["CC1101_MISO"] >= 0 and\n'
+         'nrf = (p["NRF24_SCK"] >= 0 and p["NRF24_MOSI"] >= 0 and p["NRF24_MISO"] >= 0 and\n'
          '       p["NRF24_CS"] >= 0 and p["NRF24_CE"] >= 0)\n'
          'nfc_irq_macro = f\'#define BOARD_PIN_NFC_IRQ {g("NFC_IRQ")}\\n\' if p["NFC_IRQ"] >= 0 else ""\n'
          'nfc_rst_macro = f\'#define BOARD_PIN_NFC_RST {g("NFC_RST")}\\n\' if p["NFC_RST"] >= 0 else ""'),
@@ -65,8 +67,16 @@ def patch_generator(s):
          '#define BOARD_CC1101_SPI_SHARED 0 /* dedicated bitbang bus; never shares the CS-less LCD */'),
         ('#define BOARD_PIN_NRF24_SCK  {g("SPI_SCK")}\n#define BOARD_PIN_NRF24_MISO {g("SPI_MISO")}\n'
          '#define BOARD_PIN_NRF24_MOSI {g("SPI_MOSI")}',
-         '#define BOARD_PIN_NRF24_SCK  {g("CC1101_SCK")}\n#define BOARD_PIN_NRF24_MISO {g("CC1101_MISO")}\n'
-         '#define BOARD_PIN_NRF24_MOSI {g("CC1101_MOSI")}'),
+         '#define BOARD_PIN_NRF24_SCK  {g("NRF24_SCK")}\n#define BOARD_PIN_NRF24_MISO {g("NRF24_MISO")}\n'
+         '#define BOARD_PIN_NRF24_MOSI {g("NRF24_MOSI")}\n#define BOARD_NRF24_SPI_SEPARATE 1'),
+        ('    if p[k] in seen: sys.exit(f"Conflict: {k} and {seen[p[k]]} both use GPIO{p[k]}")\n'
+         '    if p[k] in spi_seen: sys.exit(f"Conflict: {k} and {spi_seen[p[k]]} both use GPIO{p[k]}")',
+         '    # ST7735S is write-only; GPIO13 can also serve as the CC1101 GDO0 input.\n'
+         '    # It is an intentional input/input alias; the LCD never samples MISO.\n'
+         '    shared_lcd_miso_gdo = (k == "SPI_MISO" and p[k] == p.get("CC1101_GDO0", -1))\n'
+         '    if p[k] in seen and not (shared_lcd_miso_gdo and seen[p[k]] == "CC1101_GDO0"):\n'
+         '        sys.exit(f"Conflict: {k} and {seen[p[k]]} both use GPIO{p[k]}")\n'
+         '    if p[k] in spi_seen: sys.exit(f"Conflict: {k} and {spi_seen[p[k]]} both use GPIO{p[k]}")'),
         ('#define BOARD_PIN_NFC_IRQ {g("NFC_IRQ")}\n#define BOARD_PIN_NFC_RST {g("NFC_RST")}',
          '{nfc_irq_macro}{nfc_rst_macro}'),
         ('#define BOARD_HAS_IR {1 if p["IR_TX"] >= 0 else 0}\n#define BOARD_HAS_IBUTTON 0\n'
@@ -135,7 +145,7 @@ if _board == "DIY":
     (_boards_without_nfc.discard if _diy_has("NFC_SDA", "NFC_SCL") else _boards_without_nfc.add)("DIY")
     (_boards_without_ir.discard if _diy_has("IR_TX", "IR_RX") else _boards_without_ir.add)("DIY")
     (_boards_without_subghz.discard if _diy_has("CC1101_SCK", "CC1101_MOSI", "CC1101_MISO", "CC1101_CS", "CC1101_GDO0") else _boards_without_subghz.add)("DIY")
-    (_boards_without_nrf24.discard if _diy_has("CC1101_SCK", "CC1101_MOSI", "CC1101_MISO", "NRF24_CS", "NRF24_CE") else _boards_without_nrf24.add)("DIY")
+    (_boards_without_nrf24.discard if _diy_has("NRF24_SCK", "NRF24_MOSI", "NRF24_MISO", "NRF24_CS", "NRF24_CE") else _boards_without_nrf24.add)("DIY")
     if _diy_has("NFC_SDA", "NFC_SCL") and "nfc" not in APPS:
         APPS.append("nfc")  # The earlier generic board filter ran before pin capabilities were loaded.
     if _diy_has("RFID_TX", "RFID_RX") and "lfrfid" not in APPS:
@@ -229,6 +239,112 @@ def patch_component_cmake(s):
                         "component requirements")
 
 
+def patch_spi_types(s):
+    return replace_once(
+        s,
+        "extern FuriHalSpiBus furi_hal_spi_bus_subghz;\n",
+        "extern FuriHalSpiBus furi_hal_spi_bus_subghz;\n"
+        "extern FuriHalSpiBus furi_hal_spi_bus_nrf24;\n",
+        "independent nRF24 SPI bus declaration",
+    )
+
+
+def patch_resources_h(s):
+    return replace_once(
+        s,
+        "extern const GpioPin gpio_nrf24_cs; /* NRF24 CSN -- T-Embed: GPIO44 */\n",
+        "extern const GpioPin gpio_nrf24_cs; /* nRF24 CSN */\n"
+        "extern const GpioPin gpio_nrf24_sck;\n"
+        "extern const GpioPin gpio_nrf24_mosi;\n"
+        "extern const GpioPin gpio_nrf24_miso;\n",
+        "independent nRF24 GPIO declarations",
+    )
+
+
+def patch_resources_c(s):
+    anchor = (
+        "#else\n"
+        "const GpioPin gpio_nrf24_cs = {.port = NULL, .pin = UINT16_MAX};\n"
+        "#endif\n"
+    )
+    replacement = anchor + (
+        "#ifdef BOARD_PIN_NRF24_SCK\n"
+        "const GpioPin gpio_nrf24_sck = {.port = NULL, .pin = BOARD_PIN_NRF24_SCK};\n"
+        "const GpioPin gpio_nrf24_mosi = {.port = NULL, .pin = BOARD_PIN_NRF24_MOSI};\n"
+        "const GpioPin gpio_nrf24_miso = {.port = NULL, .pin = BOARD_PIN_NRF24_MISO};\n"
+        "#else\n"
+        "const GpioPin gpio_nrf24_sck = {.port = NULL, .pin = UINT16_MAX};\n"
+        "const GpioPin gpio_nrf24_mosi = {.port = NULL, .pin = UINT16_MAX};\n"
+        "const GpioPin gpio_nrf24_miso = {.port = NULL, .pin = UINT16_MAX};\n"
+        "#endif\n"
+    )
+    return replace_once(s, anchor, replacement, "independent nRF24 GPIO resources")
+
+
+def patch_spi(s):
+    s = replace_once(
+        s,
+        "FuriHalSpiBusHandle furi_hal_spi_bus_handle_external = {\n",
+        "FuriHalSpiBus furi_hal_spi_bus_nrf24 = {\n"
+        "    .host_id = -1,\n"
+        "    .bitbang = true,\n"
+        "    .initialized = false,\n"
+        "    .mutex = NULL,\n"
+        "    .current_handle = NULL,\n"
+        "    .mosi_pin = FURI_HAL_SPI_PIN_UNMAPPED,\n"
+        "    .miso_pin = FURI_HAL_SPI_PIN_UNMAPPED,\n"
+        "    .sck_pin = FURI_HAL_SPI_PIN_UNMAPPED,\n"
+        "};\n\n"
+        "FuriHalSpiBusHandle furi_hal_spi_bus_handle_external = {\n",
+        "separate software SPI bus for nRF24",
+    )
+    old = (
+        "/* NRF24 sits on the same SPI bus as the SubGhz / CC1101 (T-Embed) but uses its\n"
+        " * own CS pin -- both devices can be parallel-attached and CS-muxed on the bus. */\n"
+        "FuriHalSpiBusHandle furi_hal_spi_bus_handle_nrf24 = {\n"
+        "    .bus = &furi_hal_spi_bus_subghz,\n"
+        "    .miso = &gpio_ext_pa6,\n"
+        "    .mosi = &gpio_ext_pa7,\n"
+        "    .sck = &gpio_ext_pb3,\n"
+        "    .cs = &gpio_nrf24_cs,\n"
+        "    .device = NULL,\n"
+        "    .initialized = false,\n"
+        "    .frequency_hz = 4 * 1000 * 1000,\n"
+        "    .mode = 0,\n"
+        "};\n"
+    )
+    new = (
+        "/* Most boards share the CC1101 bus. DIY ST7735S has separate wiring for\n"
+        " * nRF24, so it gets an independent bit-banged bus and GPIO set. */\n"
+        "#if defined(BOARD_NRF24_SPI_SEPARATE) && BOARD_NRF24_SPI_SEPARATE\n"
+        "FuriHalSpiBusHandle furi_hal_spi_bus_handle_nrf24 = {\n"
+        "    .bus = &furi_hal_spi_bus_nrf24,\n"
+        "    .miso = &gpio_nrf24_miso,\n"
+        "    .mosi = &gpio_nrf24_mosi,\n"
+        "    .sck = &gpio_nrf24_sck,\n"
+        "    .cs = &gpio_nrf24_cs,\n"
+        "    .device = NULL,\n"
+        "    .initialized = false,\n"
+        "    .frequency_hz = 1 * 1000 * 1000,\n"
+        "    .mode = 0,\n"
+        "};\n"
+        "#else\n"
+        "FuriHalSpiBusHandle furi_hal_spi_bus_handle_nrf24 = {\n"
+        "    .bus = &furi_hal_spi_bus_subghz,\n"
+        "    .miso = &gpio_ext_pa6,\n"
+        "    .mosi = &gpio_ext_pa7,\n"
+        "    .sck = &gpio_ext_pb3,\n"
+        "    .cs = &gpio_nrf24_cs,\n"
+        "    .device = NULL,\n"
+        "    .initialized = false,\n"
+        "    .frequency_hz = 4 * 1000 * 1000,\n"
+        "    .mode = 0,\n"
+        "};\n"
+        "#endif\n"
+    )
+    return replace_once(s, old, new, "independent nRF24 SPI handle")
+
+
 def patch_build(s):
     export_line = 'export FLIPPER_FAM_CONFIG_DIR="${SCRIPT_DIR}"\n'
     generator_line = 'python3 "${SCRIPT_DIR}/tools/gen_diy_board.py" "${SCRIPT_DIR}/Pinout.txt"\n'
@@ -246,6 +362,17 @@ def patch_build(s):
     return s
 
 
+def patch_sdkconfig(s):
+    setting = "CONFIG_ESP_CONSOLE_NONE=y"
+    if setting in s:
+        return s
+    return s.rstrip() + (
+        "\n\n# GPIO43/TX is the CC1101 CSN pin in this board profile.\n"
+        "# Keep the app UART console from taking control of the radio select line.\n"
+        f"{setting}\n"
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(description="Apply the ST7735S landscape-capable board profile")
     parser.add_argument("root", help="patched upstream source checkout")
@@ -259,15 +386,24 @@ def main():
         "components/furi_hal/furi_hal_display.c": patch_display,
         "components/furi_hal/idf_component.yml": patch_component_manifest,
         "components/furi_hal/CMakeLists.txt": patch_component_cmake,
+        "components/furi_hal/furi_hal_spi_types.h": patch_spi_types,
+        "components/furi_hal/furi_hal_spi.c": patch_spi,
+        "components/furi_hal/furi_hal_resources.h": patch_resources_h,
+        "components/furi_hal/furi_hal_resources.c": patch_resources_c,
         "fam_config.py": patch_fam_config,
         "build_diy.sh": patch_build,
+        "sdkconfig.defaults.esp32s3": patch_sdkconfig,
     }
     prepared = {p: fn((root / p).read_text(encoding="utf-8")) for p, fn in changes.items()}
     # The common DIY patch starts from ST7789. Replace that Pinout explicitly
     # so CS, SPI rate, and the generated board identity match the ST7735S.
     pinout = profile.read_text(encoding="utf-8")
-    for pair in ("SPI_SCK=12", "SPI_MOSI=11", "LCD_CS=-1", "LCD_DC=15", "LCD_RST=16",
-                 "SD_SCK=40", "SD_MOSI=39", "SD_MISO=38", "SD_CS=14"):
+    for pair in ("SPI_SCK=12", "SPI_MOSI=11", "SPI_MISO=13", "LCD_CS=-1", "LCD_DC=15", "LCD_RST=16",
+                 "SD_SCK=40", "SD_MOSI=39", "SD_MISO=38", "SD_CS=14",
+                 "CC1101_CS=43", "CC1101_SCK=9", "CC1101_MOSI=10", "CC1101_MISO=21",
+                 "CC1101_GDO0=13", "NRF24_SCK=41", "NRF24_MOSI=42", "NRF24_MISO=47",
+                 "NRF24_CS=1", "NRF24_CE=2", "NFC_SDA=-1", "NFC_SCL=-1",
+                 "IR_TX=-1", "IR_RX=-1", "RFID_TX=-1", "RFID_RX=-1"):
         if pair not in pinout.splitlines():
             raise ValueError(f"Expected tested pin setting {pair}")
     for p, content in prepared.items():
@@ -287,6 +423,10 @@ def main():
         "#define BOARD_PIN_LCD_CS   UINT16_MAX", "#define BOARD_PIN_BTN_OK     8",
         "#define BOARD_SD_SPI_HOST SPI3_HOST", "#define BOARD_PIN_SD_MISO2 38",
         "#define BOARD_PIN_SD_MOSI  39", "#define BOARD_PIN_SD_SCK   40", "#define BOARD_PIN_SD_CS    14",
+        "#define BOARD_PIN_CC1101_CSN  43", "#define BOARD_PIN_CC1101_GDO0 13",
+        "#define BOARD_PIN_NRF24_SCK  41", "#define BOARD_PIN_NRF24_MISO 47",
+        "#define BOARD_PIN_NRF24_MOSI 42", "#define BOARD_NRF24_SPI_SEPARATE 1",
+        "#define BOARD_PIN_NRF24_CSN  1", "#define BOARD_PIN_NRF24_CE   2",
     )
     missing = [item for item in required if item not in board]
     geometries = (
