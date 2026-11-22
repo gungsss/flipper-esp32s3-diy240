@@ -390,6 +390,14 @@ def patch_app_guards(root):
          "    app->module_detected = module_detected;\n",
          "keep nRF24 menu available when probe fails"),
     ])
+    # Emit hardware-backed serial diagnostics on initial module probe.
+    patch_file(root, "applications/main/nrf24/nrf24_app.c", [
+        ("    app->module_detected = module_detected;\\n",
+         "    app->module_detected = module_detected;\\n"
+         "    FURI_LOG_I(\\\"M4145-RF\\\", \\\"nRF24 initial SPI probe: %s\\\",\\n"
+         "               module_detected ? \\\"detected\\\" : \\\"missing\\\");\\n",
+         "record initial nRF24 hardware probe in firmware log"),
+    ])
     patch_file(root, "applications/main/nrf24/nrf24_app.h", [
         ("    Nrf24JamState jam;\n",
          "    Nrf24JamState jam;\n"
@@ -657,6 +665,11 @@ def patch_nrf24_passive_test_menu(root):
          "                app->module_detected ? \"Module status: detected\" : \"Module status: missing\");\n"
          "            m4145_show_module_notice(\n",
          "refresh the visible nRF24 status label"),
+        ("            app->module_detected = nrf24_hw_probe();\\n",
+         "            app->module_detected = nrf24_hw_probe();\\n"
+         "            FURI_LOG_I(\\\"M4145-RF\\\", \\\"nRF24 manual SPI probe: %s\\\",\\n"
+         "                       app->module_detected ? \\\"detected\\\" : \\\"missing\\\");\\n",
+         "log manual nRF24 hardware probe"),
     ])
 
 
